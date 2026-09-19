@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C37 complete; Preserve Rust panic diagnostics after terminal restoration.
+- Current unit: C38 complete; preserve confirmed state from superseded mutation replies.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -18,6 +18,10 @@ boundary, and no daemon or separate runtime is required.
 Caught Rust panics report an interface failure after terminal restoration, with
 up to 512 payload characters sanitized by the existing terminal text filter and
 an ellipsis when truncated. Non-text or unprintable payloads have explicit diagnostics.
+
+Superseded control replies still merge confirmed store, player and volume state
+through the existing sequence checks. They leave newer UI intentions, loading and
+feedback alone; superseded reads and failures remain excluded.
 
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.

@@ -10,6 +10,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 - [x] Catalog search, details and Home use existing account authentication without developer keys.
 - [x] Native playback, exact song transitions, queue controls and library reads work.
 - [x] Saved playlists/favorites/history, LRCLIB lyrics and device controls are implemented.
+- [x] Superseded saves retain confirmed state after a later failure; stale reads stay excluded.
 - [x] Approved themes, panels, transparency, animations and keyboard/mouse behavior are retained.
 - [x] Behavior, contract, terminal and publication checks exist.
 - [x] Rust panics leave a bounded, terminal-safe cause after terminal restoration.
@@ -18,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C37 — Preserve Rust panic diagnostics after terminal restoration.
+- [x] C38 — Preserve confirmed state from superseded mutation replies.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

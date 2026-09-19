@@ -417,13 +417,15 @@ mod tests {
         assert_eq!(app.data.volume.as_ref().unwrap().level, Some(0.5));
         let mut volume = app.data.volume.clone().unwrap();
         volume.level = Some(0.55);
-        assert!(!app.receive(Event {
+        assert!(app.receive(Event {
             version: 1,
             id: Some(first),
             sequence: 1,
             event: Notice::Volume(volume.clone())
         }));
+        assert_eq!(app.data.volume.as_ref().unwrap().level, Some(0.55));
         assert!(app.wanted_volume.is_some());
+        assert!(app.data.loading.contains(&Target::Volume));
         volume.level = Some(0.6);
         app.receive(Event {
             version: 1,
