@@ -14,12 +14,12 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Area | Result |
 | :--- | :--- |
 | Swift | Offline behavior suite passes; live lyrics lookup remains opt-in |
-| Rust | 55 frontend tests and 3 tooling checks; rustfmt and Clippy with warnings denied pass |
+| Rust | Frontend and tooling behavior suites, rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
 | Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
-| Public source | Source/history sensitive-pattern scans pass; no credential values are printed |
+| Public source | Source/history sensitive-pattern scans pass; a temporary Git repository checks leading-whitespace paths, archive inclusion, rename-independent secret detection and missing-file failure; no credential values are printed |
 
 Demo media contain original synthetic music data, generated cover art and original
 lyrics. Visual snapshots and timing thresholds are not development gates. PTY
