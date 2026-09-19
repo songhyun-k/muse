@@ -27,6 +27,8 @@ and tag-lookup failures before any release upload or tap write.
 Demo media contain original synthetic music data, generated cover art and original
 lyrics. Visual snapshots and timing thresholds are not development gates. PTY
 checks use temporary `MUSE_STATE_DIR` directories and preserve real user data.
+The panic diagnostic check covers string and non-text payloads, Unicode-safe
+truncation, and removal of terminal controls from the cause reported after unwinding.
 
 ## Native services
 

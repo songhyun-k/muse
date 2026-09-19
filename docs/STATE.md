@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C36 complete; Normalize sanitized lyrics and wrap at valid UTF-8 boundaries.
+- Current unit: C37 complete; Preserve Rust panic diagnostics after terminal restoration.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -14,6 +14,10 @@ One Swift executable links the Ratatui static library. Swift owns domain data,
 MusicKit, providers and persistence; Rust owns UI state and terminal I/O. Generated
 DTOs follow contract/api.json. No backend/frontend implementation imports cross the
 boundary, and no daemon or separate runtime is required.
+
+Caught Rust panics report an interface failure after terminal restoration, with
+up to 512 payload characters sanitized by the existing terminal text filter and
+an ellipsis when truncated. Non-text or unprintable payloads have explicit diagnostics.
 
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.
