@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C33 — Preserve Git source paths through sensitive-pattern audits and source archives.
+- [x] C34 — Reject existing destination release tags before publication.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

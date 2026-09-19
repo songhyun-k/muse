@@ -21,6 +21,9 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
 | Public source | Source/history sensitive-pattern scans pass; a temporary Git repository checks leading-whitespace paths, archive inclusion, rename-independent secret detection and missing-file failure; no credential values are printed |
 
+Publication's offline command-stub check rejects existing destination version tags
+and tag-lookup failures before any release upload or tap write.
+
 Demo media contain original synthetic music data, generated cover art and original
 lyrics. Visual snapshots and timing thresholds are not development gates. PTY
 checks use temporary `MUSE_STATE_DIR` directories and preserve real user data.

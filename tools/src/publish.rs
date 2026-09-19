@@ -51,6 +51,15 @@ fn validate(version: &str) -> Result<(String, Vec<PathBuf>)> {
         remote.split_whitespace().next() == Some(head.as_str()),
         "Publish current remote main only",
     )?;
+    ensure(
+        output(Command::new("git").args([
+            "ls-remote",
+            &format!("https://github.com/{REPO}.git"),
+            &format!("refs/tags/v{version}"),
+        ]))?
+        .is_empty(),
+        "Release tag already exists; publish a new version",
+    )?;
     let report: Value = serde_json::from_slice(&fs::read("dist/release.json")?)?;
     verify_report(&report, version, &head)?;
     let archive = PathBuf::from("dist/muse-macos-arm64.tar.gz");
