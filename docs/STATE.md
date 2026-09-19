@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C01 complete; public source import with original synthetic media.
+- Current unit: C02 complete; native diagnostic callbacks explicitly retain main-actor isolation.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

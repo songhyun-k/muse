@@ -23,7 +23,7 @@ enum NativeAcceptance {
       service.close()
     }
     var id: UInt64 = 0
-    func request(_ command: Command) async throws -> Notice {
+    @MainActor func request(_ command: Command) async throws -> Notice {
       id += 1
       let event = await service.handle(
         try Wire.encode(Request(version: apiVersion, id: id, command: command)))
