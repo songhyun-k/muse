@@ -44,6 +44,6 @@ the version from main. An existing version is never overwritten.
 
 The local path is `cargo xtask check`, `cargo xtask release`,
 `cargo xtask audit --export`, then `cargo xtask publish --publish`.
-Without flags, cargo xtask publish only validates and creates the formula/checksum files.
+Without flags, `cargo xtask publish` only validates and creates the formula/checksum files.
 After publication, `cargo xtask publish --update-tap` updates the exact
 version/checksum in the tap through the maintainer's `gh` login.
