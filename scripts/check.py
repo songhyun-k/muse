@@ -81,8 +81,7 @@ def main():
     if (ROOT / "tools/Cargo.toml").exists():
         run("cargo", "xtask", "generate", "--check")
     if args.full:
-        if (ROOT / "scripts/embed_demo.py").exists():
-            run("cargo", "xtask", "demo", "--check")
+        run("cargo", "xtask", "demo", "--check")
         if (ROOT / "scripts/build.py").exists():
             run(sys.executable, "scripts/build.py")
             run(sys.executable, "scripts/build_publish_test.py")
