@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C23 — Verify terminal restoration before the macOS PTY session closes.
+- [x] C24 — Package and inspect optimized standalone releases with Rust tooling.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
