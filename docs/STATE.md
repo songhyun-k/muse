@@ -1,7 +1,7 @@
 # Current state
 
-- Current unit: C14 complete; commit subjects have no required prefix. Checklist,
-  commit-size and fifth-commit inspection gates remain active.
+- Current unit: C15 complete; Remove frozen visual baselines and render-time gates.
+
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
 - The primary agent implements and inspects directly; no Workers or review agents.
@@ -28,8 +28,7 @@ Nerd/fallback icons, keyboard/mouse and reduced motion. `,` opens a live setting
 and lyrics remain untranslated. English lyric wrapping preserves words.
 
 Demo data is original and fictional. Metadata lives in backend/Fixtures/demo.json;
-a small generator creates artwork and embeds the complete corpus. Production code
-never reads tests/reference or neighboring repositories.
+a small generator creates artwork and embeds the complete corpus. Production code uses embedded assets without reading neighboring repositories.
 
 ## Public preparation
 
@@ -39,9 +38,7 @@ notes, language docs and a macOS CI workflow are present. Dependency license tex
 are bundled with the Apple Silicon preview archive. Hosted macOS 15 CI passes the
 full offline suite and optimized packaging checks on Swift 6.1.2.
 
-The approved references cover both languages at 80×24 and 140×40, with all views,
-five themes and panel/focus/motion variants. [VALIDATION](VALIDATION.md) records the
-current test results and remaining account/distribution limits.
+[VALIDATION](VALIDATION.md) describes retained behavior checks and account/distribution limits.
 
 Current source and sensitive-pattern scans pass. Public main and source archives
 contain only original demo media. Private development history remains local.

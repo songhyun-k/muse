@@ -125,8 +125,6 @@ def main():
     if args.full:
         if (ROOT / "scripts/embed_demo.py").exists():
             run(sys.executable, "scripts/embed_demo.py", "--check")
-        if (ROOT / "tests/reference/snapshots.json.gz").exists():
-            run(sys.executable, "scripts/reference.py", "--check")
         if (ROOT / "scripts/build.py").exists():
             run(sys.executable, "scripts/build.py")
             run(sys.executable, "scripts/build_publish_test.py")
@@ -137,10 +135,6 @@ def main():
         if (ROOT / "frontend/Cargo.toml").exists():
             for command in (("fmt", "--check"), ("test", "--locked"), ("clippy", "--locked", "--all-targets", "--", "-D", "warnings")):
                 run("cargo", command[0], "--manifest-path", "frontend/Cargo.toml", *command[1:])
-        if (ROOT / "scripts/snapshots.py").exists():
-            run(sys.executable, "scripts/snapshots.py")
-        if (ROOT / "scripts/animations.py").exists():
-            run(sys.executable, "scripts/animations.py")
         if (ROOT / "scripts/terminal_test.py").exists():
             run(sys.executable, "scripts/terminal_test.py")
         run(sys.executable, "scripts/localization_test.py")

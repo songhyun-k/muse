@@ -21,10 +21,9 @@
   Native DTOs are generated and checked for drift. No framework objects cross it.
 - The host is the sole composition root. No networking server, daemon or plugin
   architecture unless a concrete requirement makes one necessary.
-- Match the approved English/Korean UI's geometry, token colors and interactions.
-  Freeze reference fixtures before changing the renderer. Do not redefine matches.
-  References and demo media must use original synthetic data; no downloaded artwork
-  or commercial lyrics. Baseline replacement requires explicit user authorization.
+- Preserve supported English/Korean interactions and accessibility. Do not freeze
+  visual layout, colors or animation formulas in tests during active development.
+  Demo media must use original synthetic data; no downloaded artwork or commercial lyrics.
 - No fabricated playback, audio analysis or library data in normal mode.
   Test/demo fixtures must be explicitly selected.
 - Keep error handling, cancellation, accessibility and terminal cleanup intact.

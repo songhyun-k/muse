@@ -11,13 +11,13 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 - [x] Native playback, exact song transitions, queue controls and library reads work.
 - [x] Saved playlists/favorites/history, LRCLIB lyrics and device controls are implemented.
 - [x] Approved themes, panels, transparency, animations and keyboard/mouse behavior are retained.
-- [x] Deterministic unit, contract, reference-cell, terminal and publication checks exist.
+- [x] Behavior, contract, terminal and publication checks exist.
 - [x] All documents describe current code, with an accurate feature supply map.
 - [x] The final inspected source has a verified optimized executable and matching release report.
 
 ## Current unit and remaining work
 
-- [x] C14 — Commit subjects have no required prefix; checklist and review gates remain active.
+- [x] C15 — Remove frozen visual baselines and render-time gates.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
@@ -43,7 +43,7 @@ an applicable current size exception in commit-exceptions.json.
 - [x] `,` opens live language, theme, background, icons, motion and panel settings.
 - [x] Existing UI preferences persist changes without backend-schema changes.
 - [x] Keyboard, mouse, bilingual narrow/wide layouts and all themes are verified.
-- [x] Footer/help settings hints are visible and clickable; all other reference cells stay exact.
+- [x] Footer/help settings hints are visible and clickable.
 - [x] Optimized linked executable and final settings journey pass.
 
 ## Distribution acceptance
