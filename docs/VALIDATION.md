@@ -16,6 +16,7 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Swift | Offline behavior suite passes; live lyrics lookup remains opt-in |
 | Rust | Frontend and tooling behavior suites, rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
+| Scheduling | Suspended lyric/collection preparation permits pause, seek and volume; storage, playback and volume order and play dependencies are checked offline |
 | Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
 | Storage / build publication | Atomic writes, locked/corrupt-store bootstrap and visible errors, file preservation, open inode preservation and failed-probe rollback pass |

@@ -41,6 +41,12 @@ Each message is at most 1 MiB. Closing rejects new work, cancels pending work an
 wakes the UI; no callback may outlive its context. Saturation and exit are tested.
 Dragging coalesces unsent seek/volume intent on the frontend.
 
+Mutations are ordered by the state they affect: library (including lyrics),
+playback/queue and volume. Slow lyric or collection preparation holds only the
+library order. Play joins library and playback order because it can consume saved
+collections; authorization joins both because it affects provider access. Reads
+remain concurrent, and only read requests accept explicit cancellation.
+
 ## Public backend schema
 
 `contract/api.json` defines protocol version, records, enums and tagged messages.

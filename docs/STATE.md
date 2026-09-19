@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C43 complete; Reset the login episode after authenticated catalog detail recovery.
+- Current unit: C44 complete; Keep playback and volume responsive during lyric and collection preparation.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -43,6 +43,10 @@ corrupt files continue to return storage errors without being overwritten.
 Locked or corrupt app storage leaves bootstrap as an explicit failure while session,
 player and volume arrive through independent events. The failure remains a visible
 notification after the main list loads; no empty successful store replaces missing data.
+
+The scheduler preserves mutation order separately for storage, playback/queue and
+volume. Network preparation for lyrics or saved collections does not hold playback
+controls or volume. Play and authorization retain ordering across storage and playback.
 
 The Korean/English UI has a persistent language choice (`I` / `--language`), five
 token themes, independent panels, visible focus headers, terminal transparency,

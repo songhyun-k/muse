@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C43 — Reset the login episode after authenticated catalog detail recovery.
+- [x] C44 — Keep playback and volume responsive during lyric and collection preparation.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

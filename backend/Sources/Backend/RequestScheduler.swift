@@ -13,7 +13,7 @@ final class RequestScheduler {
   }
   private var jobs: [UInt64: Job] = [:]
   private var running: Set<UUID> = []
-  private var mutationTail: Task<Void, Never>?
+  private var mutationTails: [MutationDomain: Task<Void, Never>] = [:]
   private var sequence: UInt64 = 0
   private var closed = false
   private let operation: @MainActor (Request) async throws -> Notice
@@ -39,12 +39,12 @@ final class RequestScheduler {
       guard running.count < 16 else {
         throw Failure(code: .busy, message: "잠시 후 다시 시도해주세요", retryable: true)
       }
-      let readOnly = request.command.isReadOnly
-      let previous = readOnly ? nil : mutationTail
+      let domains = request.command.mutationDomains
+      let previous = domains.compactMap { mutationTails[$0] }
       let token = UUID()
       let operation = self.operation
       let task = Task { [weak self] in
-        if let previous { await previous.value }
+        for task in previous { await task.value }
         let result: Result<Notice, Error>
         do {
           try Task.checkCancellation()
@@ -54,9 +54,9 @@ final class RequestScheduler {
         }
         self?.finish(request.id, token: token, result: result)
       }
-      jobs[request.id] = Job(token: token, task: task, readOnly: readOnly, reply: reply)
+      jobs[request.id] = Job(token: token, task: task, readOnly: domains.isEmpty, reply: reply)
       running.insert(token)
-      if !readOnly { mutationTail = task }
+      for domain in domains { mutationTails[domain] = task }
     } catch {
       let recovered = id ?? Wire.requestID(in: data)
       let available = recovered.flatMap { jobs[$0] == nil ? $0 : nil }
@@ -71,7 +71,7 @@ final class RequestScheduler {
       emit(.failure(cancelled()), id: id, reply: job.reply)
     }
     jobs.removeAll()
-    mutationTail = nil
+    mutationTails.removeAll()
   }
 
   func notify(_ notice: Notice, reply: Reply) {
@@ -163,11 +163,26 @@ final class RequestScheduler {
   }
 }
 
+private enum MutationDomain {
+  case library, playback, volume
+}
+
 extension Command {
-  fileprivate var isReadOnly: Bool {
+  fileprivate var mutationDomains: [MutationDomain] {
     switch self {
-    case .snapshot, .search, .browse, .detail, .queue, .lyrics, .lyricsSearch, .artwork: true
-    default: false
+    case .snapshot, .search, .browse, .detail, .queue, .lyrics, .lyricsSearch, .artwork, .cancel:
+      []
+    case .collectionCreate, .collectionUpdate, .collectionDelete, .collectionAdd,
+      .collectionRemove, .collectionMove, .collectionCopy, .favorite, .lyricsChoose, .lyricsOffset:
+      [.library]
+    case .control, .seek, .mode, .queueRemove, .queueMove, .queueJump, .queueClear:
+      [.playback]
+    case .volume:
+      [.volume]
+    case .play, .authorize:
+      // Play consumes saved collections; authorization affects provider access.
+      // Keep their order with both domains without blocking independent volume changes.
+      [.library, .playback]
     }
   }
 }
