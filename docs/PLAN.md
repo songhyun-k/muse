@@ -17,11 +17,10 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C06 — Visible settings entry points, help and regression coverage.
-- [ ] C07 — Login, Homebrew and branch/release acceptance plan.
-- [ ] C08 — Typed account recovery states and permitted system actions.
-- [ ] C09 — Login guidance, account recheck and recovery actions.
-- [ ] C10 — First-run and returning-user journey checks.
+- [x] C07 — Login, Homebrew and branch/release acceptance plan.
+- [ ] C08 — Typed missing-login error and direct Music app handoff.
+- [ ] C09 — Login retry behavior and interruption-safe handoff checks.
+- [ ] C10 — Current distribution documentation and simplification review.
 - [ ] C11 — Versioned release packaging and repeatable publication.
 - [ ] C12 — Homebrew tap, installation and upgrade validation.
 - [ ] C13 — Release publication, repository rules and current documentation.
@@ -53,3 +52,19 @@ an applicable current size exception in commit-exceptions.json.
 - [x] Keyboard, mouse, bilingual narrow/wide layouts and all themes are verified.
 - [x] Footer/help settings hints are visible and clickable; all other reference cells stay exact.
 - [x] Optimized linked executable and final settings journey pass.
+
+## Distribution acceptance
+
+- [ ] Missing-login errors show one short message and open Music directly.
+- [ ] Handoff happens once per failed-login episode; no password/token input in muse.
+- [ ] Returning users retry the original action; playlists and preferences are preserved.
+- [ ] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
+- [ ] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
+- [ ] Homebrew upgrade changes the executable without deleting user data.
+- [ ] Releases use immutable version tags and a verified, clean main commit.
+- [ ] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
+- [ ] User documents describe supported usage without untested-platform disclaimers.
+
+Each unit must pass the dependency/contract gate and affected behavior checks.
+No native playback or account sign-out is used for automation. Final acceptance
+includes actual brew installation, version/probe checks, CI, and release checksums.

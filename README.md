@@ -31,7 +31,7 @@ Your library, a quiet queue, and lyrics that follow along — in your terminal.
 
 ## Get started
 
-**macOS 14+**, an Apple Music account and a UTF-8 terminal. Catalog playback requires an active Apple Music subscription. Apple Silicon is the tested build target; Intel is not yet verified.
+**macOS 14+**, an Apple Music account and a UTF-8 terminal. Catalog playback requires an active Apple Music subscription. Built for Apple Silicon.
 
 [Download the Apple Silicon preview](https://github.com/songhyun-k/muse/releases/tag/v0.1.0), extract the archive, then run `./muse`. The preview is ad-hoc signed and not notarized; macOS may require approval in **System Settings → Privacy & Security**.
 

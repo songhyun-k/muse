@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C06 complete; settings are visible, clickable and covered by bilingual checks.
+- Current unit: C07 complete; next-scope boundaries and distribution checks are defined.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

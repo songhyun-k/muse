@@ -15,7 +15,7 @@
 ## 시작하기
 
 macOS 14 이상과 Apple Music 계정을 사용합니다. 카탈로그 재생에는 구독이 필요합니다.
-Apple Silicon에서 검증했으며 Intel 빌드는 아직 검증하지 않았습니다.
+Apple Silicon Mac에서 사용할 수 있습니다.
 
 [Apple Silicon 미리보기 다운로드](https://github.com/songhyun-k/muse/releases/tag/v0.1.0)에서 압축을 풀고 `./muse`로 실행합니다. 임시 서명된 공증 전 빌드이므로 macOS의 **시스템 설정 → 개인정보 보호 및 보안**에서 실행 승인이 필요할 수 있습니다.
 
