@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C15 complete; Remove frozen visual baselines and render-time gates.
+- Current unit: C16 complete; Keep behavior tests without visual matrices or interpolation formulas.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

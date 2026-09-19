@@ -95,7 +95,7 @@ mod tests {
             art::ArtCache,
             geometry::Visual,
             scene::Scene,
-            state::{Data, NAV, Ui, View},
+            state::{Data, Ui},
             theme::Palette,
         };
         let render = |ui: &Ui, data: &Data, width, height| {
@@ -112,23 +112,6 @@ mod tests {
                 .map(|cell| cell.symbol())
                 .collect::<String>()
         };
-        for view in NAV.into_iter().chain([View::Detail, View::Lyrics]) {
-            for (width, height) in [(80, 24), (140, 40)] {
-                for help in [false, true] {
-                    let ui = Ui {
-                        language: Language::English,
-                        view,
-                        help,
-                        ..Ui::default()
-                    };
-                    let screen = render(&ui, &Data::default(), width, height);
-                    assert!(
-                        !screen.chars().any(|c| ('가'..='힣').contains(&c)),
-                        "Korean UI in {view:?}"
-                    );
-                }
-            }
-        }
         let mut ui = Ui {
             language: Language::English,
             ..Ui::default()
