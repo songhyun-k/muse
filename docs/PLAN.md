@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C25 — Audit and export public source without Python or source-shape rules.
+- [x] C26 — Validate immutable release inputs and retain explicit publication and tap flags.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
