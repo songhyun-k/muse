@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C22 — Add a focused native PTY cleanup check and remove obsolete fixture adapters.
+- [x] C23 — Verify terminal restoration before the macOS PTY session closes.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

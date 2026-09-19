@@ -3,20 +3,17 @@ use std::{
     fs::{self, File},
     io::{self, Read, Write},
     mem::MaybeUninit,
-    os::{
-        fd::{AsRawFd, FromRawFd},
-        unix::process::CommandExt,
-    },
+    os::{fd::FromRawFd, unix::process::CommandExt},
     path::Path,
     process::{Command, Stdio},
     thread,
     time::{Duration, Instant},
 };
 
-fn attributes(file: &File) -> io::Result<libc::termios> {
+fn attributes(fd: i32) -> io::Result<libc::termios> {
     let mut value = MaybeUninit::uninit();
     // SAFETY: tcgetattr initializes this termios for a live PTY descriptor.
-    if unsafe { libc::tcgetattr(file.as_raw_fd(), value.as_mut_ptr()) } != 0 {
+    if unsafe { libc::tcgetattr(fd, value.as_mut_ptr()) } != 0 {
         return Err(io::Error::last_os_error());
     }
     Ok(unsafe { value.assume_init() })
@@ -71,14 +68,14 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
         },
         "Cannot configure PTY",
     )?;
-    let before = attributes(&slave)?;
     let state = tempfile::tempdir()?;
     for name in ["ui.json", "library.json"] {
         fs::write(state.path().join(name), "keep user data")?;
     }
-    let mut command = Command::new(binary);
+    let mut command = Command::new(std::env::current_exe()?);
     command
-        .args(["--demo", "--plain-icons", "--reduced-motion"])
+        .arg("__pty-child")
+        .arg(binary)
         .current_dir(binary.parent().ok_or("Missing binary directory")?)
         .env("MUSE_STATE_DIR", state.path())
         .env("TERM", "xterm-256color")
@@ -96,7 +93,7 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
             Ok(())
         });
     }
-    let mut child = command.spawn()?;
+    let mut child = command.spawn().map_err(|e| format!("PTY spawn: {e}"))?;
     let result = (|| -> Result {
         let mut output = Vec::new();
         let start = Instant::now();
@@ -113,7 +110,7 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
             {
                 if let Some(signal) = signal {
                     ensure(
-                        unsafe { libc::kill(child.id() as i32, signal) } == 0,
+                        unsafe { libc::kill(native_pid(&output)?, signal) } == 0,
                         "Cannot interrupt demo",
                     )?;
                 } else {
@@ -125,7 +122,10 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
                 drain(&mut master, &mut output)?;
                 ensure(
                     sent && status.code() == Some(signal.map_or(0, |s| 128 + s)),
-                    "Unexpected PTY exit status",
+                    &format!(
+                        "Unexpected PTY exit status: {status}; {}",
+                        String::from_utf8_lossy(&output[output.len().saturating_sub(300)..])
+                    ),
                 )?;
                 break;
             }
@@ -135,15 +135,8 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
             )?;
             thread::sleep(Duration::from_millis(10));
         }
-        let after = attributes(&slave)?;
         ensure(
-            before.c_iflag == after.c_iflag
-                && before.c_oflag == after.c_oflag
-                && before.c_cflag == after.c_cflag
-                && before.c_lflag == after.c_lflag
-                && before.c_cc == after.c_cc
-                && before.c_ispeed == after.c_ispeed
-                && before.c_ospeed == after.c_ospeed,
+            contains(&output, b"PTY_RESTORED"),
             "Terminal attributes were not restored",
         )?;
         for sequence in [
@@ -163,7 +156,10 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
         Ok(())
     })();
     if result.is_err() {
-        let _ = child.kill();
+        // The supervisor created this private process group; include its demo child.
+        unsafe {
+            libc::kill(-(child.id() as i32), libc::SIGKILL);
+        }
         let _ = child.wait();
     }
     result
@@ -181,4 +177,41 @@ pub fn check(binary: &Path) -> Result {
     }
     println!("Demo exit, signal cleanup and saved-data isolation passed");
     Ok(())
+}
+
+fn native_pid(output: &[u8]) -> Result<i32> {
+    let text = String::from_utf8_lossy(output);
+    let value = text.split("PTY_CHILD=").nth(1).ok_or("Missing PTY child")?;
+    Ok(value
+        .split_whitespace()
+        .next()
+        .ok_or("Missing PTY pid")?
+        .parse()?)
+}
+
+pub fn child(binary: &Path) -> Result<i32> {
+    let before = attributes(libc::STDIN_FILENO)?;
+    let mut child = Command::new(binary)
+        .args(["--demo", "--plain-icons", "--reduced-motion"])
+        .current_dir(binary.parent().ok_or("Missing binary directory")?)
+        .spawn()?;
+    println!("PTY_CHILD={}", child.id());
+    let status = child.wait()?;
+    // macOS revokes the PTY when its session leader exits. Inspect it while this
+    // supervising process still owns the session and the application has exited.
+    let after = attributes(libc::STDIN_FILENO)?;
+    ensure(
+        before.c_iflag == after.c_iflag
+            && before.c_oflag == after.c_oflag
+            && before.c_cflag == after.c_cflag
+            && before.c_lflag == after.c_lflag
+            && before.c_cc == after.c_cc
+            && before.c_ispeed == after.c_ispeed
+            && before.c_ospeed == after.c_ospeed,
+        "Terminal attributes were not restored",
+    )?;
+    println!("PTY_RESTORED");
+    status
+        .code()
+        .ok_or_else(|| "Demo was terminated without cleanup".into())
 }
