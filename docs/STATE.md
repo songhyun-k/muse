@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C25 complete; Audit and export public source without Python or source-shape rules.
+- Current unit: C26 complete; Validate immutable release inputs and retain explicit publication and tap flags.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

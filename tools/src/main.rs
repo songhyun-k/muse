@@ -4,6 +4,7 @@ mod demo;
 mod generate;
 mod package;
 mod process;
+mod publish;
 mod terminal;
 
 use process::{Result, ensure};
@@ -26,6 +27,7 @@ fn execute() -> Result {
     }
     let allowed: &[&str] = match command {
         "build" => &["--release"],
+        "publish" => &["--publish", "--update-tap"],
         "audit" => &["--history", "--export"],
         "generate" | "demo" => &["--check"],
         "release" | "terminal" | "previews" | "check-publication" | "--help" => &[],
@@ -44,6 +46,10 @@ fn execute() -> Result {
         "check-publication" => build::check_publication(),
         "previews" => demo::previews(),
         "release" => package::release(),
+        "publish" => publish::publish(
+            args.iter().any(|a| a == "--publish"),
+            args.iter().any(|a| a == "--update-tap"),
+        ),
         "audit" => audit::audit(
             args.iter().any(|a| a == "--history"),
             args.iter().any(|a| a == "--export"),
