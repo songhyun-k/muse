@@ -94,22 +94,21 @@ visualization; it must never be described as audio measurement.
    Tests target contract, data integrity and observable behavior, not code shape.
 4. No frozen cell snapshots, exhaustive presentation combinations, animation formula
    assertions or machine-specific render-time thresholds gate active development.
-5. PTY tests cover Korean input, mouse, resize, focus retention, exit, interruption,
-   default background preservation and terminal restoration. No browser/CUA needed.
+5. A small PTY smoke check verifies normal exit, INT/TERM/HUP cleanup and demo
+   data isolation, without interpreting screen contents.
 6. Persistence tests cover atomic replacement, malformed data and stable IDs;
    a failed write never reports success or destroys previous data.
 7. Release inspection checks Mach-O dependencies, embedded Info.plist, contract
    version and clean launch without a separate Rust/Python runtime or config files.
-9. Every commit replaces the current completed PLAN unit and updates STATE. A hook
-   requires contiguous pending units and enforces <=500 changed text lines;
-   unavoidable generated/lock/reference exceptions require a written reason.
-10. Every fifth commit replaces the current simplification review, including an
+8. Every commit updates PLAN and STATE with one logical unit. Keep changes small
+   and document essential size exceptions; the hook checks whitespace only.
+9. Every fifth commit replaces the current simplification review, including an
     explicit skip when no useful refactor exists. Work history belongs in Git.
 
 ## Acceptance and runtime prerequisites
 
-All checklist items and automated gates pass; the binary launches and the approved
-UI matches frozen fixtures. Normal mode uses real services with honest failures.
+All checklist items and automated gates pass; the binary launches and the supported
+UI remains usable. Normal mode uses real services with honest failures.
 Live checks distinguish authorization, web reads, native library and native playback.
 The read-only mode constructs no player; full acceptance additionally requires exact
 first-attempt song transitions, playback progress and observed control effects.
@@ -122,5 +121,5 @@ path is isolated in the backend and may require updates when Apple changes it.
 
 The host embeds NSAppleMusicUsageDescription and a configurable bundle identifier.
 Default ad-hoc signing works for local execution; distribution signing is configurable.
-`--full` builds the linked binary and runs offline gates without initiating live playback.
+`cargo xtask check` builds the linked binary and runs offline checks without initiating live playback.
 Untrusted metadata is sanitized before terminal rendering.

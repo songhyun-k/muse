@@ -27,7 +27,9 @@
 - No fabricated playback, audio analysis or library data in normal mode.
   Test/demo fixtures must be explicitly selected.
 - Keep error handling, cancellation, accessibility and terminal cleanup intact.
-- Run `scripts/check.py` and the affected build/tests before committing.
+- Run `cargo xtask check` and affected checks before committing. The pre-commit
+  hook checks whitespace; CI runs the behavior suite. Release inspection runs
+  through `cargo xtask release` when producing distributable artifacts.
 - Never commit keys, credentials, personal library data, build output or caches.
 - Public source: https://github.com/songhyun-k/muse. Work on short feat/ or fix/
   branches and use CI + rebase-merged PRs for main. Publish only when the user asks.

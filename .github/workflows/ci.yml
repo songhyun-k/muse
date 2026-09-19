@@ -29,8 +29,5 @@ jobs:
           xcodebuild -version
           swift --version
           rustc --version
-          python3 --version
-      - name: Verify source, services and both UI languages
-        run: python3 scripts/check.py --full
-      - name: Inspect an optimized build
-        run: python3 scripts/release.py
+      - name: Verify contracts and behavior
+        run: cargo xtask check

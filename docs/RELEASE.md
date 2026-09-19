@@ -12,11 +12,11 @@ return to the terminal after signing in and retry the action.
 
 The app targets macOS 14+. Apple Silicon is tested locally and in hosted macOS 15
 CI with Xcode 16.4 / Swift 6.1.2. Building requires
-Xcode with Swift 6, Rust 1.88+ and Python 3.11+.
+Xcode with Swift 6 and Rust 1.88+.
 The resulting executable uses macOS frameworks and needs no extra language runtime.
 
 ```sh
-python3 scripts/build.py --release
+cargo xtask build --release
 ./dist/muse --demo --language en
 ./dist/muse --language ko
 ```
@@ -67,20 +67,20 @@ export, cloud writes, downloads, audio-quality selection and Sing are not implem
 ## Verify and package
 
 ```sh
-python3 scripts/check.py --full
-python3 scripts/release.py
-python3 scripts/public_check.py --history --export
+cargo xtask check
+cargo xtask release
+cargo xtask audit --history --export
 ```
 
 The full check builds a debug binary, so packaging rebuilds the optimized executable
-last. `release.py` verifies signing, linked system libraries, embedded metadata and
+last. `cargo xtask release` verifies signing, linked system libraries, embedded metadata and
 standalone launch from a different directory. It creates `dist/muse`, an architecture-
 named binary archive (with license notices) and `dist/release.json`. The manifest reports the HEAD commit
 and whether working-tree changes were present. Optimized builds remap compiler source paths and strip debug symbols before signing.
 Archive owner IDs/names are normalized rather than exposing the build account.
 No upload occurs.
 
-`public_check.py --export` creates `dist/muse-source.tar.gz` from the current source,
+`cargo xtask audit --export` creates `dist/muse-source.tar.gz` from the current source,
 including uncommitted files but excluding Git history, build output and ignored files.
 The public main branch starts from the synthetic-media source tree. Local private
 development branches are not published. The export tool neither rewrites history
@@ -98,7 +98,7 @@ To build with an installed signing identity and a bundle identifier you own:
 ```sh
 MUSIC_BUNDLE_ID=com.yourcompany.muse \
 MUSIC_SIGN_IDENTITY='Developer ID Application: Your Name (TEAMID)' \
-python3 scripts/release.py
+cargo xtask release
 ```
 
 Notarization is a separate distribution step. See [Apple's signing guide](https://developer.apple.com/documentation/xcode/creating-distribution-signed-code-for-the-mac).

@@ -24,12 +24,12 @@ muse
 
 [실행 파일을 직접 다운로드](https://github.com/songhyun-k/muse/releases/latest)해 `./muse`로 실행할 수도 있습니다.
 
-직접 빌드하려면 Xcode / Swift 6, Rust 1.88 이상, Python 3.11 이상을 설치합니다.
+직접 빌드하려면 Xcode / Swift 6와 Rust 1.88 이상을 설치합니다.
 
 ```sh
 git clone https://github.com/songhyun-k/muse.git
 cd muse
-python3 scripts/build.py --release
+cargo xtask build --release
 ./dist/muse --language ko
 ```
 
