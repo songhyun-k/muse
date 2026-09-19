@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C31 — Use a versionless muse User-Agent for all LRCLIB requests.
+- [x] C32 — Clarify whitespace check scope and optional staged hook setup.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

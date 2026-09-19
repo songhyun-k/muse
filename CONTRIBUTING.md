@@ -19,6 +19,16 @@ cargo xtask check
 ./dist/muse --demo --language en
 ```
 
+`cargo xtask check` runs the shared offline checks used by CI, without a Git
+whitespace gate. To enable the optional local pre-commit hook for a clone:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+The hook runs `git diff --cached --check` on staged changes only. It does not
+check unstaged changes or existing commits.
+
 Generated contract types must be changed through the schema and
 `cargo xtask generate`, not edited directly. Keep labels in the [translation
 catalog](docs/LOCALIZATION.md); metadata and lyrics remain verbatim.
