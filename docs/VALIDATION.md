@@ -60,7 +60,8 @@ demo media. Private development branches remain local and are not distributed.
 
 Missing-login checks use injected app-opening actions. They verify one handoff per
 login episode, recovery after sign-in, no handoff for connectivity errors and
-retrying the original search without adding a permission step.
+retrying search, Home and song/album details without adding a permission step.
+Local favorites and cached station details do not reset a failed-login episode.
 
 ## Installed release
 

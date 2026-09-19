@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C42 — Preserve independent bootstrap state and visible errors when app storage fails.
+- [x] C43 — Reset the login episode after authenticated catalog detail recovery.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
@@ -51,7 +51,8 @@ an applicable current size exception in commit-exceptions.json.
 ## Distribution acceptance
 
 - [x] Missing-login errors show one short message and open Music directly.
-- [x] Handoff happens once per failed-login episode; no password/token input in muse.
+- [x] Handoff happens once per failed-login episode and re-arms after authenticated web reads.
+- [x] Local and cached reads do not reset login handoff; no password/token input in muse.
 - [x] Returning users retry the original action; playlists and preferences are preserved.
 - [x] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
 - [x] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
