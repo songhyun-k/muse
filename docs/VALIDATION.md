@@ -14,7 +14,7 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Area | Result |
 | :--- | :--- |
 | Swift | Offline behavior suite passes; live lyrics lookup remains opt-in |
-| Rust | 55 frontend tests and 3 tooling checks; rustfmt and Clippy with warnings denied pass |
+| Rust | 56 frontend tests and 3 tooling checks; rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |

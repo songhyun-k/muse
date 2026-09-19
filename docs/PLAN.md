@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C30 — Verify Python-free development commands and inspect the final migration.
+- [x] C31 — Preserve queue entry selection and loaded pages across revisions.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

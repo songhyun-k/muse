@@ -32,6 +32,8 @@ pub struct App {
     pub(crate) navigation_revision: u64,
     pub(crate) create_revision: Option<u64>,
     refresh_extent: usize,
+    queue_refresh_extent: usize,
+    queue_refresh_entry: Option<String>,
     history: Vec<Location>,
     outbox: VecDeque<Intent>,
 }
@@ -183,6 +185,9 @@ impl App {
             _ => {}
         }
         let revision = self.data.player.as_ref().map(|p| p.queue_revision);
+        let queue_reply = response.target == Some(Target::Queue);
+        let queue_entry = self.data.row_key(self.ui.cursors[1], true);
+        let queue_extent = self.data.queue.as_ref().map_or(0, |q| q.entries.len());
         let store_changed = matches!(
             response.notice,
             Notice::Store(_) | Notice::CollectionCreated(_)
@@ -203,8 +208,31 @@ impl App {
                     self.ui.cursors[0].min(self.data.items.len().saturating_sub(1));
             }
         }
-        if let Some(queue) = &self.data.queue {
-            self.ui.cursors[1] = self.ui.cursors[1].min(queue.entries.len().saturating_sub(1));
+        let queue_changed = self.data.player.as_ref().map(|p| p.queue_revision) != revision;
+        if queue_reply || queue_changed {
+            self.queue_refresh_entry = self.queue_refresh_entry.take().or(queue_entry);
+            self.queue_refresh_extent = self.queue_refresh_extent.max(queue_extent);
+        }
+        if queue_reply
+            && !self.data.errors.contains_key(&Target::Queue)
+            && let Some(queue) = &self.data.queue
+        {
+            let selected = self
+                .queue_refresh_entry
+                .as_ref()
+                .and_then(|id| queue.entries.iter().position(|entry| &entry.id == id));
+            if (queue.entries.len() < self.queue_refresh_extent
+                || (self.queue_refresh_entry.is_some() && selected.is_none()))
+                && let Some(offset) = queue.next_offset
+            {
+                self.queue_page(offset);
+            } else {
+                self.ui.cursors[1] = selected.unwrap_or_else(|| {
+                    self.ui.cursors[1].min(queue.entries.len().saturating_sub(1))
+                });
+                self.queue_refresh_entry = None;
+                self.queue_refresh_extent = 0;
+            }
         }
         if self.data.current().map(|i| &i.r#ref) != previous.as_ref() {
             self.invalidate_target(Target::Lyrics);
@@ -215,7 +243,7 @@ impl App {
                 self.ui.dialog = None;
             }
         }
-        if self.data.player.as_ref().map(|p| p.queue_revision) != revision {
+        if queue_changed {
             self.invalidate_target(Target::Queue);
         }
         if self
@@ -815,6 +843,140 @@ mod tests {
         app.go(View::Songs);
         assert_eq!(app.refresh_extent, 0);
         assert_eq!(app.ui.cursors[0], 0);
+    }
+
+    #[test]
+    fn queue_refresh_restores_entry_selection_before_the_next_edit() {
+        let next_request = |app: &mut App| {
+            let mut requests = vec![];
+            app.flush(|request| {
+                requests.push(request.clone());
+                Ok(Admission::Accepted)
+            })
+            .unwrap();
+            assert_eq!(requests.len(), 1);
+            requests.pop().unwrap()
+        };
+        for (index, down) in [(60, true), (49, true), (50, false), (99, false)] {
+            let mut app = App::default();
+            app.ui.focus = Focus::Right;
+            app.ui.panel = crate::state::Panel::Queue;
+            app.ui.cursors[1] = index;
+            let mut stored: Vec<_> = (0..100)
+                .map(|id| QueueEntry {
+                    id: format!("entry-{id}"),
+                    item: None,
+                })
+                .collect();
+            let mut player: PlayerState = serde_json::from_value(serde_json::json!({
+                "playing":false,"position":0,"queueCount":100,"queueRevision":1,
+                "updatedAt":0,"repeatMode":"off","shuffle":false,"canSeek":false
+            }))
+            .unwrap();
+            app.data.player = Some(player.clone());
+            app.data.queue = Some(QueuePage {
+                entries: stored.clone(),
+                next_offset: None,
+                revision: 1,
+                total: 100,
+            });
+            app.move_queue(down);
+            let edit = next_request(&mut app);
+            let Command::QueueMove(params) = edit.command else {
+                panic!("expected queue move")
+            };
+            let selected = format!("entry-{index}");
+            assert_eq!(params.entry_id, selected);
+            let entry = stored.remove(index);
+            let destination = stored
+                .iter()
+                .position(|entry| Some(&entry.id) == params.before_entry_id.as_ref())
+                .unwrap_or(stored.len());
+            stored.insert(destination, entry);
+            player.queue_revision = 2;
+            app.receive(Event {
+                version: API_VERSION,
+                id: Some(edit.id),
+                sequence: 1,
+                event: Notice::Player(player.clone()),
+            });
+            let first = next_request(&mut app);
+            assert!(
+                matches!(first.command, Command::Queue(p) if p.offset == 0 && p.revision == Some(2))
+            );
+            app.receive(Event {
+                version: API_VERSION,
+                id: Some(first.id),
+                sequence: 2,
+                event: Notice::Queue(QueuePage {
+                    entries: stored[..50].to_vec(),
+                    next_offset: Some(50),
+                    revision: 2,
+                    total: 100,
+                }),
+            });
+            assert!(app.data.loading.contains(&Target::Queue));
+            app.remove_queue();
+            let stale = next_request(&mut app);
+            assert!(
+                matches!(stale.command, Command::Queue(p) if p.offset == 50 && p.revision == Some(2))
+            );
+
+            // A newer revision interrupts restoration while the old second page is in flight.
+            stored.remove(0);
+            player.queue_revision = 3;
+            player.queue_count = 99;
+            app.receive(Event {
+                version: API_VERSION,
+                id: None,
+                sequence: 3,
+                event: Notice::Player(player),
+            });
+            assert!(!app.receive(Event {
+                version: API_VERSION,
+                id: Some(stale.id),
+                sequence: 4,
+                event: Notice::Queue(QueuePage {
+                    entries: vec![QueueEntry {
+                        id: "stale".into(),
+                        item: None
+                    }],
+                    next_offset: None,
+                    revision: 2,
+                    total: 100,
+                }),
+            }));
+            for offset in [0, 50] {
+                app.remove_queue();
+                let request = next_request(&mut app);
+                assert!(
+                    matches!(request.command, Command::Queue(p) if p.offset == offset && p.revision == Some(3))
+                );
+                let start = offset as usize;
+                let end = (start + 50).min(stored.len());
+                app.receive(Event {
+                    version: API_VERSION,
+                    id: Some(request.id),
+                    sequence: 5 + offset,
+                    event: Notice::Queue(QueuePage {
+                        entries: stored[start..end].to_vec(),
+                        next_offset: (end < stored.len()).then_some(end as u64),
+                        revision: 3,
+                        total: stored.len() as u64,
+                    }),
+                });
+            }
+            assert_eq!(app.data.queue.as_ref().unwrap().entries, stored);
+            assert_eq!(
+                app.data.row_key(app.ui.cursors[1], true),
+                Some(selected.clone())
+            );
+            assert!(app.list_ready(&Target::Queue));
+            app.remove_queue();
+            assert!(
+                matches!(next_request(&mut app).command, Command::QueueRemove(p) if p.entry_id == selected)
+            );
+        }
     }
 
     #[test]

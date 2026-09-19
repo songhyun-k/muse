@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C30 complete; Verify Python-free development commands and inspect the final migration.
+- Current unit: C31 complete; Preserve queue entry selection and loaded pages across revisions.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -18,6 +18,8 @@ boundary, and no daemon or separate runtime is required.
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.
 Native queue replacement selects a nonzero current entry only after assignment.
+The [queue UI](../frontend/src/app.rs) restores loaded pages and selection by entry ID
+after a revision changes; edits wait until the refreshed selection is ready.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
 entries return empty data and show placeholders. Lyrics use LRCLIB; Core Audio
 provides output-device volume and mute controls.
