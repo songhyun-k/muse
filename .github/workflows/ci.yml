@@ -24,6 +24,12 @@ jobs:
         run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
       - name: Select Rust
         run: rustup override set stable
+      - name: Toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+          rustc --version
+          python3 --version
       - name: Verify source, services and both UI languages
         run: python3 scripts/check.py --full
       - name: Inspect an optimized build

@@ -10,7 +10,7 @@ func nativeAcceptanceRejectsAcknowledgementsWithoutControlEffects(_ ignored: Str
   let service = try DemoService()
   defer { service.close() }
   var id: UInt64 = 0
-  @MainActor func call(_ command: Command) async throws -> Notice {
+  @MainActor @Sendable func call(_ command: Command) async throws -> Notice {
     let action: String
     switch command {
     case .queueMove: action = "move"
@@ -61,7 +61,7 @@ func nativeTransitionsRequireFirstAttemptAndExactDuplicatePosition(_ broken: Str
   defer { service.close() }
   var id: UInt64 = 0
   var plays = 0
-  @MainActor func call(_ command: Command) async throws -> Notice {
+  @MainActor @Sendable func call(_ command: Command) async throws -> Notice {
     var command = command
     if case .play(var params) = command {
       plays += 1
@@ -96,7 +96,7 @@ func nativeReadAcceptanceChecksHomeAndNeverSendsPlayback(_ broken: String) async
   var id: UInt64 = 0
   var scopes: Set<Scope> = []
   var kinds: Set<Kind> = []
-  @MainActor func call(_ command: Command) async throws -> Notice {
+  @MainActor @Sendable func call(_ command: Command) async throws -> Notice {
     let stage: String
     switch command {
     case .search(let params): kinds.insert(params.kind); stage = "search"

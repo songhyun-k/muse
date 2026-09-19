@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C02 complete; native diagnostic callbacks explicitly retain main-actor isolation.
+- Current unit: C03 complete; native diagnostic callbacks explicitly declare isolation and sendability.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

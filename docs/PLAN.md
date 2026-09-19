@@ -17,8 +17,8 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C02 — Explicit main-actor isolation in native diagnostic callbacks for Swift 6 CI.
-- [ ] C03 — Settings modal: reuse UI preferences, verify keyboard/mouse and build; no commit.
+- [x] C03 — Explicit sendability for isolated callbacks and visible CI toolchain versions.
+- [ ] C04 — Settings modal: reuse UI preferences, verify keyboard/mouse and build; no commit.
 
 The primary agent performs implementation and inspection directly. Publish main
 and the verified v0.1.0 preview; preserve private development history locally.
