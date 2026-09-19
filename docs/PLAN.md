@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C29 — Complete the Python removal and keep development checks focused on behavior.
+- [x] C30 — Verify Python-free development commands and inspect the final migration.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

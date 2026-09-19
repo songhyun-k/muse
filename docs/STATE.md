@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C29 complete; Complete the Python removal and keep development checks focused on behavior.
+- Current unit: C30 complete; Verify Python-free development commands and inspect the final migration.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
