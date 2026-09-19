@@ -50,7 +50,11 @@ pub unsafe extern "C" fn muse_run(
             return probe(channel).map(|()| 0);
         }
         if args.iter().any(|a| a == "--version") {
-            println!("muse 0.1.0 (protocol {})", generated::API_VERSION);
+            println!(
+                "muse {} (protocol {})",
+                env!("CARGO_PKG_VERSION"),
+                generated::API_VERSION
+            );
             return Ok(0);
         }
         terminal::run(channel, &args)

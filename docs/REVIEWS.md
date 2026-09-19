@@ -6,7 +6,7 @@ The primary agent inspected settings, login handoff and the release plan directl
 
 - Settings reuse dialog rendering, the embedded catalog and atomic preferences.
 - Missing login uses a typed failure, the existing retry route and a fixed Music app identifier.
-- App opening is injected for tests; automated checks do not sign out or launch Music.
+- App opening is injected for tests; handoff tests do not sign out or launch Music.
 - One handoff covers concurrent login failures; catalog recovery resets it.
 - Network failures never masquerade as a missing account.
 - Startup login checking is cancellable and does not block library rendering.

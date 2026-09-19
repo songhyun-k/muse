@@ -15,6 +15,7 @@ import tempfile
 from terminal_test import frames, session
 from licenses import write_notices
 from public_check import add_public_file
+from build import version
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,6 +42,8 @@ def main():
     metadata = embedded_metadata(binary, commands)
     assert metadata['CFBundleIdentifier'] == os.environ.get('MUSIC_BUNDLE_ID', 'local.muse.cli')
     assert metadata['NSAppleMusicUsageDescription'].strip()
+    assert metadata['CFBundleShortVersionString'] == version()
+    assert output(str(binary), '--version').startswith(f'muse {version()} ')
     minimum = re.search(r'cmd LC_BUILD_VERSION.*?\bminos (\S+)', commands, re.S).group(1)
     architecture = output('lipo', '-archs', str(binary))
     assert not re.search(rb'/Users/[^/\x00\s]+/', binary.read_bytes()), 'Release contains personal build paths'
@@ -62,12 +65,13 @@ def main():
     with tarfile.open(archive, 'w:gz') as package:
         for path in (binary, ROOT / 'LICENSE', ROOT / 'NOTICE.md', notices):
             add_public_file(package, path, path.name)
-    report = dict(commit=output('git', 'rev-parse', 'HEAD'),
+    report = dict(version=version(), commit=output('git', 'rev-parse', 'HEAD'),
                   dirty=bool(output('git', 'status', '--porcelain')), architecture=architecture,
                   minimumMacOS=minimum, bundleIdentifier=metadata['CFBundleIdentifier'],
                   signing='ad-hoc' if 'Signature=adhoc' in signature else 'identity',
                   sha256=hashlib.sha256(binary.read_bytes()).hexdigest(), bytes=binary.stat().st_size,
-                  archive=archive.name, dynamicLibraries=libraries, relocatedLaunch=True)
+                  archive=archive.name, archiveSha256=hashlib.sha256(archive.read_bytes()).hexdigest(),
+                  dynamicLibraries=libraries, relocatedLaunch=True)
     (ROOT / 'dist/release.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({key: value for key, value in report.items() if key != 'dynamicLibraries'}, indent=2))
 

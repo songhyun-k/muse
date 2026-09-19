@@ -9,8 +9,13 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def version():
+    return tomllib.loads((ROOT / 'frontend/Cargo.toml').read_text())['package']['version']
 
 
 def publish(binary, destination, bundle_id, identity="-", strip_debug=False):
@@ -38,7 +43,7 @@ def main():
     metadata = {
         "CFBundleName": "muse",
         "CFBundleIdentifier": os.environ.get("MUSIC_BUNDLE_ID", "local.muse.cli"),
-        "CFBundleShortVersionString": "0.1.0",
+        "CFBundleShortVersionString": version(),
         "NSAppleMusicUsageDescription": "Browse your music library and play Apple Music. 음악 보관함을 탐색하고 음악을 재생합니다."
     }
     bundle_id = metadata["CFBundleIdentifier"]

@@ -7,7 +7,7 @@ The versioned interface is [contract/api.json](contract/api.json).
 
 ## Build and verify
 
-Install Xcode with Swift 6, Rust 1.88+ and Python 3. From a checkout:
+Install Xcode with Swift 6, Rust 1.88+ and Python 3.11+. From a checkout:
 
 ```sh
 python3 scripts/build.py

@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C10 complete; branch/release policy and direct simplification inspection are documented.
+- Current unit: C11 complete; clean-source release validation and publication workflow are implemented.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

@@ -34,3 +34,15 @@ GitHub credentials; updating the separate tap uses the maintainer's GitHub login
 
 See [build and use](RELEASE.md), [validation](VALIDATION.md) and
 [GitHub branch protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
+
+## Publish a version
+
+Change `frontend/Cargo.toml`, refresh Cargo.lock and merge the passing change into main.
+Run `gh workflow run release.yml --ref main`; the job checks, packages and publishes
+the version from main. An existing version is never overwritten.
+
+The local path is `python3 scripts/check.py --full`, `python3 scripts/release.py`,
+`python3 scripts/public_check.py --export`, then `python3 scripts/publish.py --publish`.
+Without flags, publish.py only validates and creates the formula/checksum files.
+After publication, `python3 scripts/publish.py --update-tap` updates the exact
+version/checksum in the tap through the maintainer's `gh` login.

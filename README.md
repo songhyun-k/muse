@@ -35,7 +35,7 @@ Your library, a quiet queue, and lyrics that follow along — in your terminal.
 
 [Download the Apple Silicon preview](https://github.com/songhyun-k/muse/releases/tag/v0.1.0), extract the archive, then run `./muse`. The preview is ad-hoc signed and not notarized; macOS may require approval in **System Settings → Privacy & Security**.
 
-To build from source, install **Xcode / Swift 6**, **Rust 1.88+** and **Python 3**:
+To build from source, install **Xcode / Swift 6**, **Rust 1.88+** and **Python 3.11+**:
 
 ```sh
 git clone https://github.com/songhyun-k/muse.git
