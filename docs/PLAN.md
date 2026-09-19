@@ -17,11 +17,10 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C13 — Stable release, Homebrew upgrade, CI and repository management verified.
+- [x] C14 — Commit subjects have no required prefix; checklist and review gates remain active.
 
-The primary agent implements and inspects directly. The user authorizes the
-settings commits and implementation through Homebrew distribution. Private
-pre-public development history stays local.
+The primary agent implements and inspects directly. Private pre-public development
+history stays local.
 
 ## Public preparation acceptance
 

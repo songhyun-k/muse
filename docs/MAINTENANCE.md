@@ -3,7 +3,8 @@
 `main` is the integration and release branch. Use short `feat/<name>` or
 `fix/<name>` branches, open a PR, pass CI and rebase-merge. Delete merged branches.
 There is no permanent develop or release branch. Keep commits as small logical
-units; rebase on current main before assigning the final Cnn checklist entries.
+units; rebase on current main before assigning the final checklist entries.
+Unit IDs belong in planning documents; commit subjects have no required prefix.
 
 Main requires the `check` CI job and linear history. Force pushes and branch
 deletion are disabled. A solo maintainer may merge their own passing PR; an
