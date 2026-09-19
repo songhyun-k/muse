@@ -40,7 +40,9 @@ See [build and use](RELEASE.md), [validation](VALIDATION.md) and
 
 Change `frontend/Cargo.toml`, refresh Cargo.lock and merge the passing change into main.
 Run `gh workflow run release.yml --ref main`; the job checks, packages and publishes
-the version from main. An existing version is never overwritten.
+the version from main. An existing version is never overwritten. Validation
+rejects any existing version tag in `songhyun-k/muse`, even without a Release or
+when the tag already points to the inspected commit; choose a new version.
 
 The local path is `cargo xtask check`, `cargo xtask release`,
 `cargo xtask audit --export`, then `cargo xtask publish --publish`.
