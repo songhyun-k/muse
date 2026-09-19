@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C21 complete; Use the production renderer for README previews without a regression replay harness.
+- Current unit: C22 complete; Add a focused native PTY cleanup check and remove obsolete fixture adapters.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

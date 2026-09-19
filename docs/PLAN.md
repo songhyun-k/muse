@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C21 — Use the production renderer for README previews without a regression replay harness.
+- [x] C22 — Add a focused native PTY cleanup check and remove obsolete fixture adapters.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
