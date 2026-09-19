@@ -1,0 +1,4 @@
+module CMuse {
+  header "../../../contract/transport.h"
+  export *
+}

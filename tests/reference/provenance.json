@@ -1,0 +1,14 @@
+{
+  "source": "Current production Ratatui renderer with original fictional demo data",
+  "languages": [
+    "ko",
+    "en"
+  ],
+  "comparison": "Exact glyph, foreground, background, bold and cell occupancy; motion tolerance 1e-6",
+  "sha256": {
+    "backend/Fixtures/demo.json": "1778d34fe35f417db172734bccd452924f9b73ea16ff391985cb51ec19319786",
+    "scripts/demo_fixture.py": "4d7d802cc75caf856693d2a2fbeb207dafc92ef2960a2068df5a5048afff983d",
+    "frontend/assets/themes.json": "29971daef92dda02dc86293d5b8941b45b89b2e7866e1f85dcc01c9d145e6ea5",
+    "frontend/assets/en.json": "aa77780760c9f3de5a6e80fc8952aa028bd60d89b3269536e89cb6125f05ae76"
+  }
+}

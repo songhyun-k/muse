@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "maxMessageBytes": 1048576,
+  "enums": {
+    "Source": ["catalog", "library", "collection"],
+    "Kind": ["song", "album", "artist", "playlist", "station"],
+    "Scope": ["library", "recent", "home", "favorites", "history", "collections", "collection"],
+    "Order": ["name", "artist", "recent"],
+    "Authorization": ["not_determined", "restricted", "denied", "authorized"],
+    "RepeatMode": ["off", "one", "all"],
+    "Control": ["toggle", "pause", "stop", "next", "previous"],
+    "Placement": ["replace", "next", "last"],
+    "LyricsStatus": ["synced", "plain", "instrumental", "missing"],
+    "ErrorCode": ["invalid_request", "unsupported_version", "not_authorized", "subscription_required", "unavailable", "network", "not_found", "storage", "conflict", "busy", "cancelled", "internal_error"]
+  },
+  "records": {
+    "Empty": {},
+    "ItemRef": {
+      "id": "String", "source": "Source", "kind": "Kind"
+    },
+    "Item": {
+      "ref": "ItemRef",
+      "title": "String",
+      "artist": "String",
+      "album": "String",
+      "duration": "Double?",
+      "artworkUrl": "String?",
+      "releaseDate": "String?",
+      "albumRef": "ItemRef?",
+      "artistRef": "ItemRef?"
+    },
+    "QueueEntry": {"id": "String", "item": "Item?"},
+    "PlayerState": {
+      "current": "Item?",
+      "playing": "Bool",
+      "position": "Double",
+      "queueCount": "UInt64",
+      "queueRevision": "UInt64",
+      "updatedAt": "Double",
+      "currentEntryId": "String?",
+      "repeatMode": "RepeatMode",
+      "shuffle": "Bool",
+      "canSeek": "Bool"
+    },
+    "QueuePage": {"entries": "[QueueEntry]", "nextOffset": "UInt64?", "revision": "UInt64", "total": "UInt64"},
+    "QueueParams": {"offset": "UInt64", "revision": "UInt64?"},
+    "Collection": {
+      "id": "String", "name": "String", "description": "String", "count": "UInt64"
+    },
+    "StoreState": {
+      "collections": "[Collection]", "favorites": "[ItemRef]", "historyCount": "UInt64"
+    },
+    "CreatedCollection": {"collection": "Collection", "store": "StoreState"},
+    "VolumeState": {
+      "device": "String", "level": "Double?", "muted": "Bool?",
+      "canSetVolume": "Bool", "canMute": "Bool"
+    },
+    "SessionState": {"authorization": "Authorization", "canPlayCatalog": "Bool?"},
+    "Snapshot": {
+      "session": "SessionState", "player": "PlayerState", "store": "StoreState", "volume": "VolumeState"
+    },
+    "Page": {"items": "[Item]", "nextOffset": "UInt64?"},
+    "Detail": {"item": "Item", "children": "[Item]", "nextOffset": "UInt64?"},
+    "LyricLine": {"seconds": "Double?", "text": "String"},
+    "Lyrics": {
+      "item": "ItemRef", "matchId": "UInt64?", "status": "LyricsStatus",
+      "lines": "[LyricLine]", "offset": "Double"
+    },
+    "LyricMatch": {
+      "id": "UInt64", "title": "String", "artist": "String",
+      "album": "String", "duration": "Double?", "synced": "Bool"
+    },
+    "LyricsMatches": {"item": "ItemRef", "matches": "[LyricMatch]"},
+    "Artwork": {"item": "ItemRef", "width": "UInt64", "height": "UInt64", "rgb": "[UInt8]"},
+    "Ack": {"message": "String"},
+    "Failure": {"code": "ErrorCode", "message": "String", "retryable": "Bool"},
+    "SearchParams": {
+      "query": "String", "source": "Source", "kind": "Kind", "offset": "UInt64"
+    },
+    "BrowseParams": {
+      "scope": "Scope", "kind": "Kind", "collectionId": "String?",
+      "order": "Order", "offset": "UInt64"
+    },
+    "DetailParams": {"item": "ItemRef", "offset": "UInt64"},
+    "PlayParams": {"items": "[ItemRef]", "startIndex": "UInt64", "placement": "Placement", "shuffle": "Bool?"},
+    "ControlParams": {"action": "Control"},
+    "SeekParams": {"seconds": "Double", "entryId": "String"},
+    "ModeParams": {"shuffle": "Bool", "repeatMode": "RepeatMode"},
+    "QueueRemove": {"entryId": "String"},
+    "QueueMove": {"entryId": "String", "beforeEntryId": "String?"},
+    "QueueJump": {"entryId": "String"},
+    "CollectionCreate": {"name": "String", "description": "String", "items": "[ItemRef]?"},
+    "CollectionUpdate": {"id": "String", "name": "String?", "description": "String?"},
+    "CollectionDelete": {"id": "String"},
+    "CollectionAdd": {"id": "String", "items": "[ItemRef]"},
+    "CollectionRemove": {"id": "String", "index": "UInt64"},
+    "CollectionMove": {"id": "String", "from": "UInt64", "to": "UInt64"},
+    "CollectionCopy": {"item": "ItemRef", "name": "String"},
+    "FavoriteParams": {"item": "ItemRef", "enabled": "Bool"},
+    "LyricsParams": {"item": "ItemRef"},
+    "LyricsSearchParams": {"item": "ItemRef", "query": "String"},
+    "LyricsChooseParams": {"item": "ItemRef", "matchId": "UInt64"},
+    "LyricsOffsetParams": {"item": "ItemRef", "seconds": "Double"},
+    "VolumeParams": {"level": "Double?", "muted": "Bool?"},
+    "ArtworkParams": {"item": "ItemRef"},
+    "CancelParams": {"requestId": "UInt64"},
+    "Request": {"version": "UInt64", "id": "UInt64", "command": "Command"},
+    "Event": {"version": "UInt64", "id": "UInt64?", "sequence": "UInt64", "event": "Notice"}
+  },
+  "unions": {
+    "Command": {
+      "snapshot": "Empty",
+      "authorize": "Empty",
+      "search": "SearchParams",
+      "browse": "BrowseParams",
+      "detail": "DetailParams",
+      "play": "PlayParams",
+      "control": "ControlParams",
+      "seek": "SeekParams",
+      "mode": "ModeParams",
+      "queue": "QueueParams",
+      "queue_remove": "QueueRemove",
+      "queue_move": "QueueMove",
+      "queue_jump": "QueueJump",
+      "queue_clear": "Empty",
+      "collection_create": "CollectionCreate",
+      "collection_update": "CollectionUpdate",
+      "collection_delete": "CollectionDelete",
+      "collection_add": "CollectionAdd",
+      "collection_remove": "CollectionRemove",
+      "collection_move": "CollectionMove",
+      "collection_copy": "CollectionCopy",
+      "favorite": "FavoriteParams",
+      "lyrics": "LyricsParams",
+      "lyrics_search": "LyricsSearchParams",
+      "lyrics_choose": "LyricsChooseParams",
+      "lyrics_offset": "LyricsOffsetParams",
+      "volume": "VolumeParams",
+      "artwork": "ArtworkParams",
+      "cancel": "CancelParams"
+    },
+    "Notice": {
+      "snapshot": "Snapshot", "session": "SessionState", "page": "Page",
+      "detail": "Detail", "player": "PlayerState", "queue": "QueuePage", "store": "StoreState",
+      "collection_created": "CreatedCollection",
+      "lyrics": "Lyrics", "lyrics_matches": "LyricsMatches", "volume": "VolumeState",
+      "artwork": "Artwork", "ack": "Ack", "failure": "Failure"
+    }
+  }
+}

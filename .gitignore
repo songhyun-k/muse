@@ -1,0 +1,14 @@
+.DS_Store
+.build/
+target/
+dist/
+__pycache__/
+*.pyc
+.swiftpm/
+.env
+*.p12
+*.mobileprovision
+.env.*
+!.env.example
+*.p8
+*.key

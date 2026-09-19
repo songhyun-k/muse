@@ -1,0 +1,2048 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Music backend API v1",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Request"
+    },
+    {
+      "$ref": "#/$defs/Event"
+    }
+  ],
+  "$defs": {
+    "Source": {
+      "type": "string",
+      "enum": [
+        "catalog",
+        "library",
+        "collection"
+      ]
+    },
+    "Kind": {
+      "type": "string",
+      "enum": [
+        "song",
+        "album",
+        "artist",
+        "playlist",
+        "station"
+      ]
+    },
+    "Scope": {
+      "type": "string",
+      "enum": [
+        "library",
+        "recent",
+        "home",
+        "favorites",
+        "history",
+        "collections",
+        "collection"
+      ]
+    },
+    "Order": {
+      "type": "string",
+      "enum": [
+        "name",
+        "artist",
+        "recent"
+      ]
+    },
+    "Authorization": {
+      "type": "string",
+      "enum": [
+        "not_determined",
+        "restricted",
+        "denied",
+        "authorized"
+      ]
+    },
+    "RepeatMode": {
+      "type": "string",
+      "enum": [
+        "off",
+        "one",
+        "all"
+      ]
+    },
+    "Control": {
+      "type": "string",
+      "enum": [
+        "toggle",
+        "pause",
+        "stop",
+        "next",
+        "previous"
+      ]
+    },
+    "Placement": {
+      "type": "string",
+      "enum": [
+        "replace",
+        "next",
+        "last"
+      ]
+    },
+    "LyricsStatus": {
+      "type": "string",
+      "enum": [
+        "synced",
+        "plain",
+        "instrumental",
+        "missing"
+      ]
+    },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "invalid_request",
+        "unsupported_version",
+        "not_authorized",
+        "subscription_required",
+        "unavailable",
+        "network",
+        "not_found",
+        "storage",
+        "conflict",
+        "busy",
+        "cancelled",
+        "internal_error"
+      ]
+    },
+    "Empty": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "ItemRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "kind": {
+          "$ref": "#/$defs/Kind"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "kind"
+      ]
+    },
+    "Item": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "artist": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "album": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artworkUrl": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "releaseDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "albumRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ItemRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artistRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ItemRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "ref",
+        "title",
+        "artist",
+        "album"
+      ]
+    },
+    "QueueEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "item": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Item"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "PlayerState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "current": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Item"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "playing": {
+          "type": "boolean"
+        },
+        "position": {
+          "type": "number"
+        },
+        "queueCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "queueRevision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "updatedAt": {
+          "type": "number"
+        },
+        "currentEntryId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeatMode": {
+          "$ref": "#/$defs/RepeatMode"
+        },
+        "shuffle": {
+          "type": "boolean"
+        },
+        "canSeek": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "playing",
+        "position",
+        "queueCount",
+        "queueRevision",
+        "updatedAt",
+        "repeatMode",
+        "shuffle",
+        "canSeek"
+      ]
+    },
+    "QueuePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QueueEntry"
+          },
+          "maxItems": 32768
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "entries",
+        "revision",
+        "total"
+      ]
+    },
+    "QueueParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "offset"
+      ]
+    },
+    "Collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "count"
+      ]
+    },
+    "StoreState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "collections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Collection"
+          },
+          "maxItems": 32768
+        },
+        "favorites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ItemRef"
+          },
+          "maxItems": 32768
+        },
+        "historyCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "collections",
+        "favorites",
+        "historyCount"
+      ]
+    },
+    "CreatedCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "collection": {
+          "$ref": "#/$defs/Collection"
+        },
+        "store": {
+          "$ref": "#/$defs/StoreState"
+        }
+      },
+      "required": [
+        "collection",
+        "store"
+      ]
+    },
+    "VolumeState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "level": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "muted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "canSetVolume": {
+          "type": "boolean"
+        },
+        "canMute": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "device",
+        "canSetVolume",
+        "canMute"
+      ]
+    },
+    "SessionState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "authorization": {
+          "$ref": "#/$defs/Authorization"
+        },
+        "canPlayCatalog": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "authorization"
+      ]
+    },
+    "Snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/SessionState"
+        },
+        "player": {
+          "$ref": "#/$defs/PlayerState"
+        },
+        "store": {
+          "$ref": "#/$defs/StoreState"
+        },
+        "volume": {
+          "$ref": "#/$defs/VolumeState"
+        }
+      },
+      "required": [
+        "session",
+        "player",
+        "store",
+        "volume"
+      ]
+    },
+    "Page": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Item"
+          },
+          "maxItems": 32768
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items"
+      ]
+    },
+    "Detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/Item"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Item"
+          },
+          "maxItems": 32768
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "item",
+        "children"
+      ]
+    },
+    "LyricLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "Lyrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "matchId": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/LyricsStatus"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LyricLine"
+          },
+          "maxItems": 32768
+        },
+        "offset": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "item",
+        "status",
+        "lines",
+        "offset"
+      ]
+    },
+    "LyricMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "artist": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "album": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "synced": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "artist",
+        "album",
+        "synced"
+      ]
+    },
+    "LyricsMatches": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "matches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LyricMatch"
+          },
+          "maxItems": 32768
+        }
+      },
+      "required": [
+        "item",
+        "matches"
+      ]
+    },
+    "Artwork": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "rgb": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "maxItems": 32768
+        }
+      },
+      "required": [
+        "item",
+        "width",
+        "height",
+        "rgb"
+      ]
+    },
+    "Ack": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "message"
+      ]
+    },
+    "Failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ]
+    },
+    "SearchParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "kind": {
+          "$ref": "#/$defs/Kind"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "query",
+        "source",
+        "kind",
+        "offset"
+      ]
+    },
+    "BrowseParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "kind": {
+          "$ref": "#/$defs/Kind"
+        },
+        "collectionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "$ref": "#/$defs/Order"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "scope",
+        "kind",
+        "order",
+        "offset"
+      ]
+    },
+    "DetailParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "item",
+        "offset"
+      ]
+    },
+    "PlayParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ItemRef"
+          },
+          "maxItems": 32768
+        },
+        "startIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
+        },
+        "shuffle": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "startIndex",
+        "placement"
+      ]
+    },
+    "ControlParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/Control"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    },
+    "SeekParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seconds": {
+          "type": "number"
+        },
+        "entryId": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "seconds",
+        "entryId"
+      ]
+    },
+    "ModeParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "shuffle": {
+          "type": "boolean"
+        },
+        "repeatMode": {
+          "$ref": "#/$defs/RepeatMode"
+        }
+      },
+      "required": [
+        "shuffle",
+        "repeatMode"
+      ]
+    },
+    "QueueRemove": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "entryId"
+      ]
+    },
+    "QueueMove": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "beforeEntryId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "entryId"
+      ]
+    },
+    "QueueJump": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "entryId"
+      ]
+    },
+    "CollectionCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "items": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ItemRef"
+              },
+              "maxItems": 32768
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ]
+    },
+    "CollectionUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "CollectionDelete": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "CollectionAdd": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ItemRef"
+          },
+          "maxItems": 32768
+        }
+      },
+      "required": [
+        "id",
+        "items"
+      ]
+    },
+    "CollectionRemove": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "id",
+        "index"
+      ]
+    },
+    "CollectionMove": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "from": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "to": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to"
+      ]
+    },
+    "CollectionCopy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "item",
+        "name"
+      ]
+    },
+    "FavoriteParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "item",
+        "enabled"
+      ]
+    },
+    "LyricsParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        }
+      },
+      "required": [
+        "item"
+      ]
+    },
+    "LyricsSearchParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "query": {
+          "type": "string",
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "item",
+        "query"
+      ]
+    },
+    "LyricsChooseParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "matchId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "item",
+        "matchId"
+      ]
+    },
+    "LyricsOffsetParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        },
+        "seconds": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "item",
+        "seconds"
+      ]
+    },
+    "VolumeParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "muted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": []
+    },
+    "ArtworkParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ItemRef"
+        }
+      },
+      "required": [
+        "item"
+      ]
+    },
+    "CancelParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requestId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      },
+      "required": [
+        "requestId"
+      ]
+    },
+    "Request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "command": {
+          "$ref": "#/$defs/Command"
+        }
+      },
+      "required": [
+        "version",
+        "id",
+        "command"
+      ]
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "event": {
+          "$ref": "#/$defs/Notice"
+        }
+      },
+      "required": [
+        "version",
+        "sequence",
+        "event"
+      ]
+    },
+    "Command": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "snapshot"
+            },
+            "data": {
+              "$ref": "#/$defs/Empty"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "authorize"
+            },
+            "data": {
+              "$ref": "#/$defs/Empty"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "search"
+            },
+            "data": {
+              "$ref": "#/$defs/SearchParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "browse"
+            },
+            "data": {
+              "$ref": "#/$defs/BrowseParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "detail"
+            },
+            "data": {
+              "$ref": "#/$defs/DetailParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "play"
+            },
+            "data": {
+              "$ref": "#/$defs/PlayParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "control"
+            },
+            "data": {
+              "$ref": "#/$defs/ControlParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "seek"
+            },
+            "data": {
+              "$ref": "#/$defs/SeekParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "mode"
+            },
+            "data": {
+              "$ref": "#/$defs/ModeParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue"
+            },
+            "data": {
+              "$ref": "#/$defs/QueueParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue_remove"
+            },
+            "data": {
+              "$ref": "#/$defs/QueueRemove"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue_move"
+            },
+            "data": {
+              "$ref": "#/$defs/QueueMove"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue_jump"
+            },
+            "data": {
+              "$ref": "#/$defs/QueueJump"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue_clear"
+            },
+            "data": {
+              "$ref": "#/$defs/Empty"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_create"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionCreate"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_update"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionUpdate"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_delete"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionDelete"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_add"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionAdd"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_remove"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionRemove"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_move"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionMove"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_copy"
+            },
+            "data": {
+              "$ref": "#/$defs/CollectionCopy"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "favorite"
+            },
+            "data": {
+              "$ref": "#/$defs/FavoriteParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics"
+            },
+            "data": {
+              "$ref": "#/$defs/LyricsParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics_search"
+            },
+            "data": {
+              "$ref": "#/$defs/LyricsSearchParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics_choose"
+            },
+            "data": {
+              "$ref": "#/$defs/LyricsChooseParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics_offset"
+            },
+            "data": {
+              "$ref": "#/$defs/LyricsOffsetParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "volume"
+            },
+            "data": {
+              "$ref": "#/$defs/VolumeParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "artwork"
+            },
+            "data": {
+              "$ref": "#/$defs/ArtworkParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "cancel"
+            },
+            "data": {
+              "$ref": "#/$defs/CancelParams"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        }
+      ]
+    },
+    "Notice": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "snapshot"
+            },
+            "data": {
+              "$ref": "#/$defs/Snapshot"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "session"
+            },
+            "data": {
+              "$ref": "#/$defs/SessionState"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "page"
+            },
+            "data": {
+              "$ref": "#/$defs/Page"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "detail"
+            },
+            "data": {
+              "$ref": "#/$defs/Detail"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "player"
+            },
+            "data": {
+              "$ref": "#/$defs/PlayerState"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "queue"
+            },
+            "data": {
+              "$ref": "#/$defs/QueuePage"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "store"
+            },
+            "data": {
+              "$ref": "#/$defs/StoreState"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "collection_created"
+            },
+            "data": {
+              "$ref": "#/$defs/CreatedCollection"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics"
+            },
+            "data": {
+              "$ref": "#/$defs/Lyrics"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "lyrics_matches"
+            },
+            "data": {
+              "$ref": "#/$defs/LyricsMatches"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "volume"
+            },
+            "data": {
+              "$ref": "#/$defs/VolumeState"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "artwork"
+            },
+            "data": {
+              "$ref": "#/$defs/Artwork"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "ack"
+            },
+            "data": {
+              "$ref": "#/$defs/Ack"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "failure"
+            },
+            "data": {
+              "$ref": "#/$defs/Failure"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ]
+        }
+      ]
+    }
+  }
+}

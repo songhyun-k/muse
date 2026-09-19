@@ -1,0 +1,22 @@
+muse — Apple Music in your terminal
+
+Usage: muse [options]
+  --demo              Explore without an account (simulated playback and volume)
+  --language en|ko    Interface language (press I to change)
+  --theme porcelain|graphite|linen|midnight|ink
+  --transparent / --opaque        Terminal / theme background
+  --hide-left / --show-left       Collapse / expand navigation
+  --hide-right / --show-right     Collapse / expand lyrics and queue
+  --plain-icons / --nerd-icons    Standard / Nerd Font symbols
+  --reduced-motion / --motion     Reduce / enable motion
+  --fps 15|30|60      Maximum frame rate (default 60)
+  --256-color / --true-color      Terminal color depth
+  --probe             Check Swift ↔ Rust communication
+  --live-check        Native service checks (requests access and briefly plays music)
+    --read-only       Read checks only; no playback changes
+  --version           Version
+  --help              Help
+
+Tab Focus · [ ] Panels · / Search · F Filter · Enter Select · Space Play
+N New playlist · : Edit · a Add to playlist · f Favorite · I Language
+M Find lyrics · O Lyrics options · Ctrl-L Full lyrics · ? Help · q Quit

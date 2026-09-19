@@ -1,0 +1,24 @@
+[package]
+name = "music-frontend"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+ratatui = { version = "0.30", default-features = false, features = ["crossterm"] }
+crossterm = "0.29"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+unicode-width = "0.2"
+unicode-normalization = "0.1"
+unicode-segmentation = "1.13"
+signal-hook = "0.3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

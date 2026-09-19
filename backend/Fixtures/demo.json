@@ -1,0 +1,143 @@
+{
+  "tracks": [
+    {
+      "title": "Soft Signal",
+      "artist": "Mira",
+      "album": "Night Window — Single",
+      "duration": 208
+    },
+    {
+      "title": "Glass Air",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 228
+    },
+    {
+      "title": "Slow Lines",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 245
+    },
+    {
+      "title": "Soft Focus",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 216
+    },
+    {
+      "title": "After Rain",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 271
+    },
+    {
+      "title": "Night Walk",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 224
+    },
+    {
+      "title": "Still Water",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 242
+    },
+    {
+      "title": "Homeward",
+      "artist": "Mira",
+      "album": "Night Window",
+      "duration": 237
+    },
+    {
+      "title": "Slow Tide",
+      "artist": "Northline",
+      "album": "Low Light",
+      "duration": 228
+    },
+    {
+      "title": "Velvet Sky",
+      "artist": "Northline",
+      "album": "Low Light",
+      "duration": 238
+    },
+    {
+      "title": "First Light",
+      "artist": "June Park",
+      "album": "Morning Lines",
+      "duration": 246
+    },
+    {
+      "title": "Paper Moon",
+      "artist": "Aster",
+      "album": "Small Hours",
+      "duration": 216
+    },
+    {
+      "title": "느린 오후",
+      "artist": "유나",
+      "album": "낮의 기록",
+      "duration": 213
+    },
+    {
+      "title": "창가",
+      "artist": "유나",
+      "album": "낮의 기록",
+      "duration": 198
+    },
+    {
+      "title": "밤 산책",
+      "artist": "유나",
+      "album": "낮의 기록",
+      "duration": 231
+    },
+    {
+      "title": "돌아오는 길",
+      "artist": "유나",
+      "album": "낮의 기록",
+      "duration": 247
+    }
+  ],
+  "playlist": {
+    "name": "Evening",
+    "tracks": [
+      0,
+      2,
+      4,
+      8,
+      10,
+      12,
+      14,
+      15
+    ]
+  },
+  "favorites": [
+    0,
+    4,
+    12
+  ],
+  "history": [
+    5,
+    9,
+    2
+  ],
+  "queue": [
+    1,
+    2,
+    3,
+    8
+  ],
+  "lyrics": [
+    "The room grows quiet",
+    "A little light stays on",
+    "We leave the window open",
+    "And let the evening in",
+    "No hurry in the hallway",
+    "No distance left to chase",
+    "A song without a destination",
+    "A moment held in place",
+    "The city keeps on turning",
+    "Its colors passing through",
+    "We take the long way homeward",
+    "Beneath a softer blue"
+  ]
+}

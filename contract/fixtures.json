@@ -1,0 +1,33 @@
+{
+  "validRequests": [
+    {"version":1,"id":8,"command":{"type":"collection_update","data":{"id":"playlist","description":"새 설명"}}},
+    {"version":1,"id":1,"command":{"type":"snapshot","data":{}}},
+    {"version":1,"id":2,"command":{"type":"search","data":{"query":"아이유","source":"catalog","kind":"song","offset":0}}},
+    {"version":1,"id":3,"command":{"type":"seek","data":{"seconds":12.5,"entryId":"playing"}}},
+    {"version":1,"id":6,"command":{"type":"play","data":{"items":[{"id":"album","kind":"album","source":"catalog"}],"startIndex":0,"placement":"replace","shuffle":true}}},
+    {"version":1,"id":4,"command":{"type":"queue_move","data":{"entryId":"duplicate-2"}}},
+    {"version":1,"id":5,"command":{"type":"queue","data":{"offset":50,"revision":4}}}
+  ],
+  "validEvents": [
+    {"version":1,"id":7,"sequence":5,"event":{"type":"collection_created","data":{"collection":{"id":"new","name":"Night","description":"","count":0},"store":{"collections":[{"id":"new","name":"Night","description":"","count":0}],"favorites":[],"historyCount":0}}}},
+    {"version":1,"id":1,"sequence":1,"event":{"type":"failure","data":{"code":"not_authorized","message":"음악 접근을 허용해주세요","retryable":true}}},
+    {"version":1,"sequence":2,"event":{"type":"volume","data":{"device":"MacBook Pro","level":0.65,"muted":false,"canSetVolume":true,"canMute":true}}},
+    {"version":1,"sequence":3,"event":{"type":"player","data":{"playing":false,"position":0,"queueCount":2000,"queueRevision":4,"updatedAt":1789759088,"repeatMode":"off","shuffle":false,"canSeek":false}}},
+    {"version":1,"id":5,"sequence":4,"event":{"type":"queue","data":{"entries":[],"revision":4,"total":0}}}
+  ],
+  "invalidEvents": [
+    {"version":1,"sequence":0,"event":{"type":"ack","data":{"message":"bad sequence"}}},
+    {"version":1,"id":0,"sequence":1,"event":{"type":"ack","data":{"message":"bad id"}}}
+  ],
+  "invalidRequests": [
+    {"version":2,"id":1,"command":{"type":"snapshot","data":{}}},
+    {"version":1,"id":0,"command":{"type":"snapshot","data":{}}},
+    {"version":1,"id":1,"command":{"type":"snapshot","data":{"unexpected":1}}},
+    {"version":1,"id":1,"command":{"type":"missing","data":{}}},
+    {"version":1,"id":1,"command":{"type":"seek","data":{}}},
+    {"version":1,"id":1,"command":{"type":"seek","data":{"seconds":12.5}}},
+    {"version":1,"id":1,"command":{"type":"seek","data":{"seconds":"12"}}},
+    {"version":1,"id":-1,"command":{"type":"snapshot","data":{}}},
+    {"version":1,"id":1,"command":{"type":"snapshot","data":{}} ,"extra":true}
+  ]
+}

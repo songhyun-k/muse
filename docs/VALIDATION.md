@@ -1,0 +1,57 @@
+# Current validation
+
+Local environment: Apple Silicon, macOS 26.6.2, Xcode 26.3 / Swift 6.2.4 and
+Rust 1.98.1. The executable targets macOS 14+. Intel and the prepared GitHub Actions
+workflow have not been run here.
+
+## Automated checks
+
+`python3 scripts/check.py --full` passes on the local Mac.
+
+| Area | Result |
+| :--- | :--- |
+| Swift | 53 offline tests pass; two network-dependent tests are opt-in and skipped |
+| Rust | 56 tests, rustfmt and Clippy with warnings denied pass |
+| Contract / dependencies | Generated types, shared wire fixtures, input bounds and layer rules pass |
+| Static UI | 240 Korean/English frames; all 939,200 cells match exactly |
+| Motion | 180 frames; all 1,008,000 cells match; scalar tolerance 1e-6 |
+| Rendering | 140×40 render p95 approximately 0.35ms; budget 16.7ms |
+| Terminal | Keyboard, Korean input, mouse/drag/resize, transparency, idle behavior and signal restoration pass |
+| Languages | English/Korean CLI help, error messages, picker, saved preferences and metadata preservation pass |
+| Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
+| Public source | Local links and source/history sensitive-pattern scans pass; no credential values are printed |
+
+UI references contain original synthetic music data, generated cover art and
+newly written lyrics. Checks never overwrite expectations. Timing measures rendering
+only, excluding network and terminal I/O. PTY preferences checks use temporary
+`MUSE_STATE_DIR` directories and do not change the user's real settings or library.
+
+## Native services and limits
+
+The native artwork loader accepts HTTPS and MusicKit image URLs. Real library
+samples decoded successfully through this loader; some native entries return an
+empty image and still use a placeholder. Account playback was not rerun as part of
+the localization/public-source checks.
+
+Native diagnostics are opt-in. `--live-check --read-only` checks catalog/detail,
+Home and library reads without creating a player. `--live-check` additionally
+plays briefly, checks song transitions, queue, seek and playback modes, then stops.
+Both use an in-memory app store and never write the user's collections or history.
+The offline gate does not substitute for testing on another Mac/account.
+
+Apple's web integration remains unofficial. Developer ID signing, notarization,
+and remote CI are not established by local checks. The public preview uses the
+locally verified Apple Silicon build; hosted results are available in GitHub Actions.
+
+## Artifacts
+
+`python3 scripts/release.py` verifies the optimized executable's signature,
+embedded metadata, absence of personal build paths, system-library dependencies
+and relocated standalone launch.
+Its binary archive includes the project license, attribution and Rust dependency
+license texts. `dist/release.json` records architecture, checksum, signing and
+whether the source tree contained uncommitted changes.
+
+`python3 scripts/public_check.py --history --export` also creates a clean source
+archive without `.git`. Public main and clean exports contain original synthetic
+demo media. Private development branches remain local and are not distributed.
