@@ -114,5 +114,8 @@ The first checks authorization, catalog search/detail, Home and library reads wi
 creating a player. The second also briefly plays songs, checks transitions, queue,
 seek and playback modes, then stops. Both use an in-memory test store, read device
 volume without changing it, and time out after 60 seconds. The full offline gate
-never starts these account checks. Native diagnostics use technical output that is
-separate from the localized interface. See [validation](VALIDATION.md) for current limits.
+never starts these account checks. Native diagnostic messages use English;
+service error details are preserved as returned and may be Korean. Only the two
+forms above are supported; `--language` does not apply. See
+[localization](LOCALIZATION.md) for the language policy and
+[validation](VALIDATION.md) for current limits.

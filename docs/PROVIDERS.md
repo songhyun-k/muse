@@ -38,6 +38,7 @@ bootstrap. The UI keeps that failure visible after library/catalog rows load. Sa
 data stays unavailable until a later store access successfully reopens storage;
 the next access retries without restarting the application. A successful store keeps
 its exclusive writer lock, and failed reads never replace corrupt data with an empty store.
+
 Decoded artwork and loaded lyrics have bounded app-managed memory caches. Their
 loaders use [`URLSession.shared`](https://developer.apple.com/documentation/foundation/urlsession/shared),
 which uses the shared system `URLCache` and a
