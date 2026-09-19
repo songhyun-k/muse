@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C31 complete; Use a versionless muse User-Agent for all LRCLIB requests.
+- Current unit: C32 complete; Clarify whitespace check scope and optional staged hook setup.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

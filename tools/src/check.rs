@@ -9,7 +9,6 @@ pub fn check() -> Result {
     audit::audit(false, false)?;
     generate::generate(true)?;
     demo::generate(true)?;
-    run(Command::new("git").args(["diff", "--check"]))?;
     build::build(false)?;
     run(Command::new("swift").args(["test", "--package-path", "backend"]))?;
     for manifest in ["frontend/Cargo.toml", "tools/Cargo.toml"] {
