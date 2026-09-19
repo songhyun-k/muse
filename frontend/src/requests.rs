@@ -18,6 +18,8 @@ pub enum Target {
     MainEdit,
     QueueEdit,
     Mutation,
+    // Internal cancellation replies have no UI destination.
+    Cancel(u64),
 }
 
 impl Target {
@@ -42,10 +44,16 @@ pub struct Response {
     pub notice: Notice,
 }
 
+struct Pending {
+    target: Target,
+    // A read command whose cancellation has not already been sent.
+    cancellable: bool,
+}
+
 #[derive(Default)]
 pub struct Requests {
     next_id: u64,
-    pending: BTreeMap<u64, Target>,
+    pending: BTreeMap<u64, Pending>,
     latest: BTreeMap<Target, u64>,
 }
 
@@ -59,10 +67,32 @@ impl Requests {
             .checked_add(1)
             .ok_or("요청 번호를 모두 사용했습니다")?;
         self.next_id = id;
-        if target != Target::Mutation {
+        if !matches!(target, Target::Mutation | Target::Cancel(_)) {
             self.latest.insert(target.clone(), id);
         }
-        self.pending.insert(id, target);
+        if let Command::Cancel(params) = &command
+            && let Some(pending) = self.pending.get_mut(&params.request_id)
+        {
+            pending.cancellable = false;
+        }
+        self.pending.insert(
+            id,
+            Pending {
+                target,
+                // Match the backend's read-only commands; Lyrics also receives saved edits.
+                cancellable: matches!(
+                    command,
+                    Command::Snapshot(_)
+                        | Command::Search(_)
+                        | Command::Browse(_)
+                        | Command::Detail(_)
+                        | Command::Queue(_)
+                        | Command::Lyrics(_)
+                        | Command::LyricsSearch(_)
+                        | Command::Artwork(_)
+                ),
+            },
+        );
         Ok(Request {
             version: API_VERSION,
             id,
@@ -75,25 +105,40 @@ impl Requests {
         self.latest.remove(target);
     }
 
+    pub fn next_cancel(&self) -> Option<u64> {
+        self.pending.iter().find_map(|(&id, pending)| {
+            (pending.cancellable
+                && pending.target != Target::Mutation
+                && self.latest.get(&pending.target) != Some(&id))
+            .then_some(id)
+        })
+    }
+
     pub fn pending_for(&self, target: &Target) -> Vec<u64> {
         self.pending
             .iter()
-            .filter_map(|(&id, pending)| (pending == target).then_some(id))
+            .filter_map(|(&id, pending)| (&pending.target == target).then_some(id))
             .collect()
     }
 
     /// Only for a request the transport explicitly rejected before admission.
     pub fn rejected(&mut self, id: u64) {
-        if let Some(target) = self.pending.remove(&id)
-            && self.latest.get(&target) == Some(&id)
+        let Some(Pending { target, .. }) = self.pending.remove(&id) else {
+            return;
+        };
+        if let Target::Cancel(request_id) = target
+            && let Some(pending) = self.pending.get_mut(&request_id)
         {
+            pending.cancellable = true;
+        }
+        if self.latest.get(&target) == Some(&id) {
             self.latest.remove(&target);
         }
     }
 
     pub fn complete(&mut self, event: Event) -> Option<Response> {
         let target = if let Some(id) = event.id {
-            let target = self.pending.remove(&id)?;
+            let target = self.pending.remove(&id)?.target;
             if target == Target::Mutation || self.latest.get(&target) == Some(&id) {
                 self.latest.remove(&target);
                 Some(target)
@@ -133,7 +178,10 @@ impl Requests {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::generated::{Ack, Empty};
+    use crate::generated::{
+        Ack, CollectionUpdate, Empty, ItemRef, Kind, LyricsChooseParams, LyricsOffsetParams,
+        SeekParams, Source,
+    };
 
     fn event(id: Option<u64>, sequence: u64) -> Event {
         Event {
@@ -165,6 +213,51 @@ mod tests {
         // Coalesced unsolicited streams can interleave with older correlated replies.
         assert!(requests.complete(event(None, 2)).is_some());
         assert!(requests.is_idle());
+    }
+
+    #[test]
+    fn invalidation_never_cancels_saved_edits_or_playback() {
+        let item = ItemRef {
+            id: "song".into(),
+            source: Source::Catalog,
+            kind: Kind::Song,
+        };
+        for (command, target) in [
+            (
+                Command::LyricsChoose(LyricsChooseParams {
+                    item: item.clone(),
+                    match_id: 1,
+                }),
+                Target::Lyrics,
+            ),
+            (
+                Command::LyricsOffset(LyricsOffsetParams { item, seconds: 1.0 }),
+                Target::Lyrics,
+            ),
+            (
+                Command::Seek(SeekParams {
+                    entry_id: "entry".into(),
+                    seconds: 2.0,
+                }),
+                Target::Seek,
+            ),
+            (
+                Command::CollectionUpdate(CollectionUpdate {
+                    id: "playlist".into(),
+                    name: Some("renamed".into()),
+                    description: None,
+                }),
+                Target::Mutation,
+            ),
+        ] {
+            let mut requests = Requests::default();
+            let request = requests.prepare(command, target.clone()).unwrap();
+            requests.invalidate(&target);
+            assert!(requests.next_cancel().is_none());
+            assert_eq!(requests.pending_for(&target), [request.id]);
+            requests.complete(event(Some(request.id), 1));
+            assert!(requests.is_idle());
+        }
     }
 
     #[test]

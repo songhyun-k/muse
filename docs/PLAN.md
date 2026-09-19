@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C38 — Preserve confirmed state from superseded mutation replies.
+- [x] C39 — Cancel obsolete accepted reads without interrupting saved edits or playback.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

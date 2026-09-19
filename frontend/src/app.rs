@@ -105,22 +105,32 @@ impl App {
     ) -> Result<usize, String> {
         let mut sent = 0;
         while self.requests.count() < 16 {
-            let next = self
-                .outbox
-                .iter()
-                .enumerate()
-                .filter(|(_, i)| i.target.is_control() || self.requests.count() < 12)
-                .min_by_key(|(_, i)| match i.target {
-                    ref target if target.is_control() => 0,
-                    Target::Bootstrap | Target::Main => 1,
-                    Target::Artwork(_) => 3,
-                    _ => 2,
-                })
-                .map(|(i, _)| i);
-            let Some(index) = next else {
-                break;
+            let (intent, index) = if let Some(request_id) = self.requests.next_cancel() {
+                (
+                    Intent {
+                        command: Command::Cancel(CancelParams { request_id }),
+                        target: Target::Cancel(request_id),
+                    },
+                    None,
+                )
+            } else {
+                let next = self
+                    .outbox
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, i)| i.target.is_control() || self.requests.count() < 12)
+                    .min_by_key(|(_, i)| match i.target {
+                        ref target if target.is_control() => 0,
+                        Target::Bootstrap | Target::Main => 1,
+                        Target::Artwork(_) => 3,
+                        _ => 2,
+                    })
+                    .map(|(i, _)| i);
+                let Some(index) = next else {
+                    break;
+                };
+                (self.outbox.remove(index).unwrap(), Some(index))
             };
-            let intent = self.outbox.remove(index).unwrap();
             let request = self
                 .requests
                 .prepare(intent.command.clone(), intent.target.clone())?;
@@ -128,7 +138,9 @@ impl App {
                 Admission::Accepted => sent += 1,
                 Admission::Busy => {
                     self.requests.rejected(request.id);
-                    self.outbox.insert(index, intent);
+                    if let Some(index) = index {
+                        self.outbox.insert(index, intent);
+                    }
                     break;
                 }
                 Admission::Closed => return Err("음악 서비스 연결이 종료되었습니다".into()),
@@ -979,6 +991,107 @@ mod tests {
     }
 
     #[test]
+    fn obsolete_artwork_cancels_before_favorites_and_stays_counted_until_replies() {
+        let mut app = App::default();
+        let items = (0..12)
+            .map(|id| {
+                serde_json::from_value::<Item>(serde_json::json!({
+                    "ref":{"id":id.to_string(),"kind":"song","source":"catalog"},
+                    "title":"cover","artist":"a","album":"a",
+                    "artworkUrl":"https://example.test/art"
+                }))
+                .unwrap()
+            })
+            .collect();
+        app.prefetch_artwork(items);
+        let mut reads = vec![];
+        app.flush(|r| {
+            reads.push(r.id);
+            assert!(matches!(r.command, Command::Artwork(_)));
+            Ok(Admission::Accepted)
+        })
+        .unwrap();
+        assert_eq!(reads.len(), 12);
+        app.prefetch_artwork(vec![]);
+        app.go(View::Favorites);
+        let mut attempted = None;
+        assert_eq!(
+            app.flush(|r| {
+                let Command::Cancel(p) = &r.command else {
+                    panic!("expected cancellation")
+                };
+                attempted = Some(p.request_id);
+                Ok(Admission::Busy)
+            })
+            .unwrap(),
+            0
+        );
+        assert_eq!(attempted, Some(reads[0]));
+        assert_eq!(app.requests.count(), 12);
+
+        let mut cancelled = vec![];
+        let mut browsed = false;
+        let mut sequence = 0;
+        while cancelled.len() < reads.len() {
+            let before = app.requests.count();
+            let mut sent = vec![];
+            app.flush(|r| {
+                sent.push(r.clone());
+                Ok(Admission::Accepted)
+            })
+            .unwrap();
+            assert!(!sent.is_empty());
+            assert_eq!(app.requests.count(), before + sent.len());
+            assert!(app.requests.count() <= 16);
+            for request in sent {
+                let Command::Cancel(p) = request.command else {
+                    panic!("expected cancellation")
+                };
+                assert!(!cancelled.contains(&p.request_id));
+                cancelled.push(p.request_id);
+                // Even an early cancel acknowledgement cannot settle the original request.
+                sequence += 1;
+                assert!(!app.receive(Event {
+                    version: API_VERSION,
+                    id: Some(request.id),
+                    sequence,
+                    event: Notice::Ack(Ack {
+                        message: "cancelled".into()
+                    }),
+                }));
+            }
+            assert_eq!(app.requests.count(), 12);
+        }
+        assert_eq!(cancelled, reads);
+        assert_eq!(
+            app.flush(|_| panic!("duplicate cancellation or early read"))
+                .unwrap(),
+            0
+        );
+        for id in reads {
+            sequence += 1;
+            assert!(!app.receive(Event {
+                version: API_VERSION,
+                id: Some(id),
+                sequence,
+                event: Notice::Failure(Failure {
+                    code: ErrorCode::Cancelled,
+                    message: "cancelled".into(),
+                    retryable: true,
+                }),
+            }));
+        }
+        assert!(app.requests.is_idle());
+        app.flush(|r| {
+            assert!(matches!(&r.command, Command::Browse(p) if p.scope == Scope::Favorites));
+            browsed = true;
+            Ok(Admission::Accepted)
+        })
+        .unwrap();
+        assert!(browsed && app.data.errors.is_empty());
+    }
+
+    #[test]
     fn reads_leave_capacity_for_control_and_drags_coalesce_unsent_intent() {
         let mut app = App::default();
         for i in 0..20 {
@@ -1038,6 +1151,22 @@ mod tests {
             event: Notice::Player(player),
         });
         assert!(app.data.loading.contains(&Target::Lyrics));
+        let mut cancellation = None;
+        assert_eq!(
+            app.flush(|r| {
+                match &r.command {
+                    Command::Cancel(p) => {
+                        assert_eq!(p.request_id, old_id);
+                        cancellation = Some(r.id);
+                    }
+                    Command::Lyrics(p) => assert_eq!(p.item.id, "b"),
+                    _ => panic!("unexpected request"),
+                }
+                Ok(Admission::Accepted)
+            })
+            .unwrap(),
+            2
+        );
         assert!(!app.receive(Event {
             version: 1,
             id: Some(old_id),
@@ -1050,13 +1179,15 @@ mod tests {
                 offset: 0.0
             })
         }));
-        assert_eq!(
-            app.flush(|r| {
-                assert!(matches!(&r.command, Command::Lyrics(p) if p.item.id == "b"));
-                Ok(Admission::Accepted)
-            })
-            .unwrap(),
-            1
-        );
+        assert!(!app.receive(Event {
+            version: API_VERSION,
+            id: Some(cancellation.unwrap()),
+            sequence: 4,
+            event: Notice::Ack(Ack {
+                message: "cancelled".into()
+            }),
+        }));
+        assert!(app.data.loading.contains(&Target::Lyrics));
+        assert_eq!(app.requests.count(), 1);
     }
 }
