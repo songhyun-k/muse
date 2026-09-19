@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C32 complete; Clarify whitespace check scope and optional staged hook setup.
+- Current unit: C33 complete; Preserve Git source paths through sensitive-pattern audits and source archives.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -43,6 +43,8 @@ optimized packaging.
 
 Current source and sensitive-pattern scans pass. Public main and source archives
 contain only original demo media. Private development history remains local.
+Source audit, export and publication verification preserve Git's NUL-delimited
+path bytes, including leading whitespace; missing source files fail verification.
 Packages use ad-hoc signing and retain the local.muse.cli bundle identifier.
 
 ## Commands and data
