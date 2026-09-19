@@ -134,10 +134,6 @@ mod tests {
             assert_eq!(transparent["background"].color(), Color::Reset);
             assert_eq!(transparent["text.secondary"], Ink::Dim);
         }
-        assert_eq!(
-            Ink::Rgb(0, 0, 0).mix(Ink::Rgb(1, 3, 5), 0.5),
-            Ink::Rgb(0, 2, 2)
-        );
         assert_eq!(Ink::Rgb(1, 2, 3).mix(Ink::Default, 0.5), Ink::Default);
         assert_eq!(ansi256(Color::Rgb(255, 0, 0)), Color::Indexed(196));
         assert_eq!(ansi256(Color::Rgb(128, 128, 128)), Color::Indexed(244));

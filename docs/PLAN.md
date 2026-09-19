@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C15 — Remove frozen visual baselines and render-time gates.
+- [x] C16 — Keep behavior tests without visual matrices or interpolation formulas.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
