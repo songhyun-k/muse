@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C17 — Add the Rust task entry point and atomic native build command.
+- [x] C18 — Generate the native contract and JSON Schema through the Rust task.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

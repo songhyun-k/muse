@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C17 complete; Add the Rust task entry point and atomic native build command.
+- Current unit: C18 complete; Generate the native contract and JSON Schema through the Rust task.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

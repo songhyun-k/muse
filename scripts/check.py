@@ -121,7 +121,7 @@ def main():
         run("git", "diff", "--quiet")
         commit_gate(files)
     if (ROOT / "scripts/generate.py").exists():
-        run(sys.executable, "scripts/generate.py", "--check")
+        run("cargo", "xtask", "generate", "--check")
     if args.full:
         if (ROOT / "scripts/embed_demo.py").exists():
             run(sys.executable, "scripts/embed_demo.py", "--check")
