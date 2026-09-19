@@ -1,8 +1,1 @@
-{
-  "C17": {
-    "reason": "The new developer-only Rust task package needs its generated dependency lockfile in the same commit as the build command.",
-    "paths": [
-      "tools/Cargo.lock"
-    ]
-  }
-}
+{}
