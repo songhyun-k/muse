@@ -57,6 +57,76 @@ private func message(_ id: UInt64, _ command: Command) throws -> Data {
   scheduler.close()
 }
 
+@MainActor
+@Test(arguments: [
+  Command.lyricsChoose(.init(item: sampleSong("waiting").ref, matchId: 42)),
+  .collectionCopy(
+    .init(item: .init(id: "waiting", source: .catalog, kind: .playlist), name: "Copy")),
+])
+func storagePreparationDoesNotBlockControls(_ command: Command) async throws {
+  let network = AsyncStream<Void>.makeStream()
+  let playback = AsyncStream<Void>.makeStream()
+  let started = AsyncStream<UInt64>.makeStream()
+  let done = AsyncStream<UInt64>.makeStream()
+  let scheduler = RequestScheduler { request in
+    if request.id == 1 {
+      started.continuation.yield(request.id)
+      for await _ in network.stream { break }
+    } else if request.id == 8 {
+      started.continuation.yield(request.id)
+      for await _ in playback.stream { break }
+    }
+    return .ack(.init(message: "done"))
+  }
+  defer {
+    network.continuation.finish()
+    playback.continuation.finish()
+    scheduler.close()
+  }
+  let reply: RequestScheduler.Reply = {
+    if case .failure(let failure) = $0.event { Issue.record("Unexpected failure: \(failure)") }
+    done.continuation.yield($0.id!)
+  }
+  scheduler.submit(try message(1, command), reply: reply)
+  var starts = started.stream.makeAsyncIterator()
+  #expect(await starts.next() == 1)
+  let commands: [Command] = [
+    .lyricsOffset(.init(item: sampleSong("waiting").ref, seconds: 0.5)),
+    .control(.init(action: .pause)),
+    .seek(.init(seconds: 10, entryId: "current")),
+    .volume(.init(level: 0.5)),
+    .volume(.init(muted: true)),
+    .snapshot(.init()),
+    .play(
+      .init(
+        items: [.init(id: "saved", source: .collection, kind: .playlist)],
+        startIndex: 0, placement: .replace)),
+    .collectionDelete(.init(id: "saved")),
+    .queueClear(.init()),
+  ]
+  for (index, command) in commands.enumerated() {
+    scheduler.submit(try message(UInt64(index + 2), command), reply: reply)
+  }
+  var replies = done.stream.makeAsyncIterator()
+  var independent: [UInt64] = []
+  for _ in 0..<5 { independent.append(try #require(await replies.next())) }
+  #expect(independent.sorted() == [3, 4, 5, 6, 7])
+  #expect(independent.filter { $0 == 3 || $0 == 4 } == [3, 4])
+  #expect(independent.filter { $0 == 5 || $0 == 6 } == [5, 6])
+
+  network.continuation.finish()
+  #expect(await replies.next() == 1)
+  #expect(await replies.next() == 2)
+  #expect(await starts.next() == 8)
+  // Play must keep later storage/queue edits behind it, while volume still proceeds.
+  scheduler.submit(try message(11, .volume(.init(level: 0.25))), reply: reply)
+  #expect(await replies.next() == 11)
+  playback.continuation.finish()
+  #expect(await replies.next() == 8)
+  let remaining = [await replies.next(), await replies.next()]
+  #expect(remaining.compactMap { $0 }.sorted() == [9, 10])
+}
+
 @MainActor @Test func cancellationSettlesExactlyOnceAndAllowsReuse() async throws {
   let gate = AsyncStream<Void>.makeStream()
   let started = AsyncStream<Void>.makeStream()
