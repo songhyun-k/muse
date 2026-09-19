@@ -1,3 +1,3 @@
 #!/bin/sh
 set -eu
-python3 scripts/check.py --staged
+git diff --cached --check

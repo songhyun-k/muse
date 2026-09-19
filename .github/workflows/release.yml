@@ -26,12 +26,12 @@ jobs:
           rustup toolchain install stable --profile minimal --component rustfmt --component clippy
           rustup override set stable
       - name: Verify source and behavior
-        run: python3 scripts/check.py --full
+        run: cargo xtask check
       - name: Build and inspect release
-        run: python3 scripts/release.py
+        run: cargo xtask release
       - name: Export public source
-        run: python3 scripts/public_check.py --export
+        run: cargo xtask audit --export
       - name: Publish exact verified artifacts
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/publish.py --publish
+        run: cargo xtask publish --publish

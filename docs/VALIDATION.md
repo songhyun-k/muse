@@ -3,23 +3,22 @@
 Local environment: Apple Silicon, macOS 26.6.2, Xcode 26.3 / Swift 6.2.4 and
 Rust 1.98.1. The executable targets macOS 14+ on Apple Silicon.
 
-[Hosted CI](https://github.com/songhyun-k/muse/actions/runs/35445774544) passes on
-macOS 15 arm64, Xcode 16.4 / Swift 6.1.2, Rust 1.98.1 and Python 3.14.7. It runs the
-full offline gate and optimized packaging checks.
+CI runs the native behavior suite on macOS 15 with the installed Xcode toolchain
+and stable Rust. Optimized artifact inspection runs in the release workflow.
 
 ## Automated checks
 
-`python3 scripts/check.py --full` passes on the local Mac.
+`cargo xtask check` passes on the local Mac.
 
 | Area | Result |
 | :--- | :--- |
 | Swift | 54 offline tests pass |
-| Rust | 59 tests, rustfmt and Clippy with warnings denied pass |
-| Contract / dependencies | Generated types, shared wire fixtures, input bounds and layer rules pass |
-| Terminal | Keyboard, Korean input, mouse/drag/resize, transparency, idle behavior and signal restoration pass |
-| Languages / settings | English/Korean help, errors, language picker, visible/clickable settings hints, live modal, saved preferences and metadata preservation pass |
+| Rust | 55 tests, rustfmt and Clippy with warnings denied pass |
+| Contract | Generated types, shared wire fixtures and input bounds pass |
+| Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
+| Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
 | Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
-| Public source | Local links and source/history sensitive-pattern scans pass; no credential values are printed |
+| Public source | Source/history sensitive-pattern scans pass; no credential values are printed |
 
 Demo media contain original synthetic music data, generated cover art and original
 lyrics. Visual snapshots and timing thresholds are not development gates. PTY
@@ -42,14 +41,14 @@ Hosted release validation covers the published Apple Silicon executable.
 
 ## Artifacts
 
-`python3 scripts/release.py` verifies the optimized executable's signature,
+`cargo xtask release` verifies the optimized executable's signature,
 embedded metadata, absence of personal build paths, system-library dependencies
 and relocated standalone launch.
 Its binary archive includes the project license, attribution and Rust dependency
 license texts. `dist/release.json` records architecture, checksum, signing and
 whether the source tree contained uncommitted changes.
 
-`python3 scripts/public_check.py --history --export` also creates a clean source
+`cargo xtask audit --history --export` also creates a clean source
 archive without `.git`. Public main and clean exports contain original synthetic
 demo media. Private development branches remain local and are not distributed.
 

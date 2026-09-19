@@ -40,12 +40,12 @@ muse
 
 Or [download the executable](https://github.com/songhyun-k/muse/releases/latest) and run `./muse`.
 
-To build from source, install **Xcode / Swift 6**, **Rust 1.88+** and **Python 3.11+**:
+To build from source, install **Xcode / Swift 6** and **Rust 1.88+**:
 
 ```sh
 git clone https://github.com/songhyun-k/muse.git
 cd muse
-python3 scripts/build.py --release
+cargo xtask build --release
 ./dist/muse
 ```
 

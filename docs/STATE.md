@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C26 complete; Validate immutable release inputs and retain explicit publication and tap flags.
+- Current unit: C27 complete; Run a focused native check command and switch CI and documentation to Rust tasks.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -46,11 +46,11 @@ Packages use ad-hoc signing and retain the local.muse.cli bundle identifier.
 
 ## Commands and data
 
-- Build: python3 scripts/build.py --release
+- Build: cargo xtask build --release
 - Run: ./dist/muse --language en; preview: ./dist/muse --demo --language ko
-- Check: python3 scripts/check.py --full
-- Package: python3 scripts/release.py
-- Source audit/export: python3 scripts/public_check.py --history --export
+- Check: cargo xtask check
+- Package: cargo xtask release
+- Source audit/export: cargo xtask audit --history --export
 - Private data: ~/Library/Application Support/muse/library.json; UI: ui.json.
   MUSE_STATE_DIR selects an absolute isolated directory; demo ignores these files.
 - Native diagnostics: --live-check --read-only reads; --live-check briefly plays

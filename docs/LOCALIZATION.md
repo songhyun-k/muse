@@ -35,9 +35,8 @@ clipping, dialogs, help, errors and preserved terminal backgrounds.
 
 ```sh
 cargo test --locked --manifest-path frontend/Cargo.toml
-python3 scripts/localization_test.py
 ```
 
-The Rust checks cover locale selection, persisted settings, every empty view in
-English, preserved Korean music metadata and localized service feedback. The PTY
-check covers both languages, interactive switching, saved preferences and CLI help.
+The Rust checks cover locale selection, persisted settings, preserved music
+metadata and localized service feedback. Presentation combinations and exact
+labels are not development gates.

@@ -7,15 +7,15 @@ The versioned interface is [contract/api.json](contract/api.json).
 
 ## Build and verify
 
-Install Xcode with Swift 6, Rust 1.88+ and Python 3.11+. From a checkout:
+Install Xcode with Swift 6 and Rust 1.88+. From a checkout:
 
 ```sh
-python3 scripts/build.py
+cargo xtask build
 swift test --package-path backend
 cargo test --locked --manifest-path frontend/Cargo.toml
 cargo fmt --manifest-path frontend/Cargo.toml --check
 cargo clippy --locked --manifest-path frontend/Cargo.toml --all-targets -- -D warnings
-python3 scripts/check.py
+cargo xtask check
 ./dist/muse --demo --language en
 ```
 
