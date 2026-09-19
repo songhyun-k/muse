@@ -3,9 +3,8 @@
 ## Responsibility and dependencies
 
 The product is a macOS Apple Music client with the approved English/Korean terminal UI.
-Original synthetic fixtures define renderer parity. Collection editing, search category/
-pagination and authorization controls share that visual language and have additional
-behavior tests without replacing the reference fixtures. [PROVIDERS](PROVIDERS.md)
+Original synthetic fixtures support explicit demo mode and README previews.
+Tests protect behavior and data rather than freezing the renderer output. [PROVIDERS](PROVIDERS.md)
 maps each feature to its actual network, platform or storage provider.
 Swift is a backend service, even though it runs inside the same process as the UI.
 Ratatui owns navigation, selection, scroll, editing, focus, panel visibility,
@@ -93,25 +92,14 @@ visualization; it must never be described as audio measurement.
    malformed/version/oversize cases rejected at the boundary.
 3. `swift test`, `cargo test`, `cargo fmt --check`, `cargo clippy -- -D warnings`.
    Tests target contract, data integrity and observable behavior, not code shape.
-4. Frozen current UI snapshots at a fixed state/clock: 80x24 and 140x40;
-   both languages, five themes, all navigation pages plus details/full lyrics,
-   transparent and collapsed-panel variants.
-   Compare glyphs, cell widths, foreground/background and emphasis. Artwork uses
-   original synthetic data only in explicit demo mode. Animated frames use fixed
-   timestamps: scalar tolerance 1e-6, every glyph/RGB/background/emphasis cell exact.
-   No masks or visual-guesswork tolerance.
-   Contract event fixtures drive Rust-only renderer tests. Explicit interactive
-   demo mode uses a host fixture service; the production frontend
-   consumes the same contract without implementing fake domain behavior.
+4. No frozen cell snapshots, exhaustive presentation combinations, animation formula
+   assertions or machine-specific render-time thresholds gate active development.
 5. PTY tests cover Korean input, mouse, resize, focus retention, exit, interruption,
    default background preservation and terminal restoration. No browser/CUA needed.
 6. Persistence tests cover atomic replacement, malformed data and stable IDs;
    a failed write never reports success or destroys previous data.
 7. Release inspection checks Mach-O dependencies, embedded Info.plist, contract
    version and clean launch without a separate Rust/Python runtime or config files.
-8. At 140x40, render-only p95 <=16.7ms on this Mac; idle must block rather than spin.
-   Animation scheduling stops when idle or reduced motion is selected.
-   Timing and idle checks run in `scripts/check.py --full`.
 9. Every commit replaces the current completed PLAN unit and updates STATE. A hook
    requires contiguous pending units and enforces <=500 changed text lines;
    unavoidable generated/lock/reference exceptions require a written reason.
