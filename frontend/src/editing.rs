@@ -303,19 +303,6 @@ impl App {
             self.ui.cursors[0] = to;
         }
     }
-
-    pub fn choose_lyrics(&mut self, id: u64) {
-        if let Some(item) = self.data.current() {
-            self.send(
-                Command::LyricsChoose(LyricsChooseParams {
-                    item: item.r#ref.clone(),
-                    match_id: id,
-                }),
-                Target::Lyrics,
-                0,
-            );
-        }
-    }
 }
 
 #[cfg(test)]

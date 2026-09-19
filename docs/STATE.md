@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C34 complete; Reject existing destination release tags before publication.
+- Current unit: C35 complete; Remove unused frontend paths and release checkout configuration.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
