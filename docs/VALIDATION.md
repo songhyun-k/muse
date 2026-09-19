@@ -13,8 +13,8 @@ full offline gate and optimized packaging checks; render p95 is 1.22ms there.
 
 | Area | Result |
 | :--- | :--- |
-| Swift | 53 offline tests pass; two network-dependent tests are opt-in and skipped |
-| Rust | 58 tests, rustfmt and Clippy with warnings denied pass |
+| Swift | 54 offline tests pass; two network-dependent tests are opt-in and skipped |
+| Rust | 59 tests, rustfmt and Clippy with warnings denied pass |
 | Contract / dependencies | Generated types, shared wire fixtures, input bounds and layer rules pass |
 | Static UI | 240 Korean/English frames; all 939,200 cells match exactly |
 | Motion | 180 frames; all 1,008,000 cells match; scalar tolerance 1e-6 |
@@ -29,7 +29,7 @@ newly written lyrics. Checks never overwrite expectations. Timing measures rende
 only, excluding network and terminal I/O. PTY preferences checks use temporary
 `MUSE_STATE_DIR` directories and do not change the user's real settings or library.
 
-## Native services and limits
+## Native services
 
 The native artwork loader accepts HTTPS and MusicKit image URLs. Real library
 samples decoded successfully through this loader; some native entries return an
@@ -58,3 +58,7 @@ whether the source tree contained uncommitted changes.
 `python3 scripts/public_check.py --history --export` also creates a clean source
 archive without `.git`. Public main and clean exports contain original synthetic
 demo media. Private development branches remain local and are not distributed.
+
+Missing-login checks use injected app-opening actions. They verify one handoff per
+login episode, recovery after sign-in, no handoff for connectivity errors and
+retrying the original search without adding a permission step.

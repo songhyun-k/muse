@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C08 complete; missing login opens Music once and returns a retryable failure.
+- Current unit: C09 complete; login handoff and same-view retry are verified.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

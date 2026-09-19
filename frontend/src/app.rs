@@ -513,6 +513,58 @@ impl App {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn missing_login_retries_the_same_search_without_an_authorization_step() {
+        use crate::{
+            art::ArtCache,
+            geometry::Visual,
+            scene::{Action, Scene},
+            theme::Palette,
+        };
+        let mut app = App::default();
+        app.ui.view = View::Search;
+        app.ui.query = "Mira".into();
+        app.data.apply(Response {
+            target: Some(Target::Main),
+            sequence: 1,
+            notice: Notice::Failure(Failure {
+                code: ErrorCode::SignInRequired,
+                message: "음악 앱에 로그인해주세요".into(),
+                retryable: true,
+            }),
+        });
+        let visual = Visual::settled(&app.ui, &app.data, 0.0);
+        let palette = Palette::new(0, false);
+        let mut art = ArtCache::default();
+        let mut scene = Scene::new(&app.ui, &app.data, &visual, &palette, &mut art, 80, 24);
+        scene.draw();
+        assert!(
+            scene
+                .hits
+                .iter()
+                .any(|hit| matches!(hit.action, Action::Key("retry")))
+        );
+        assert!(
+            !scene
+                .hits
+                .iter()
+                .any(|hit| matches!(hit.action, Action::Key("authorize")))
+        );
+        let layout = scene.layout;
+        app.key("enter", layout, 1.0, 1.0);
+        let mut retried = false;
+        app.flush(|request| {
+            assert!(!matches!(request.command, Command::Authorize(_)));
+            if let Command::Search(params) = &request.command {
+                assert_eq!(params.query, "Mira");
+                retried = true;
+            }
+            Ok(Admission::Accepted)
+        })
+        .unwrap();
+        assert!(retried && app.ui.dialog.is_none());
+    }
     #[test]
     fn granted_authorization_reloads_library_even_when_subscription_is_unknown() {
         let mut app = App::default();

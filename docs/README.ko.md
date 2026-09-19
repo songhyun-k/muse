@@ -34,6 +34,9 @@ python3 scripts/build.py --release
 ./dist/muse --demo --language ko
 ```
 
+Mac의 **음악 앱에 로그인**하면 됩니다. 로그인이 필요하면 muse가 음악 앱을 엽니다.
+로그인 후 터미널로 돌아와 다시 시도하세요.
+
 빌드한 실행 파일에는 Rust·Swift·Python 설치가 필요하지 않습니다.
 별도 API 키를 입력하지 않고 Mac에 로그인된 계정과 음악 접근 권한을 사용합니다.
 Homebrew 배포는 제공하지 않습니다.

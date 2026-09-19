@@ -50,6 +50,8 @@ To explore without an account, network calls or changes to your library:
 ./dist/muse --demo --language en
 ```
 
+Sign in to the **Music app on your Mac**. If your session is missing, muse opens Music for you; sign in, return to the terminal, and retry.
+
 The built executable needs no Rust, Swift or Python installation. A Homebrew formula is not available.
 
 A **140 × 40** terminal leaves room for both side panels. Smaller windows adapt down to **80 × 24**. Use a Nerd Font for the full icon set, or add `--plain-icons`.
