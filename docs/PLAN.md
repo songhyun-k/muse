@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C27 — Run a focused native check command and switch CI and documentation to Rust tasks.
+- [x] C28 — Remove superseded Python build, packaging and PTY implementations.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

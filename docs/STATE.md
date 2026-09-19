@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C27 complete; Run a focused native check command and switch CI and documentation to Rust tasks.
+- Current unit: C28 complete; Remove superseded Python build, packaging and PTY implementations.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
