@@ -18,6 +18,10 @@ fn execute() -> Result {
     env::set_current_dir(Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap())?;
     let args: Vec<_> = env::args().skip(1).collect();
     let command = args.first().map(String::as_str).unwrap_or("--help");
+    if command == "__pty-child" {
+        ensure(args.len() == 2, "PTY child requires a binary")?;
+        std::process::exit(terminal::child(Path::new(&args[1]))?);
+    }
     let allowed: &[&str] = match command {
         "build" => &["--release"],
         "generate" | "demo" => &["--check"],
