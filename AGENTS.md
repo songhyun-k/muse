@@ -5,7 +5,8 @@
   implementation Workers, review agents or sub-agents unless the user asks.
 - One logical change per commit, normally <=500 added + deleted text lines.
   Never compress formatting to fit the limit. Document essential exceptions.
-- Update the checklist and STATE in every commit. Commit subjects start with Cnn.
+- Update the checklist and STATE in every commit. Unit IDs stay in documents;
+  commit subjects describe the change without a required prefix.
 - PLAN contains the current completed unit and contiguous pending units; remove
   the previous completed row at each commit. Keep feature acceptance checkboxes.
 - Documents describe current code and supported behavior. Keep work history and

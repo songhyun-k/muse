@@ -1,8 +1,9 @@
 # Current state
 
-- Current unit: C13 complete; v0.2.0 is released and Homebrew installation/upgrade are verified.
-- Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
-- Next work: settings modal; implement, inspect and build without committing it.
+- Current unit: C14 complete; commit subjects have no required prefix. Checklist,
+  commit-size and fifth-commit inspection gates remain active.
+- Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
+- v0.2.0 is released and Homebrew installation/upgrade are verified.
 - The primary agent implements and inspects directly; no Workers or review agents.
 - Preserve the user's running processes. Build publication replaces the executable
   atomically so an already-running process keeps its original inode.
