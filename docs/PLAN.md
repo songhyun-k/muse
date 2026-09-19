@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C16 — Keep behavior tests without visual matrices or interpolation formulas.
+- [x] C17 — Add the Rust task entry point and atomic native build command.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

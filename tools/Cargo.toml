@@ -1,0 +1,13 @@
+[package]
+name = "muse-tools"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+publish = false
+license = "MIT"
+
+[dependencies]
+regex = "1"
+serde_json = { version = "1", features = ["preserve_order"] }
+shlex = "1"
+tempfile = "3"
