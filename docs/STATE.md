@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C39 complete; Cancel obsolete accepted reads without interrupting saved edits or playback.
+- Current unit: C40 complete; Make full album and playlist playback/shuffle accessible by keyboard at compact sizes.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -40,6 +40,8 @@ Nerd/fallback icons, keyboard/mouse and reduced motion. `,` opens a live setting
 and lyrics remain untranslated. English lyric wrapping preserves words.
 Text sanitization removes terminal controls before NFC normalization, and lyric
 wrapping uses byte boundaries from the sanitized text.
+Focused album and playlist details accept `P` for full playback and `S` for full
+shuffle, including at 80×24. Keyboard and mouse use the same detail play command.
 
 Demo data is original and fictional. Metadata lives in backend/Fixtures/demo.json;
 `cargo xtask demo` generates artwork and embeds the complete corpus. Production

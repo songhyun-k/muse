@@ -192,7 +192,8 @@ impl App {
             "M" => self.find_lyrics(),
             "O" => self.lyrics_menu(),
             "full_lyrics" => self.go(View::Lyrics),
-            "play_detail" | "shuffle_detail" => self.play_detail(key == "shuffle_detail"),
+            "P" | "play_detail" => self.play_detail(false),
+            "S" | "shuffle_detail" => self.play_detail(true),
             "authorize" => {
                 self.send(Command::Authorize(Empty {}), Target::Mutation, 0);
             }

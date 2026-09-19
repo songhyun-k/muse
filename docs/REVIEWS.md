@@ -1,18 +1,22 @@
 # Current inspection
 
-Inspection unit: C35
+Inspection unit: C40
 
-The primary agent inspected the current tooling and dead-path cleanup.
+The primary agent inspected the combined frontend request and text paths.
 
-- Source enumeration preserves Git's NUL-separated path bytes and fails on missing
-  tracked files; the audit and archive share this one source list.
-- Publication checks the exact remote version tag before writing or uploading.
-  Existing tags are rejected without a second version registry or tag-peeling layer.
-- Whitespace checking stays in the optional staged-change hook; CI no longer runs
-  an empty working-tree diff check.
-- Lyrics selection tests use the actual menu path instead of a test-only method.
-  Unused translations and unnecessary full-history release checkout are removed.
-- Existing native tools and dependencies remain sufficient. No visual snapshots,
-  source-shape checks or generic workflow framework have been added.
+- Confirmed state from superseded control replies uses the existing sequence
+  merger without settling newer UI intentions or accepting stale read failures.
+- Cancellation extends the same pending-request table. The combined completion
+  path reads Pending.target and preserves confirmed control state; original and
+  cancellation replies retain separate admission counts.
+- Sanitization precedes NFC normalization, and wrapping obtains byte boundaries
+  from the exact string it slices. Panic diagnostics reuse that filter after
+  terminal restoration instead of adding a global hook or logging framework.
+- Detail playback shortcuts call the existing action and preserve editor input.
+  Lyrics-choice tests likewise follow the real menu action.
+- Existing behavior checks cover these responsibilities without frozen layouts,
+  new dependencies, duplicated state owners or a generic scheduling framework.
+- Source paths and immutable release tags remain handled by Git and the existing
+  tooling; optional whitespace checks stay local to the commit hook.
 
-No further abstraction or broad refactor is justified by these changes.
+No additional abstraction or broad refactor is warranted.
