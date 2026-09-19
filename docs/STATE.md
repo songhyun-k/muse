@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C45 complete; Show newly added playlists and favorites first in recent pages.
+- Current unit: C46 complete; Enforce artwork and lyric response limits while streaming.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -36,8 +36,10 @@ Successful authenticated web reads, including details, re-arm the login handoff;
 local and cached reads do not reset it.
 Native queue replacement selects a nonzero current entry only after assignment.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
-entries return empty data and show placeholders. Lyrics use LRCLIB with a versionless
-`muse` User-Agent; Core Audio provides output-device volume and mute controls.
+entries return empty data and show placeholders. Artwork and LRCLIB lyrics stream
+through a shared bounded reader, cancelling responses above 8 MiB and 1 MiB
+respectively without waiting for EOF. LRCLIB requests use a versionless `muse`
+User-Agent. Core Audio provides output-device volume and mute controls.
 
 Service retains the library location and retries a failed open on the next store
 access. Successful opens retain the same LibraryStore and exclusive writer lock;

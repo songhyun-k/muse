@@ -28,14 +28,16 @@ final class ArtworkService {
       touch(address)
       return cached
     }
-    let (data, response) = try await session.data(
+    let (bytes, response) = try await session.bytes(
       for: URLRequest(url: url, timeoutInterval: 10))
-    guard let response = response as? HTTPURLResponse, (200..<300).contains(response.statusCode),
-      data.count <= 8 * 1024 * 1024
+    defer { bytes.task.cancel() }
+    let failure = Failure(code: .network, message: "앨범 이미지를 불러오지 못했습니다", retryable: true)
+    guard let response = response as? HTTPURLResponse, (200..<300).contains(response.statusCode)
     else {
-      throw Failure(code: .network, message: "앨범 이미지를 불러오지 못했습니다", retryable: true)
+      throw failure
     }
-    try Task.checkCancellation()
+    let data = try await boundedBody(
+      bytes, response: response, maximum: 8 * 1024 * 1024, failure: failure)
     let artwork = try Self.decode(data, reference: item.ref)
     if cache[address] == nil && cache.count >= 64 {
       cache.removeValue(forKey: order.removeFirst())

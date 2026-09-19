@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C45 — Show newly added playlists and favorites first in recent pages.
+- [x] C46 — Enforce artwork and lyric response limits while streaming.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

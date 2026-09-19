@@ -74,25 +74,12 @@ final class AppleWeb {
     var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
     request.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
     for (key, value) in headers { request.setValue(value, forHTTPHeaderField: key) }
-    return try await Self.receive(request, session: session, maximum: maximum)
-  }
-
-  // Consume buffered bytes off the main actor so each byte avoids an executor hop.
-  nonisolated private static func receive(
-    _ request: URLRequest, session: URLSession, maximum: Int
-  ) async throws -> Data {
     let (bytes, response) = try await session.bytes(for: request, delegate: NoWebRedirects())
     defer { bytes.task.cancel() }
     guard let response = response as? HTTPURLResponse else { throw Self.invalidResponse() }
     guard response.statusCode == 200 else { throw WebHTTPFailure(status: response.statusCode) }
-    guard response.expectedContentLength <= maximum else { throw Self.invalidResponse() }
-    var data = Data()
-    for try await byte in bytes {
-      guard data.count < maximum else { throw Self.invalidResponse() }
-      data.append(byte)
-    }
-    try Task.checkCancellation()
-    return data
+    return try await boundedBody(
+      bytes, response: response, maximum: maximum, failure: Self.invalidResponse())
   }
 
   private func fetchToken() async throws -> Token {
