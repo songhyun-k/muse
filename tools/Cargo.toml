@@ -11,3 +11,5 @@ regex = "1"
 serde_json = { version = "1", features = ["preserve_order"] }
 shlex = "1"
 tempfile = "3"
+base64 = "0.22"
+flate2 = "1"

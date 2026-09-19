@@ -1,4 +1,5 @@
 mod build;
+mod demo;
 mod generate;
 mod process;
 
@@ -18,7 +19,7 @@ fn execute() -> Result {
     let command = args.first().map(String::as_str).unwrap_or("--help");
     let allowed: &[&str] = match command {
         "build" => &["--release"],
-        "generate" => &["--check"],
+        "generate" | "demo" => &["--check"],
         "check-publication" | "--help" => &[],
         _ => return Err(format!("Unknown task: {command}").into()),
     };
@@ -29,6 +30,7 @@ fn execute() -> Result {
         )?;
     }
     match command {
+        "demo" => demo::generate(args.iter().any(|a| a == "--check")),
         "generate" => generate::generate(args.iter().any(|a| a == "--check")),
         "build" => build::build(args.iter().any(|a| a == "--release")),
         "check-publication" => build::check_publication(),

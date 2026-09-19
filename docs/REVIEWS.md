@@ -1,10 +1,10 @@
 # Current inspection
 
-Inspection unit: C15
+Inspection unit: C20
 
 The primary agent inspected the current changes directly.
 
-Remove frozen visual baselines and render-time gates.
+Embed identical demo data with Rust generation and retain native decoding checks.
 
 Verification targets data integrity, protocol boundaries and terminal cleanup.
 Presentation baselines, implementation formulas and combinatorial layout checks
