@@ -32,6 +32,12 @@ MusicKit의 전역 토큰 공급자는 변경하지 않는다.
 웹 JSON을 MusicKit의 Song/Album/Artist/Playlist/Station으로 해석해 기존 캐시에 보관한다.
 재생에 필요한 PlayParameters도 이 모델에 유지한다. 라이브러리와 카탈로그의 ID는 구분한다.
 
+저장한 플레이리스트 재생 시 캐시에 없는 카탈로그 곡 ID는 중복을 제거해 최대 300개씩
+조회한다. [Apple의 복수 곡 조회 제한](https://developer.apple.com/documentation/applemusicapi/get-multiple-catalog-songs-by-id)을
+따르며, AMP의 동일 경로도 300개를 허용한다. 응답 순서와 관계없이 원래 순서·중복을
+복원하고, 누락이나 조회 실패는 큐 변경 전에 반환한다. 보관함 곡과 스테이션은 기존
+단일 항목 조회를 사용한다.
+
 검색과 관계 페이지는 응답 next에서 증가하는 숫자 offset만 읽는다. 응답의 호스트나 경로는
 따라가지 않고 동일한 API 경로를 재구성한다. 노래가 아닌 트랙을 거를 때도 원본 offset을
 유지한다. 앨범·플레이리스트 전체 재생은 모든 필요한 페이지를 읽고 2000곡 제한을 넘으면

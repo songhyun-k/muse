@@ -234,6 +234,70 @@ func webSong(_ id: String) -> String {
 }
 
 extension WebTests {
+  @Test func playbackResolutionBatchesColdSongsAndPreservesReferences() async throws {
+    let token = webTestToken(expiry: Date().timeIntervalSince1970 + 3600)
+    let path = "/v1/catalog/jp/songs"
+    WebStub.state.reset([
+      "/us/new": WebReply(token), "/v1/me/storefront": WebReply(#"{"data":[{"id":"jp"}]}"#),
+      path: WebReply(#"{"data":[\#(webSong("three")),\#(webSong("one")),\#(webSong("two"))]}"#)
+    ])
+    let music = MusicService(web: WebMusic(http: AppleWeb(configuration: webConfiguration())) { _, _ in "user" },
+                             authorization: { .authorized })
+    defer { music.web.close() }
+    let cached = try JSONDecoder().decode(Song.self, from: Data(webSong("cached").utf8))
+    let catalog = music.remember(.song(cached), source: .catalog).ref
+    let library = music.remember(.song(cached), source: .library).ref
+    let references = [catalog] + ["two", "one", "two", "three"].map { sampleSong($0).ref } + [library]
+    let resolved = try await music.resolve(references)
+    #expect(zip(references, resolved).map { $1.item(source: $0.source).ref } == references)
+    let requests = WebStub.state.seen.filter { $0.url?.path == path }
+    try #require(requests.count == 1)
+    let query = URLComponents(url: requests[0].url!, resolvingAgainstBaseURL: false)!.queryItems!
+    #expect(query.first { $0.name == "ids" }?.value == "two,one,three")
+    _ = try await music.resolve(references)
+    #expect(WebStub.state.seen.filter { $0.url?.path == path }.count == 1)
+
+    // Cache eviction during a multi-batch fetch must not force single-song lookups.
+    music.entities.removeAll()
+    for index in 0..<4096 {
+      let song = try JSONDecoder().decode(Song.self, from: Data(webSong("cached-\(index)").utf8))
+      _ = music.remember(.song(song), source: .catalog)
+    }
+    let retained = sampleSong("cached-4095").ref
+    let ids = (0..<301).map { "batch-\($0)" }
+    WebStub.state.sequence(path, [
+      WebReply(#"{"data":[\#(ids.prefix(300).reversed().map(webSong).joined(separator: ","))]}"#),
+      WebReply(#"{"data":[\#(webSong(ids[300]))]}"#)
+    ])
+    let many = [retained] + ids.map { sampleSong($0).ref } + [sampleSong(ids[0]).ref]
+    let batch = try await music.resolve(many)
+    #expect(batch.map { $0.item(source: .catalog).ref } == many)
+    let batches = WebStub.state.seen.filter { $0.url?.path == path }.dropFirst()
+    #expect(batches.map {
+      URLComponents(url: $0.url!, resolvingAgainstBaseURL: false)!.queryItems!
+        .first { $0.name == "ids" }!.value!.split(separator: ",").count
+    } == [300, 1])
+
+    let previousMetadata = ["existing-entry": sampleSong("existing")]
+    music.entryMetadata = previousMetadata
+    music.queueRevision = 7
+    for (reply, code) in [(WebReply(#"{"data":[\#(webSong("available"))]}"#), ErrorCode.notFound),
+                          (WebReply("unavailable", status: 503), .network)] {
+      WebStub.state.sequence(path, [reply])
+      let before = WebStub.state.seen.count
+      do {
+        _ = try await music.resolve([sampleSong("available").ref, sampleSong("missing").ref])
+        Issue.record("Incomplete resolution succeeded")
+      } catch { #expect(RequestScheduler.failure(error).code == code) }
+      #expect(WebStub.state.seen.count == before + 1)
+      #expect(music.entryMetadata == previousMetadata && music.queueRevision == 7)
+    }
+    let cancelled = Task { try await music.resolve([sampleSong(ids[0]).ref]) }
+    cancelled.cancel()
+    await #expect(throws: CancellationError.self) { try await cancelled.value }
+    #expect(music.player == nil)
+  }
+
   @Test func publicBootstrapFailuresRemainActionableThroughService() async throws {
     let cases: [(Int, ErrorCode, String, Command)] = [
       (429, .busy, "잠시 후", .search(.init(query: "x", source: .catalog, kind: .song, offset: 0))),
