@@ -33,7 +33,12 @@ Your library, a quiet queue, and lyrics that follow along — in your terminal.
 
 **macOS 14+**, an Apple Music account and a UTF-8 terminal. Catalog playback requires an active Apple Music subscription. Built for Apple Silicon.
 
-[Download the Apple Silicon preview](https://github.com/songhyun-k/muse/releases/tag/v0.1.0), extract the archive, then run `./muse`. The preview is ad-hoc signed and not notarized; macOS may require approval in **System Settings → Privacy & Security**.
+```sh
+brew install songhyun-k/tap/muse
+muse
+```
+
+Or [download the executable](https://github.com/songhyun-k/muse/releases/latest) and run `./muse`.
 
 To build from source, install **Xcode / Swift 6**, **Rust 1.88+** and **Python 3.11+**:
 
@@ -52,7 +57,7 @@ To explore without an account, network calls or changes to your library:
 
 Sign in to the **Music app on your Mac**. If your session is missing, muse opens Music for you; sign in, return to the terminal, and retry.
 
-The built executable needs no Rust, Swift or Python installation. A Homebrew formula is not available.
+The built executable needs no Rust, Swift or Python installation.
 
 A **140 × 40** terminal leaves room for both side panels. Smaller windows adapt down to **80 × 24**. Use a Nerd Font for the full icon set, or add `--plain-icons`.
 

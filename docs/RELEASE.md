@@ -1,4 +1,14 @@
-# Build and use
+# Install, build and use
+
+```sh
+brew install songhyun-k/tap/muse
+muse
+```
+
+Update with `brew update` followed by `brew upgrade songhyun-k/tap/muse`.
+Playlists and UI preferences are kept in Application Support across upgrades.
+Sign in through Music on your Mac. When a login is missing, muse opens Music;
+return to the terminal after signing in and retry the action.
 
 The app targets macOS 14+. Apple Silicon is tested locally and in hosted macOS 15
 CI with Xcode 16.4 / Swift 6.1.2. Building requires
@@ -80,10 +90,9 @@ nor creates a remote.
 
 The default bundle identifier is `local.muse.cli`; the default signature is ad-hoc.
 This is suitable for local testing, not a claim of Developer ID signing or notarization.
-[v0.1.0](https://github.com/songhyun-k/muse/releases/tag/v0.1.0) provides an Apple
-Silicon preview archive, source archive and build manifest. It is not notarized;
-macOS may require approval in System Settings → Privacy & Security. Homebrew is
-not available.
+[GitHub Releases](https://github.com/songhyun-k/muse/releases/latest) provide the
+executable, source, build manifest, formula and checksums. Direct downloads may
+require approval in System Settings → Privacy & Security.
 
 To build with an installed signing identity and a bundle identifier you own:
 

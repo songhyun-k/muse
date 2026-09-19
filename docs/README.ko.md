@@ -17,7 +17,12 @@
 macOS 14 이상과 Apple Music 계정을 사용합니다. 카탈로그 재생에는 구독이 필요합니다.
 Apple Silicon Mac에서 사용할 수 있습니다.
 
-[Apple Silicon 미리보기 다운로드](https://github.com/songhyun-k/muse/releases/tag/v0.1.0)에서 압축을 풀고 `./muse`로 실행합니다. 임시 서명된 공증 전 빌드이므로 macOS의 **시스템 설정 → 개인정보 보호 및 보안**에서 실행 승인이 필요할 수 있습니다.
+```sh
+brew install songhyun-k/tap/muse
+muse
+```
+
+[실행 파일을 직접 다운로드](https://github.com/songhyun-k/muse/releases/latest)해 `./muse`로 실행할 수도 있습니다.
 
 직접 빌드하려면 Xcode / Swift 6, Rust 1.88 이상, Python 3를 설치합니다.
 
@@ -39,7 +44,6 @@ Mac의 **음악 앱에 로그인**하면 됩니다. 로그인이 필요하면 mu
 
 빌드한 실행 파일에는 Rust·Swift·Python 설치가 필요하지 않습니다.
 별도 API 키를 입력하지 않고 Mac에 로그인된 계정과 음악 접근 권한을 사용합니다.
-Homebrew 배포는 제공하지 않습니다.
 
 ## 나에게 맞추기
 

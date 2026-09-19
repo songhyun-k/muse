@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C11 complete; clean-source release validation and publication workflow are implemented.
+- Current unit: C12 complete; public tap and Homebrew installation are verified.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

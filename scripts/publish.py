@@ -24,6 +24,11 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def formula_text(checksum):
+    assert re.fullmatch(r'[0-9a-f]{64}', checksum), 'Invalid archive checksum'
+    return (ROOT / 'packaging/muse.rb.in').read_text().replace('@VERSION@', version()).replace('@SHA256@', checksum)
+
+
 def validate():
     assert re.fullmatch(r'\d+\.\d+\.\d+', version()), 'Expected a stable semantic version'
     assert not output('git', 'status', '--porcelain'), 'Commit changes before publishing'
@@ -49,7 +54,7 @@ def validate():
             assert package.extractfile(member).read() == (ROOT / name).read_bytes(), 'Source archive is stale'
             names.add(name)
         assert names == expected, 'Source archive is incomplete'
-    formula = (ROOT / 'packaging/muse.rb.in').read_text().replace('@VERSION@', version()).replace('@SHA256@', digest(archive))
+    formula = formula_text(digest(archive))
     (ROOT / 'dist/muse.rb').write_text(formula)
     assets = [archive, source, ROOT / 'dist/release.json', ROOT / 'dist/muse.rb']
     checksums = ROOT / 'dist/SHA256SUMS'
@@ -57,15 +62,19 @@ def validate():
     return head, assets + [checksums], formula
 
 
-def update_tap(formula):
-    # The release must already be public; never publish a tap pointing at a draft.
-    release = json.loads(output('gh', 'release', 'view', f'v{version()}', '--repo', REPO,
-                                '--json', 'isDraft,isPrerelease'))
-    assert not release['isDraft'] and not release['isPrerelease']
+def update_tap():
+    # Pin the published bytes, never a local rebuild of the same version.
+    release = json.loads(output('gh', 'api', f'repos/{REPO}/releases/tags/v{version()}'))
+    assert not release['draft'] and not release['prerelease'] and release['immutable']
+    archive = next(asset for asset in release['assets'] if asset['name'] == 'muse-macos-arm64.tar.gz')
+    formula = formula_text(archive['digest'].removeprefix('sha256:'))
     endpoint = f'repos/{TAP}/contents/Formula/muse.rb'
     current = json.loads(output('gh', 'api', endpoint))
-    if base64.b64decode(current['content']).decode() == formula:
+    previous = base64.b64decode(current['content']).decode()
+    if previous == formula:
         return
+    previous_version = re.search(r'/download/v(\d+\.\d+\.\d+)/', previous)[1]
+    assert tuple(map(int, previous_version.split('.'))) <= tuple(map(int, version().split('.'))), 'Refusing to downgrade tap'
     payload = dict(message=f'Release muse {version()}', sha=current['sha'],
                    content=base64.b64encode(formula.encode()).decode(), branch='main')
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file:
@@ -79,17 +88,31 @@ def main():
     parser.add_argument('--publish', action='store_true')
     parser.add_argument('--update-tap', action='store_true')
     args = parser.parse_args()
+    if args.update_tap and not args.publish:
+        update_tap()
+        return
     head, assets, formula = validate()
     print(f'Verified muse {version()} at {head}')
     if args.publish:
-        notes = f'''Apple Music in your terminal. macOS 14+ on Apple Silicon.\n\n```sh\nbrew install songhyun-k/tap/muse\nmuse\n```\n\nSign in to the Music app on your Mac. Press `,` for Settings or `?` for help.\n\nThe archive includes the executable and license notices. No extra runtime is required.\n`SHA256SUMS` and `release.json` identify the inspected artifacts. Packages use ad-hoc signing.\n'''
+        notes = f"""Apple Music in your terminal. macOS 14+ on Apple Silicon.
+
+```sh
+brew install songhyun-k/tap/muse
+muse
+```
+
+Sign in to the Music app on your Mac. Press `,` for Settings or `?` for help.
+
+The archive includes the executable and license notices. No extra runtime is required.
+`SHA256SUMS` and `release.json` identify the inspected artifacts. Packages use ad-hoc signing.
+"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.md') as file:
             file.write(notes); file.flush()
             subprocess.run(['gh', 'release', 'create', f'v{version()}', *map(str, assets),
                             '--repo', REPO, '--target', head, '--title', f'muse {version()}',
                             '--notes-file', file.name, '--latest'], cwd=ROOT, check=True)
     if args.update_tap:
-        update_tap(formula)
+        update_tap()
 
 
 if __name__ == '__main__':

@@ -17,8 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C11 — Versioned release packaging and repeatable publication.
-- [ ] C12 — Homebrew tap, installation and upgrade validation.
+- [x] C12 — Public Homebrew tap, installed executable and strict formula audit verified.
 - [ ] C13 — Release publication, repository rules and current documentation.
 
 The primary agent implements and inspects directly. The user authorizes the
@@ -55,7 +54,7 @@ an applicable current size exception in commit-exceptions.json.
 - [x] Handoff happens once per failed-login episode; no password/token input in muse.
 - [x] Returning users retry the original action; playlists and preferences are preserved.
 - [x] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
-- [ ] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
+- [x] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
 - [ ] Homebrew upgrade changes the executable without deleting user data.
 - [ ] Releases use immutable version tags and a verified, clean main commit.
 - [ ] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
