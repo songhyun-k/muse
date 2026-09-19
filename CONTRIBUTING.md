@@ -20,7 +20,7 @@ python3 scripts/check.py
 ```
 
 Generated contract types must be changed through the schema and
-`scripts/generate.py`, not edited directly. Keep labels in the [translation
+`cargo xtask generate`, not edited directly. Keep labels in the [translation
 catalog](docs/LOCALIZATION.md); metadata and lyrics remain verbatim.
 
 Demo tests require no account or network. Native checks are opt-in: `--live-check

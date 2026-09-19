@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C18 — Generate the native contract and JSON Schema through the Rust task.
+- [x] C19 — Drop the duplicate schema validator and source-shape dependency scanner.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
@@ -58,6 +58,6 @@ an applicable current size exception in commit-exceptions.json.
 - [x] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
 - [x] User documents describe supported usage without untested-platform disclaimers.
 
-Each unit must pass the dependency/contract gate and affected behavior checks.
+Each unit must pass the contract gate and affected behavior checks.
 No native playback or account sign-out is used for automation. Final acceptance
 includes actual brew installation, version/probe checks, CI, and release checksums.

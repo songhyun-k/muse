@@ -86,8 +86,8 @@ visualization; it must never be described as audio measurement.
 
 ## Deterministic quality gates
 
-1. Dependency scanner enforces module imports and manifest edges above. One
-   implementation per concrete service; avoid speculative interfaces/factories.
+1. Review module dependencies at the contract boundary; source spelling and
+   implementation structure are not enforced by regular-expression scanners.
 2. Contract generator `--check`; round-trip shared fixtures in Swift and Rust;
    malformed/version/oversize cases rejected at the boundary.
 3. `swift test`, `cargo test`, `cargo fmt --check`, `cargo clippy -- -D warnings`.
