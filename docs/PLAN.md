@@ -17,8 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C07 — Login, Homebrew and branch/release acceptance plan.
-- [ ] C08 — Typed missing-login error and direct Music app handoff.
+- [x] C08 — Typed missing-login error and direct Music app handoff.
 - [ ] C09 — Login retry behavior and interruption-safe handoff checks.
 - [ ] C10 — Current distribution documentation and simplification review.
 - [ ] C11 — Versioned release packaging and repeatable publication.
@@ -55,15 +54,15 @@ an applicable current size exception in commit-exceptions.json.
 
 ## Distribution acceptance
 
-- [ ] Missing-login errors show one short message and open Music directly.
-- [ ] Handoff happens once per failed-login episode; no password/token input in muse.
+- [x] Missing-login errors show one short message and open Music directly.
+- [x] Handoff happens once per failed-login episode; no password/token input in muse.
 - [ ] Returning users retry the original action; playlists and preferences are preserved.
-- [ ] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
+- [x] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
 - [ ] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
 - [ ] Homebrew upgrade changes the executable without deleting user data.
 - [ ] Releases use immutable version tags and a verified, clean main commit.
 - [ ] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
-- [ ] User documents describe supported usage without untested-platform disclaimers.
+- [x] User documents describe supported usage without untested-platform disclaimers.
 
 Each unit must pass the dependency/contract gate and affected behavior checks.
 No native playback or account sign-out is used for automation. Final acceptance

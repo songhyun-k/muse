@@ -11,7 +11,7 @@
     "Control": ["toggle", "pause", "stop", "next", "previous"],
     "Placement": ["replace", "next", "last"],
     "LyricsStatus": ["synced", "plain", "instrumental", "missing"],
-    "ErrorCode": ["invalid_request", "unsupported_version", "not_authorized", "subscription_required", "unavailable", "network", "not_found", "storage", "conflict", "busy", "cancelled", "internal_error"]
+    "ErrorCode": ["invalid_request", "unsupported_version", "not_authorized", "sign_in_required", "subscription_required", "unavailable", "network", "not_found", "storage", "conflict", "busy", "cancelled", "internal_error"]
   },
   "records": {
     "Empty": {},

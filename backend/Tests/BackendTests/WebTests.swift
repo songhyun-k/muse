@@ -71,6 +71,40 @@ func webTestToken(expiry: Double, issuer: String = "AMPWebPlay") -> String {
 
 @Suite(.serialized) @MainActor
 struct WebTests {
+  @Test func missingLoginOpensMusicOnceAndRetriesAfterSignIn() async throws {
+    let token = webTestToken(expiry: Date().timeIntervalSince1970 + 3600)
+    WebStub.state.reset([
+      "/us/new": WebReply("let token='\(token)'"),
+      "/v1/me/storefront": WebReply(#"{"data":[{"id":"us"}]}"#),
+      "/v1/catalog/us/search": WebReply(#"{"results":{"songs":{"data":[]}}}"#)
+    ])
+    var signedIn = false
+    var opened = 0
+    var offline = false
+    let web = WebMusic(http: AppleWeb(configuration: webConfiguration())) { _, _ in
+      if offline { throw URLError(.notConnectedToInternet) }
+      guard signedIn else { throw MusicTokenRequestError.userNotSignedIn }
+      return "fixture-user"
+    }
+    let service = Service(music: MusicService(web: web, authorization: { .authorized }),
+                          openMusic: { opened += 1 })
+    defer { service.close() }
+    for id: UInt64 in 1...5 {
+      signedIn = id == 3
+      offline = id == 5
+      let event = await service.handle(try Wire.encode(Request(version: 1, id: id,
+        command: .search(.init(query: "Mira", source: .catalog, kind: .song, offset: 0)))))
+      if signedIn {
+        guard case .page = event.event else { Issue.record("Login did not recover search"); return }
+      } else {
+        guard case .failure(let failure) = event.event else { Issue.record("Missing failure"); return }
+        #expect(failure.code == (offline ? .network : .signInRequired))
+        #expect(failure.retryable)
+      }
+      #expect(opened == (id < 4 ? 1 : 2))
+    }
+  }
+
   @Test func tokenAndAssetParsingRejectsExpiredForeignAndMalformedInputs() {
     let now = Date(timeIntervalSince1970: 1000)
     let valid = webTestToken(expiry: 2000)

@@ -88,6 +88,7 @@ public enum ErrorCode: String, Codable, Sendable, CaseIterable {
   case invalidRequest = "invalid_request"
   case unsupportedVersion = "unsupported_version"
   case notAuthorized = "not_authorized"
+  case signInRequired = "sign_in_required"
   case subscriptionRequired = "subscription_required"
   case unavailable = "unavailable"
   case network = "network"

@@ -98,6 +98,7 @@
         "invalid_request",
         "unsupported_version",
         "not_authorized",
+        "sign_in_required",
         "subscription_required",
         "unavailable",
         "network",

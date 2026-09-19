@@ -130,7 +130,7 @@ final class RequestScheduler {
     case MusicTokenRequestError.developerTokenRequestFailed:
       return .init(code: .unavailable, message: "이 앱의 Apple Music 등록을 확인해주세요", retryable: false)
     case MusicTokenRequestError.userNotSignedIn:
-      return .init(code: .notAuthorized, message: "음악 앱에 로그인해주세요", retryable: false)
+      return .init(code: .signInRequired, message: "음악 앱에 로그인해주세요", retryable: true)
     case MusicTokenRequestError.permissionDenied, MusicTokenRequestError.userTokenRevoked,
       MusicSubscription.Error.permissionDenied, MusicLibrary.Error.permissionDenied:
       return .init(code: .notAuthorized, message: "시스템 설정에서 음악 접근을 허용해주세요", retryable: false)

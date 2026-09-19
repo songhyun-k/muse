@@ -9,6 +9,7 @@
     {"version":1,"id":5,"command":{"type":"queue","data":{"offset":50,"revision":4}}}
   ],
   "validEvents": [
+    {"version":1,"sequence":9,"event":{"type":"failure","data":{"code":"sign_in_required","message":"음악 앱에 로그인해주세요","retryable":true}}},
     {"version":1,"id":7,"sequence":5,"event":{"type":"collection_created","data":{"collection":{"id":"new","name":"Night","description":"","count":0},"store":{"collections":[{"id":"new","name":"Night","description":"","count":0}],"favorites":[],"historyCount":0}}}},
     {"version":1,"id":1,"sequence":1,"event":{"type":"failure","data":{"code":"not_authorized","message":"음악 접근을 허용해주세요","retryable":true}}},
     {"version":1,"sequence":2,"event":{"type":"volume","data":{"device":"MacBook Pro","level":0.65,"muted":false,"canSetVolume":true,"canMute":true}}},

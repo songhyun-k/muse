@@ -36,6 +36,13 @@ final class WebMusic {
 
   func close() { storefront = nil; http.close() }
 
+  func checkLogin() async throws {
+    let token = try await http.token()
+    let user = try await userToken(token.value, true)
+    try Task.checkCancellation()
+    guard !user.isEmpty else { throw MusicTokenRequestError.userNotSignedIn }
+  }
+
   func search<T: Decodable>(_ params: SearchParams) async throws -> WebPage<T> {
     let resource = params.kind.rawValue + "s"
     let response: WebSearch<T> = try await read("/search", query: [

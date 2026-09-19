@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import MusicContract
 
@@ -11,17 +12,34 @@ public final class Service {
   let volume = VolumeService()
   private var historyEntry: String?
   private var historyReference: ItemRef?
+  private var loginTask: Task<Void, Never>?
+  private var loginPresented = false
+  private let openMusic: @MainActor () async throws -> Void
   private lazy var scheduler = RequestScheduler { [weak self] request in
     guard let self else { throw CancellationError() }
-    return try await self.perform(request)
+    do {
+      let result = try await self.perform(request)
+      switch request.command {
+      case .search(let p) where p.source == .catalog: self.loginPresented = false
+      case .browse(let p) where p.scope == .home: self.loginPresented = false
+      default: break
+      }
+      return result
+    } catch { throw await self.loginFailure(error) }
   }
 
   public convenience init(storeURL: URL? = nil, lyricsSession: URLSession = .shared) {
     self.init(storeURL: storeURL, lyricsSession: lyricsSession, music: MusicService())
   }
 
-  init(storeURL: URL? = nil, lyricsSession: URLSession = .shared, music: MusicService) {
+  init(storeURL: URL? = nil, lyricsSession: URLSession = .shared, music: MusicService,
+       openMusic: @escaping @MainActor () async throws -> Void = {
+         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Music")
+         else { throw CocoaError(.fileNoSuchFile) }
+         _ = try await NSWorkspace.shared.openApplication(at: url, configuration: .init())
+       }) {
     self.music = music
+    self.openMusic = openMusic
     lyrics = LyricsService(session: lyricsSession)
     store = Result {
       do { return try LibraryStore(file: storeURL) } catch let error as StoreError {
@@ -44,13 +62,34 @@ public final class Service {
   }
 
   public func close() {
+    loginTask?.cancel()
     scheduler.close()
     music.closePlayer()
     music.web.close()
     volume.close()
   }
 
-  public func start() { volume.start() }
+  public func start() {
+    volume.start()
+    loginTask = Task {
+      do { try await music.web.checkLogin() }
+      catch where RequestScheduler.failure(error).code == .signInRequired {
+        let failure = await loginFailure(error)
+        if !Task.isCancelled { publish(.failure(failure)) }
+      } catch { /* Background connectivity does not block the library. */ }
+    }
+  }
+
+  private func loginFailure(_ error: Error) async -> Failure {
+    let failure = RequestScheduler.failure(error)
+    guard failure.code == .signInRequired, !loginPresented, !Task.isCancelled else { return failure }
+    loginPresented = true
+    do { try await openMusic() }
+    catch {
+      return .init(code: .signInRequired, message: "음악 앱을 직접 열어 로그인해주세요", retryable: true)
+    }
+    return failure
+  }
 
   private func publish(_ notice: Notice) {
     if let onEvent { scheduler.notify(notice, reply: onEvent) }

@@ -36,3 +36,8 @@ in memory. Language selection changes app text only, never music metadata or lyr
 Apple Music's own lyrics, cloud playlist creation/edit/export, and cloud syncing
 are not connected. Existing library playlists can be read. Native artwork requests
 can return an empty image for some library entries; the UI then shows a placeholder.
+
+Missing OS account login is reported as `sign_in_required`. The Swift service opens
+`com.apple.Music` once per failed-login episode and shows the existing short message.
+Startup checks the OS user token without persisting it; network errors do not trigger
+login handoff. A successful catalog request allows a later sign-out to trigger it again.

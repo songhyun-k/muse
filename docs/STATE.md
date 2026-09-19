@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C07 complete; next-scope boundaries and distribution checks are defined.
+- Current unit: C08 complete; missing login opens Music once and returns a retryable failure.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.

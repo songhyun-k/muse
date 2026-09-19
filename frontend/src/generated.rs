@@ -91,6 +91,7 @@ pub enum ErrorCode {
     InvalidRequest,
     UnsupportedVersion,
     NotAuthorized,
+    SignInRequired,
     SubscriptionRequired,
     Unavailable,
     Network,

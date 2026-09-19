@@ -49,7 +49,7 @@ import Testing
 @MainActor @Test func nativeErrorsProvideActionableFailuresWithoutLeakingProviderPayloads() async throws {
   let cases: [(any Error, ErrorCode, Bool, String)] = [
     (MusicTokenRequestError.developerTokenRequestFailed, .unavailable, false, "등록"),
-    (MusicTokenRequestError.userNotSignedIn, .notAuthorized, false, "로그인"),
+    (MusicTokenRequestError.userNotSignedIn, .signInRequired, true, "로그인"),
     (MusicTokenRequestError.permissionDenied, .notAuthorized, false, "접근"),
     (MusicTokenRequestError.userTokenRevoked, .notAuthorized, false, "접근"),
     (MusicTokenRequestError.privacyAcknowledgementRequired, .notAuthorized, false, "개인정보"),
