@@ -71,12 +71,22 @@ func webTestToken(expiry: Double, issuer: String = "AMPWebPlay") -> String {
 
 @Suite(.serialized) @MainActor
 struct WebTests {
-  @Test func missingLoginOpensMusicOnceAndRetriesAfterSignIn() async throws {
+  @Test(arguments: [
+    Command.search(.init(query: "Mira", source: .catalog, kind: .song, offset: 0)),
+    .browse(.init(scope: .home, kind: .album, order: .recent, offset: 0)),
+    .detail(.init(item: .init(id: "one", source: .catalog, kind: .song), offset: 0)),
+    .detail(.init(item: .init(id: "album", source: .catalog, kind: .album), offset: 0))
+  ])
+  func missingLoginOpensMusicOnceAndRetriesAfterSignIn(command: Command) async throws {
     let token = webTestToken(expiry: Date().timeIntervalSince1970 + 3600)
     WebStub.state.reset([
       "/us/new": WebReply("let token='\(token)'"),
       "/v1/me/storefront": WebReply(#"{"data":[{"id":"us"}]}"#),
-      "/v1/catalog/us/search": WebReply(#"{"results":{"songs":{"data":[]}}}"#)
+      "/v1/catalog/us/search": WebReply(#"{"results":{"songs":{"data":[]}}}"#),
+      "/v1/me/recommendations": WebReply(#"{"data":[]}"#),
+      "/v1/catalog/us/songs": WebReply(#"{"data":[\#(webSong("one"))]}"#),
+      "/v1/catalog/us/albums": WebReply(#"{"data":[\#(webAlbum("album"))]}"#),
+      "/v1/catalog/us/albums/album/tracks": WebReply(#"{"data":[\#(webSong("one"))]}"#)
     ])
     var signedIn = false
     var opened = 0
@@ -86,16 +96,31 @@ struct WebTests {
       guard signedIn else { throw MusicTokenRequestError.userNotSignedIn }
       return "fixture-user"
     }
-    let service = Service(music: MusicService(web: web, authorization: { .authorized }),
-                          openMusic: { opened += 1 })
+    let music = MusicService(web: web, authorization: { .authorized })
+    let station = try JSONDecoder().decode(Station.self, from: Data(
+      #"{"id":"cached","type":"stations","attributes":{"name":"Fixture station","isLive":true}}"#.utf8))
+    let cached = music.remember(.station(station), source: .catalog)
+    let service = Service(music: music, openMusic: { opened += 1 })
     defer { service.close() }
     for id: UInt64 in 1...5 {
       signedIn = id == 3
       offline = id == 5
+      if id == 2 {
+        let requests = WebStub.state.seen.count
+        for local in [Command.browse(.init(scope: .favorites, kind: .song, order: .recent, offset: 0)),
+                      .detail(.init(item: cached.ref, offset: 0))] {
+          let event = await service.handle(try Wire.encode(Request(version: 1, id: 10, command: local)))
+          if case .failure(let failure) = event.event { throw failure }
+        }
+        #expect(WebStub.state.seen.count == requests)
+      }
       let event = await service.handle(try Wire.encode(Request(version: 1, id: id,
-        command: .search(.init(query: "Mira", source: .catalog, kind: .song, offset: 0)))))
+        command: command)))
       if signedIn {
-        guard case .page = event.event else { Issue.record("Login did not recover search"); return }
+        switch event.event {
+        case .page, .detail: break
+        default: Issue.record("Login did not recover the request"); return
+        }
       } else {
         guard case .failure(let failure) = event.event else { Issue.record("Missing failure"); return }
         #expect(failure.code == (offline ? .network : .signInRequired))

@@ -23,6 +23,7 @@ private struct WebSearch<Element: Decodable>: Decodable {
 @MainActor
 final class WebMusic {
   typealias UserToken = @MainActor (String, Bool) async throws -> String
+  var onAuthenticatedRead: (() -> Void)?
   private let http: AppleWeb
   private let userToken: UserToken
   private var storefront: (user: String, country: String)?
@@ -98,8 +99,12 @@ final class WebMusic {
         ]
         let prefix = catalog ? "/v1/catalog/" + (try await country(user: user, headers: headers)) : ""
         let data = try await fetch(prefix + path, query: query, headers: headers)
-        do { return try JSONDecoder().decode(T.self, from: data) }
+        let response: T
+        do { response = try JSONDecoder().decode(T.self, from: data) }
         catch { throw AppleWeb.invalidResponse() }
+        try Task.checkCancellation()
+        onAuthenticatedRead?()
+        return response
       } catch let error as WebHTTPFailure {
         guard !refresh, [401, 403].contains(error.status) else {
           throw RequestScheduler.musicHTTPFailure(status: error.status)

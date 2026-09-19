@@ -30,15 +30,8 @@ public final class Service {
   private let openMusic: @MainActor () async throws -> Void
   private lazy var scheduler = RequestScheduler { [weak self] request in
     guard let self else { throw CancellationError() }
-    do {
-      let result = try await self.perform(request)
-      switch request.command {
-      case .search(let p) where p.source == .catalog: self.loginPresented = false
-      case .browse(let p) where p.scope == .home: self.loginPresented = false
-      default: break
-      }
-      return result
-    } catch { throw await self.loginFailure(error) }
+    do { return try await self.perform(request) }
+    catch { throw await self.loginFailure(error) }
   }
 
   public convenience init(storeURL: URL? = nil, lyricsSession: URLSession = .shared) {
@@ -58,6 +51,7 @@ public final class Service {
     _ = store
     music.onPlayback = { [weak self] state in self?.playbackChanged(state) }
     music.onFailure = { [weak self] failure in self?.publish(.failure(failure)) }
+    music.web.onAuthenticatedRead = { [weak self] in self?.loginPresented = false }
     volume.onChange = { [weak self] state in self?.publish(.volume(state)) }
   }
 

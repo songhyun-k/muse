@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C42 complete; Preserve independent bootstrap state and visible errors when app storage fails.
+- Current unit: C43 complete; Reset the login episode after authenticated catalog detail recovery.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -29,6 +29,8 @@ their own replies arrive; saved edits and playback commands are never cancelled 
 
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.
+Successful authenticated web reads, including details, re-arm the login handoff;
+local and cached reads do not reset it.
 Native queue replacement selects a nonzero current entry only after assignment.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
 entries return empty data and show placeholders. Lyrics use LRCLIB with a versionless
