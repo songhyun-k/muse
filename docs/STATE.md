@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C44 complete; Keep playback and volume responsive during lyric and collection preparation.
+- Current unit: C45 complete; Show newly added playlists and favorites first in recent pages.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -26,6 +26,9 @@ feedback alone; superseded reads and failures remain excluded.
 The frontend cancels obsolete accepted reads through the existing backend command,
 using reserved request slots. Reads and cancellation requests remain counted until
 their own replies arrive; saved edits and playback commands are never cancelled by navigation.
+
+Local playlists and favorites list newest additions first for recent order before
+pagination. Name/artist sorting, playback history and playlist track order are preserved.
 
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.

@@ -53,7 +53,8 @@ func sampleSong(_ id: String, source: Source = .catalog) -> Item {
   #expect(store.summary.collections[0].description.isEmpty)
 }
 
-@MainActor @Test func localPaginationPreservesCollectionOrder() throws {
+@MainActor @Test(arguments: [Order.recent, .name, .artist])
+func localPaginationPreservesCollectionOrder(order: Order) throws {
   let store = try LibraryStore()
   let items = (0..<53).map { sampleSong(String($0)) }
   let result = try store.create(name: "List", description: "", items: items)
@@ -62,16 +63,52 @@ func sampleSong(_ id: String, source: Source = .catalog) -> Item {
     try store.localPage(
       .init(
         scope: .collection, kind: .song,
-        collectionId: id, order: .name, offset: 0)))
+        collectionId: id, order: order, offset: 0)))
   #expect(first.items == Array(items.prefix(50)))
   #expect(first.nextOffset == 50)
   let last = try #require(
     try store.localPage(
       .init(
         scope: .collection, kind: .song,
-        collectionId: id, order: .name, offset: 50)))
+        collectionId: id, order: order, offset: 50)))
   #expect(last.items == Array(items.suffix(3)))
   #expect(last.nextOffset == nil)
+}
+
+@MainActor @Test func localOrderingPrecedesPagination() throws {
+  let store = try LibraryStore()
+  let songs = (0..<53).map { index in
+    var song = sampleSong(String(index))
+    song.artist = "Artist \(52 - index)"
+    return song
+  }
+  for song in songs {
+    try store.create(name: song.title, description: "")
+    try store.favorite(song, enabled: true)
+    try store.recordPlayback(song)
+  }
+  let before = store.state
+  let newestFirst = Array(songs.reversed())
+  for scope in [Scope.collections, .favorites, .history] {
+    let kind: Kind = scope == .collections ? .playlist : .song
+    let first = try #require(
+      try store.localPage(.init(scope: scope, kind: kind, order: .recent, offset: 0)))
+    #expect(first.items.map(\.title) == newestFirst.prefix(50).map(\.title))
+    #expect(first.nextOffset == 50)
+    let last = try #require(
+      try store.localPage(.init(scope: scope, kind: kind, order: .recent, offset: 50)))
+    #expect(last.items.map(\.title) == newestFirst.suffix(3).map(\.title))
+    #expect(last.nextOffset == nil)
+    let named = try #require(
+      try store.localPage(.init(scope: scope, kind: kind, order: .name, offset: 0)))
+    #expect(named.items.map(\.title) == songs.prefix(50).map(\.title))
+    if scope != .collections {
+      let artists = try #require(
+        try store.localPage(.init(scope: scope, kind: kind, order: .artist, offset: 0)))
+      #expect(artists.items == Array(newestFirst.prefix(50)))
+    }
+  }
+  #expect(store.state == before)
 }
 
 @MainActor @Test func collectionRequestsReturnConfirmedState() async throws {
