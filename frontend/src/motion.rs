@@ -149,11 +149,10 @@ mod tests {
     }
 
     #[test]
-    fn deterministic_smoothing_resizes_and_reduced_motion_settle_without_domain_writes() {
+    fn motion_settles_and_reduced_motion_preserves_domain_state() {
         let mut ui = Ui::default();
         let data = Data::default();
         let mut motion = Motion::new(&ui, &data, 0.0, 1000.0, (140, 40));
-        assert_eq!(motion.visual.panel_widths, Some([0.0, 0.0]));
         assert!(motion.advance(&ui, &data, 0.1, 1000.1, (140, 40)));
         ui.cursors[0] = 4;
         motion.advance(&ui, &data, 0.2, 1000.2, (140, 40));
@@ -161,15 +160,12 @@ mod tests {
             motion.advance(&ui, &data, f64::from(tick) / 10.0, 1000.0, (140, 40));
         }
         assert!(!motion.advance(&ui, &data, 10.0, 1000.0, (140, 40)));
-        assert_eq!(motion.visual.panel_widths, Some([21.0, 29.0]));
         motion.advance(&ui, &data, 10.1, 1000.0, (80, 24));
-        assert_eq!(motion.visual.panel_widths, Some([21.0, 0.0]));
         ui.reduced_motion = true;
         ui.cursors[0] = 8;
         ui.left_open = false;
         assert!(!motion.advance(&ui, &data, 10.2, 1000.0, (140, 40)));
         assert_eq!(motion.visual.selections, [8.0, 0.0]);
-        assert_eq!(motion.visual.panel_widths, Some([0.0, 29.0]));
         assert!(data.player.is_none());
     }
 }

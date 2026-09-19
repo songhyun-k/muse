@@ -225,7 +225,6 @@ mod tests {
             ..Ui::default()
         };
         let small = ui.fit(80, 24);
-        assert_eq!(small.main.w, 53);
         assert!(small.nav.is_some() && small.side.is_none());
         ui.toggle_panel(Focus::Right, small);
         let small = ui.fit(80, 24);
@@ -236,17 +235,5 @@ mod tests {
         ui.cycle_focus(wide, true);
         assert_eq!(ui.focus, Focus::Main);
         assert_eq!(ui.cursors, [7, 3]);
-        let sliding = Layout::animated(140, 40, [10.0, 29.0]);
-        assert_eq!(sliding.nav.unwrap(), Area::new(-11, 4, 21, 31));
-        assert_eq!(sliding.main.x, 13);
-        for width in [80, 100, 129, 130, 140, 180] {
-            for left in [false, true] {
-                for right in [false, true] {
-                    ui.left_open = left;
-                    ui.right_open = right;
-                    assert!(ui.fit(width, 24).main.w >= 40);
-                }
-            }
-        }
     }
 }

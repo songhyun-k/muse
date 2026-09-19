@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C28 — Remove superseded Python build, packaging and PTY implementations.
+- [x] C29 — Complete the Python removal and keep development checks focused on behavior.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
