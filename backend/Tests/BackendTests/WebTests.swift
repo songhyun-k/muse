@@ -302,6 +302,60 @@ extension WebTests {
     guard case .snapshot = result.event else { Issue.record("snapshot failed"); return }
     #expect(WebStub.state.seen.isEmpty)
   }
+
+  @Test func failedStoreStillPublishesIndependentBootstrapState() async throws {
+    for corrupt in [false, true] {
+      let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+      defer { try? FileManager.default.removeItem(at: directory) }
+      let file = directory.appendingPathComponent("library.json")
+      let owner = corrupt ? nil : try LibraryStore(file: file)
+      defer { withExtendedLifetime(owner) {} }
+      if corrupt {
+        try Data("{broken".utf8).write(to: file)
+      } else {
+        _ = try owner?.create(name: "Preserved", description: "")
+      }
+      let original = try Data(contentsOf: file)
+      WebStub.state.reset([:])
+      let web = WebMusic(http: AppleWeb(configuration: webConfiguration())) { _, _ in
+        Issue.record("bootstrap requested user credentials")
+        return "unused"
+      }
+      let music = MusicService(web: web, authorization: { .authorized })
+      let service = Service(storeURL: file, music: music)
+      defer { service.close() }
+      var events: [Event] = []
+      service.onEvent = { events.append($0) }
+      let reply = await service.handle(
+        try Wire.encode(Request(version: 1, id: 1, command: .snapshot(.init()))))
+      guard case .failure(let failure) = reply.event else {
+        Issue.record("Expected the store failure, not a successful empty store")
+        continue
+      }
+      #expect(reply.id == 1)
+      #expect(failure.code == (corrupt ? .storage : .conflict))
+      #expect(failure.retryable)
+      #expect(events.map(\.event.tag) == ["session", "player", "volume"])
+      #expect(events.allSatisfy { $0.id == nil && $0.sequence < reply.sequence })
+      for event in events {
+        switch event.event {
+        case .session(let state): #expect(state == music.session())
+        case .player(let state): #expect(!state.playing && state.current == nil)
+        case .volume(let state):
+          #expect(!state.canSetVolume || state.level != nil)
+          #expect(!state.canMute || state.muted != nil)
+        default: Issue.record("Unexpected bootstrap state")
+        }
+      }
+      let mutation = await service.handle(try Wire.encode(Request(version: 1, id: 2,
+        command: .collectionCreate(.init(name: "Must fail", description: "")))))
+      #expect(mutation.event == .failure(failure))
+      #expect(try Data(contentsOf: file) == original)
+      #expect(music.player == nil)
+      #expect(WebStub.state.seen.isEmpty)
+    }
+  }
 }
 
 func webAlbum(_ id: String) -> String {

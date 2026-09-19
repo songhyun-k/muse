@@ -286,7 +286,9 @@ impl Data {
             .filter_map(|target| self.errors.get_key_value(target))
             .chain(self.errors.iter())
             .find(|(target, _)| {
-                target.is_control() || (**target == Target::Lyrics && self.lyrics.is_some())
+                target.is_control()
+                    || **target == Target::Bootstrap
+                    || (**target == Target::Lyrics && self.lyrics.is_some())
             })
     }
 

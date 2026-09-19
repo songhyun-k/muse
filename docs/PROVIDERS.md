@@ -33,6 +33,13 @@ Both owners use `~/Library/Application Support/muse` by default, or the absolute
 Tokens and audio files are not persisted. Images and lyric responses are cached
 in memory. Language selection changes app text only, never music metadata or lyrics.
 
+If app storage cannot open, [Service](../backend/Sources/Backend/Service.swift) publishes
+session, player and volume events independently and returns the storage failure for
+bootstrap. The UI keeps that failure visible after library/catalog rows load. Saved
+data stays unavailable until a later store access successfully reopens storage;
+the next access retries without restarting the application. A successful store keeps
+its exclusive writer lock, and failed reads never replace corrupt data with an empty store.
+
 Apple Music's own lyrics, cloud playlist creation/edit/export, and cloud syncing
 are not connected. Existing library playlists can be read. Native artwork requests
 can return an empty image for some library entries; the UI then shows a placeholder.

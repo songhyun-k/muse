@@ -124,10 +124,18 @@ public final class Service {
   private func perform(_ request: Request) async throws -> Notice {
     switch request.command {
     case .snapshot:
+      let summary: StoreState
+      do { summary = try store.get().summary }
+      catch {
+        publish(.session(music.session()))
+        publish(.player(music.playbackState()))
+        publish(.volume(volume.state()))
+        throw error
+      }
       return .snapshot(
         .init(
           session: music.session(), player: music.playbackState(),
-          store: try store.get().summary,
+          store: summary,
           volume: volume.state()))
     case .authorize: return .session(await music.authorize())
     case .play(let params): return .player(try await play(params))

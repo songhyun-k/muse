@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C41 — Recover library access after an initial store lock is released.
+- [x] C42 — Preserve independent bootstrap state and visible errors when app storage fails.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
