@@ -150,14 +150,13 @@ final class LyricsService {
     }
     var request = URLRequest(url: url, timeoutInterval: 10)
     request.setValue("muse", forHTTPHeaderField: "User-Agent")
-    let (data, response) = try await session.data(for: request)
+    let (bytes, response) = try await session.bytes(for: request)
+    defer { bytes.task.cancel() }
     guard let response = response as? HTTPURLResponse else { throw networkFailure() }
     if allowMissing && response.statusCode == 404 { return nil }
-    guard (200..<300).contains(response.statusCode), data.count <= 1024 * 1024 else {
-      throw networkFailure()
-    }
-    try Task.checkCancellation()
-    return data
+    guard (200..<300).contains(response.statusCode) else { throw networkFailure() }
+    return try await boundedBody(
+      bytes, response: response, maximum: 1024 * 1024, failure: networkFailure())
   }
 
   private func networkFailure() -> Failure {

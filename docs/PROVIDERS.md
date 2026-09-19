@@ -32,6 +32,9 @@ Both owners use `~/Library/Application Support/muse` by default, or the absolute
 `MUSE_STATE_DIR`. Swift writes only `library.json`; Rust writes only `ui.json`.
 Tokens and audio files are not persisted. Images and lyric responses are cached
 in memory. Language selection changes app text only, never music metadata or lyrics.
+Artwork and LRCLIB use the same [bounded response reader](../backend/Sources/Backend/ResponseBody.swift)
+as AppleWeb. Artwork is limited to 8 MiB and lyrics to 1 MiB while streaming;
+overflow cancels the download even without Content-Length or EOF.
 
 If app storage cannot open, [Service](../backend/Sources/Backend/Service.swift) publishes
 session, player and volume events independently and returns the storage failure for
