@@ -12,12 +12,13 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 - [x] Saved playlists/favorites/history, LRCLIB lyrics and device controls are implemented.
 - [x] Approved themes, panels, transparency, animations and keyboard/mouse behavior are retained.
 - [x] Behavior, contract, terminal and publication checks exist.
+- [x] Rust panics leave a bounded, terminal-safe cause after terminal restoration.
 - [x] All documents describe current code, with an accurate feature supply map.
 - [x] The final inspected source has a verified optimized executable and matching release report.
 
 ## Current unit and remaining work
 
-- [x] C36 — Normalize sanitized lyrics and wrap at valid UTF-8 boundaries.
+- [x] C37 — Preserve Rust panic diagnostics after terminal restoration.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
