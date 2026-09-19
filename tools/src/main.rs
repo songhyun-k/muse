@@ -1,6 +1,7 @@
 mod build;
 mod demo;
 mod generate;
+mod package;
 mod process;
 mod terminal;
 
@@ -25,7 +26,7 @@ fn execute() -> Result {
     let allowed: &[&str] = match command {
         "build" => &["--release"],
         "generate" | "demo" => &["--check"],
-        "terminal" | "previews" | "check-publication" | "--help" => &[],
+        "release" | "terminal" | "previews" | "check-publication" | "--help" => &[],
         _ => return Err(format!("Unknown task: {command}").into()),
     };
     for flag in args.iter().skip(1) {
@@ -40,6 +41,7 @@ fn execute() -> Result {
         "build" => build::build(args.iter().any(|a| a == "--release")),
         "check-publication" => build::check_publication(),
         "previews" => demo::previews(),
+        "release" => package::release(),
         "terminal" => terminal::check(Path::new("dist/muse")),
         _ => {
             println!("cargo xtask build [--release]\ncargo xtask check-publication");
