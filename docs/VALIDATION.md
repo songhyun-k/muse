@@ -18,7 +18,7 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
-| Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
+| Storage / build publication | Atomic writes, locked/corrupt-store bootstrap and visible errors, file preservation, open inode preservation and failed-probe rollback pass |
 | Public source | Source/history sensitive-pattern scans pass; a temporary Git repository checks leading-whitespace paths, archive inclusion, rename-independent secret detection and missing-file failure; no credential values are printed |
 
 Publication's offline command-stub check rejects existing destination version tags

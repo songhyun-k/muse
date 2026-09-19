@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C41 complete; Recover library access after an initial store lock is released.
+- Current unit: C42 complete; Preserve independent bootstrap state and visible errors when app storage fails.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -37,6 +37,10 @@ entries return empty data and show placeholders. Lyrics use LRCLIB with a versio
 Service retains the library location and retries a failed open on the next store
 access. Successful opens retain the same LibraryStore and exclusive writer lock;
 corrupt files continue to return storage errors without being overwritten.
+
+Locked or corrupt app storage leaves bootstrap as an explicit failure while session,
+player and volume arrive through independent events. The failure remains a visible
+notification after the main list loads; no empty successful store replaces missing data.
 
 The Korean/English UI has a persistent language choice (`I` / `--language`), five
 token themes, independent panels, visible focus headers, terminal transparency,

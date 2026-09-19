@@ -274,6 +274,109 @@ mod tests {
         theme::Palette,
     };
     #[test]
+    fn bootstrap_failure_keeps_controls_and_error_visible_after_library_loads() {
+        use crate::{app::App, generated::*, transport::Admission};
+        let mut app = App::default();
+        app.start();
+        let (mut bootstrap, mut main) = (0, 0);
+        app.flush(|request| {
+            match request.command {
+                Command::Snapshot(_) => bootstrap = request.id,
+                Command::Browse(_) => main = request.id,
+                _ => panic!("Unexpected startup request"),
+            }
+            Ok(Admission::Accepted)
+        })
+        .unwrap();
+        let failure = Failure {
+            code: ErrorCode::Storage,
+            message: "보관한 데이터를 읽거나 저장할 수 없습니다".into(),
+            retryable: true,
+        };
+        let item: Item = serde_json::from_value(serde_json::json!({
+            "ref":{"id":"song","source":"library","kind":"song"},
+            "title":"Library song","artist":"a","album":"a"
+        }))
+        .unwrap();
+        let player = serde_json::from_value(serde_json::json!({
+            "playing":false,"position":0,"queueCount":0,"queueRevision":0,
+            "updatedAt":0,"repeatMode":"off","shuffle":false,"canSeek":false
+        }))
+        .unwrap();
+        // The mailbox may deliver the correlated failure before independent state events.
+        for (id, sequence, event) in [
+            (Some(bootstrap), 4, Notice::Failure(failure.clone())),
+            (
+                None,
+                1,
+                Notice::Session(SessionState {
+                    authorization: Authorization::Authorized,
+                    can_play_catalog: None,
+                }),
+            ),
+            (None, 2, Notice::Player(player)),
+            (
+                None,
+                3,
+                Notice::Volume(VolumeState {
+                    device: "Fixture output".into(),
+                    level: Some(0.5),
+                    muted: Some(false),
+                    can_set_volume: true,
+                    can_mute: true,
+                }),
+            ),
+            (
+                Some(main),
+                5,
+                Notice::Page(Page {
+                    items: vec![item],
+                    next_offset: None,
+                }),
+            ),
+        ] {
+            assert!(app.receive(Event {
+                version: API_VERSION,
+                id,
+                sequence,
+                event
+            }));
+        }
+        assert!(app.data.session.is_some() && app.data.player.is_some());
+        assert!(app.data.store.is_none());
+        assert_eq!(
+            app.data.notification_error(),
+            Some((&Target::Bootstrap, &failure))
+        );
+        let visual = Visual::settled(&app.ui, &app.data, 0.0);
+        let palette = Palette::new(0, false);
+        let mut cache = ArtCache::default();
+        let mut scene = Scene::new(&app.ui, &app.data, &visual, &palette, &mut cache, 140, 40);
+        scene.draw();
+        let text: String = scene
+            .canvas
+            .buffer
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect();
+        assert!(text.contains("Library song") && text.contains(&failure.message));
+        let layout = scene.layout;
+        app.key("+", layout, 1.0, 1.0);
+        let mut volume_sent = false;
+        app.flush(|request| {
+            if let Command::Volume(params) = &request.command {
+                assert!(params.level.unwrap() > 0.5);
+                volume_sent = true;
+            }
+            Ok(Admission::Accepted)
+        })
+        .unwrap();
+        assert!(volume_sent);
+        assert_eq!(app.data.errors.get(&Target::Bootstrap), Some(&failure));
+    }
+
+    #[test]
     fn failed_lyric_changes_keep_previous_lyrics_and_render_the_failure() {
         use crate::{app::App, generated::*, transport::Admission};
         let mut app = App::default();
