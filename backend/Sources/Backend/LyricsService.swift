@@ -149,7 +149,7 @@ final class LyricsService {
       throw Failure(code: .invalidRequest, message: "가사 검색어를 확인해주세요", retryable: false)
     }
     var request = URLRequest(url: url, timeoutInterval: 10)
-    request.setValue("muse/0.1.0", forHTTPHeaderField: "User-Agent")
+    request.setValue("muse", forHTTPHeaderField: "User-Agent")
     let (data, response) = try await session.data(for: request)
     guard let response = response as? HTTPURLResponse else { throw networkFailure() }
     if allowMissing && response.statusCode == 404 { return nil }

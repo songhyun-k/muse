@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C30 complete; Verify Python-free development commands and inspect the final migration.
+- Current unit: C31 complete; Use a versionless muse User-Agent for all LRCLIB requests.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -19,8 +19,8 @@ Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.
 Native queue replacement selects a nonzero current entry only after assignment.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
-entries return empty data and show placeholders. Lyrics use LRCLIB; Core Audio
-provides output-device volume and mute controls.
+entries return empty data and show placeholders. Lyrics use LRCLIB with a versionless
+`muse` User-Agent; Core Audio provides output-device volume and mute controls.
 
 The Korean/English UI has a persistent language choice (`I` / `--language`), five
 token themes, independent panels, visible focus headers, terminal transparency,
