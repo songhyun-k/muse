@@ -65,6 +65,39 @@ extension MusicService {
     return page(response.items, source: .library, offset: offset, entity: entity)
   }
 
+  func resolve(_ references: [ItemRef]) async throws -> [MusicEntity] {
+    // Retain this request's values even if remember resets the bounded shared cache.
+    var resolved = entities
+    var seen: Set<String> = []
+    let ids = references.filter {
+      $0.source == .catalog && $0.kind == .song && resolved[$0.storageKey] == nil
+        && seen.insert($0.id).inserted
+    }.map(\.id)
+    if !ids.isEmpty {
+      try requireAuthorization()
+      for song in try await web.songs(ids) {
+        try Task.checkCancellation()
+        let entity = MusicEntity.song(song)
+        let item = remember(entity, source: .catalog)
+        resolved[item.ref.storageKey] = entity
+      }
+    }
+    var result: [MusicEntity] = []
+    for reference in references {
+      try Task.checkCancellation()
+      if let entity = resolved[reference.storageKey] {
+        result.append(entity)
+      } else {
+        // A partial catalog response must fail before the player queue is changed.
+        guard reference.source != .catalog || reference.kind != .song else { throw missing() }
+        let entity = try await resolve(reference)
+        resolved[reference.storageKey] = entity
+        result.append(entity)
+      }
+    }
+    return result
+  }
+
   func resolve(_ reference: ItemRef) async throws -> MusicEntity {
     if let cached = entities[reference.storageKey] { return cached }
     try requireAuthorization()

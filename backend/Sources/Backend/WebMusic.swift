@@ -66,6 +66,19 @@ final class WebMusic {
     return item
   }
 
+  func songs(_ ids: [String]) async throws -> [Song] {
+    var songs: [Song] = []
+    // Apple's catalog songs endpoint accepts at most 300 IDs per request.
+    for start in stride(from: 0, to: ids.count, by: 300) {
+      let batch = ids[start..<min(start + 300, ids.count)]
+      let response: WebPage<Song> = try await read("/songs", query: [
+        .init(name: "ids", value: batch.joined(separator: ","))
+      ])
+      songs += response.data
+    }
+    return songs
+  }
+
   func relationship<T: Decodable>(
     _ reference: ItemRef, name: String, offset: UInt64, limit: Int
   ) async throws -> WebPage<T> {

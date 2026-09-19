@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C46 complete; Enforce artwork and lyric response limits while streaming.
+- Current unit: C47 complete; Batch cold catalog song resolution for saved-playlist playback.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -35,6 +35,8 @@ account tokens held in memory. MusicKit provides playback and library access.
 Successful authenticated web reads, including details, re-arm the login handoff;
 local and cached reads do not reset it.
 Native queue replacement selects a nonzero current entry only after assignment.
+Playback resolves uncached catalog songs in batches of up to 300 IDs, preserving
+reference order and duplicates; missing songs fail before changing the queue.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
 entries return empty data and show placeholders. Artwork and LRCLIB lyrics stream
 through a shared bounded reader, cancelling responses above 8 MiB and 1 MiB

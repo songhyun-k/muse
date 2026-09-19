@@ -9,7 +9,7 @@ contract messages and renders them; the UI performs no web or native music reque
 | Home | Apple web recommendations | Same account tokens and storefront | [MusicDetails](../backend/Sources/Backend/MusicDetails.swift) |
 | Catalog details | Web resources and tracks/albums relationships | Same web authentication | [CatalogDetails](../backend/Sources/Backend/CatalogDetails.swift) |
 | Library | MusicLibraryRequest and native relationships | macOS music permission and existing account | [MusicLibrary](../backend/Sources/Backend/MusicLibrary.swift) |
-| Playback, seek, modes | MusicKit ApplicationMusicPlayer | Subscription eligibility; the system owns audio/DRM/decoding | [MusicPlayback](../backend/Sources/Backend/MusicPlayback.swift) |
+| Playback, seek, modes | MusicKit ApplicationMusicPlayer; web batches for uncached catalog songs | Subscription eligibility; the system owns audio/DRM/decoding | [MusicPlayback](../backend/Sources/Backend/MusicPlayback.swift), [WebMusic](../backend/Sources/Backend/WebMusic.swift) |
 | Queue | Native player queue and stable entry IDs | Duplicate tracks remain distinct entries | [MusicQueue](../backend/Sources/Backend/MusicQueue.swift) |
 | Artwork address | Apple metadata from the corresponding catalog/library source | Web auth or native permission, depending on metadata source | [MusicService](../backend/Sources/Backend/MusicService.swift) |
 | Artwork pixels | HTTPS CDN or native musicKit URL through URLSession | No account token is attached by the image loader; bounded memory cache | [Artwork](../backend/Sources/Backend/Artwork.swift) |

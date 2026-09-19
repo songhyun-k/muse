@@ -66,8 +66,7 @@ extension MusicService {
     }
     var entries: [MusicPlayer.Queue.Entry] = []
     var metadata: [String: Item] = [:]
-    for reference in references {
-      let entity = try await resolve(reference)
+    for (reference, entity) in zip(references, try await resolve(references)) {
       let entry: MusicPlayer.Queue.Entry
       switch entity {
       case .song(let song): entry = .init(song)
