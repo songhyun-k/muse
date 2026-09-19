@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C19 complete; Drop the duplicate schema validator and source-shape dependency scanner.
+- Current unit: C20 complete; Embed identical demo data with Rust generation and retain native decoding checks.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

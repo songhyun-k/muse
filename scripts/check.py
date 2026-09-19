@@ -82,7 +82,7 @@ def main():
         run("cargo", "xtask", "generate", "--check")
     if args.full:
         if (ROOT / "scripts/embed_demo.py").exists():
-            run(sys.executable, "scripts/embed_demo.py", "--check")
+            run("cargo", "xtask", "demo", "--check")
         if (ROOT / "scripts/build.py").exists():
             run(sys.executable, "scripts/build.py")
             run(sys.executable, "scripts/build_publish_test.py")

@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C19 — Drop the duplicate schema validator and source-shape dependency scanner.
+- [x] C20 — Embed identical demo data with Rust generation and retain native decoding checks.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
