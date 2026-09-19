@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C35 complete; Remove unused frontend paths and release checkout configuration.
+- Current unit: C36 complete; Normalize sanitized lyrics and wrap at valid UTF-8 boundaries.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -26,6 +26,8 @@ The Korean/English UI has a persistent language choice (`I` / `--language`), fiv
 token themes, independent panels, visible focus headers, terminal transparency,
 Nerd/fallback icons, keyboard/mouse and reduced motion. `,` opens a live settings modal; footer and help provide clickable entry points. Music metadata, saved names
 and lyrics remain untranslated. English lyric wrapping preserves words.
+Text sanitization removes terminal controls before NFC normalization, and lyric
+wrapping uses byte boundaries from the sanitized text.
 
 Demo data is original and fictional. Metadata lives in backend/Fixtures/demo.json;
 `cargo xtask demo` generates artwork and embeds the complete corpus. Production

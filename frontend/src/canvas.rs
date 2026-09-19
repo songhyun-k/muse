@@ -12,7 +12,7 @@ use unicode_width::UnicodeWidthStr;
 pub fn clean(text: &str) -> String {
     let mut result = String::new();
     let mut escape = 0;
-    for ch in text.nfc() {
+    for ch in text.chars() {
         match (escape, ch) {
             (0, '\u{1b}') => escape = 1,
             (0, '\u{9b}') => escape = 2,
@@ -35,7 +35,7 @@ pub fn clean(text: &str) -> String {
             _ => {}
         }
     }
-    result
+    result.nfc().collect()
 }
 
 pub fn cells(text: &str) -> i32 {
@@ -43,14 +43,21 @@ pub fn cells(text: &str) -> i32 {
 }
 
 pub fn cut(text: &str, width: i32) -> String {
+    let mut text = clean(text);
+    text.truncate(prefix_len(&text, width));
+    text
+}
+
+/// Byte length of the grapheme prefix that fits, without changing the text.
+pub(crate) fn prefix_len(text: &str, width: i32) -> usize {
     let mut remaining = width.max(0);
-    clean(text)
-        .graphemes(true)
+    text.graphemes(true)
         .take_while(|ch| {
             remaining -= ch.width() as i32;
             remaining >= 0
         })
-        .collect()
+        .map(str::len)
+        .sum()
 }
 
 pub fn clock(seconds: f64) -> String {
