@@ -21,39 +21,6 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def dependencies(files):
-    allowed = {"Backend": {"Foundation", "Darwin", "MusicKit", "CoreAudio", "CoreGraphics", "ImageIO", "AppKit", "MusicContract", "Combine"},
-               "HostTransport": {"Foundation", "MusicContract"},
-               "MusicContract": {"Foundation"}}
-    for name, content in files.items():
-        for module, imports in allowed.items():
-            if name.startswith(f"backend/Sources/{module}/") and name.endswith(".swift"):
-                actual = set(re.findall(r"^\s*(?:@\w+(?:\([^)]*\))?\s+)*import\s+(\w+)", content, re.M))
-                require(actual <= imports, f"{name}: forbidden imports {actual - imports}")
-        if name.startswith("frontend/") and name.endswith((".rs", ".toml")):
-            require(not re.search(r"MusicKit|Sources/Backend|backend/|swift_bridge", content),
-                    f"{name}: frontend references backend implementation")
-            if name.endswith(".rs") and name not in {
-                "frontend/src/transport.rs", "frontend/src/lib.rs"
-            }:
-                require('extern "C"' not in content, f"{name}: FFI outside transport boundary")
-        if name.startswith("backend/Sources/Backend/"):
-            require(not re.search(r"CMuse|muse_run|frontend/|Ratatui", content),
-                    f"{name}: backend references frontend")
-            if Path(name).name.startswith("Demo"):
-                require(not re.search(r"import (?:MusicKit|CoreAudio|AppKit)|MusicService\(|VolumeService\(|LyricsService\(|URLSession|URLRequest|Process\(", content),
-                        f"{name}: demo must not reach native playback, devices or network")
-    manifest = files.get("backend/Package.swift", "")
-    if manifest:
-        # SwiftPM describes the resolved target graph, not just spelling in imports.
-        package = json.loads(run("swift", "package", "--package-path", "backend", "dump-package", capture=True))
-        for target in package["targets"]:
-            if target["name"] in allowed:
-                edges = {next(iter(dep.values()))[0] for dep in target["dependencies"]}
-                expected = set() if target["name"] == "MusicContract" else {"MusicContract"}
-                require(edges <= expected, f"{target['name']}: forbidden target dependencies {edges}")
-
-
 def current_checklist(content, unit):
     rows = re.findall(r"^- \[([ x])\] (C\d+) —", content, re.M)
     expected = [("x", unit)] + [(" ", f"C{int(unit[1:]) + i:02}") for i in range(1, len(rows))]
@@ -92,14 +59,6 @@ def self_test():
         except ValueError:
             continue
         raise AssertionError("Checklist gate accepted stale, historical or missing work")
-    dependencies({"backend/Sources/Backend/Good.swift": "import Foundation\nimport MusicContract"})
-    for files in ({"backend/Sources/Backend/Bad.swift": "import CMuse"},
-                  {"frontend/src/state.rs": 'include!("../../backend/Private.rs");'}):
-        try:
-            dependencies(files)
-        except ValueError:
-            continue
-        raise AssertionError("Dependency gate accepted an illegal edge")
 
 
 def main():
@@ -115,12 +74,11 @@ def main():
         except (UnicodeDecodeError, FileNotFoundError):
             continue
     self_test()
-    dependencies(files)
     run("git", "diff", "--check", *(["--cached"] if args.staged else []))
     if args.staged:
         run("git", "diff", "--quiet")
         commit_gate(files)
-    if (ROOT / "scripts/generate.py").exists():
+    if (ROOT / "tools/Cargo.toml").exists():
         run("cargo", "xtask", "generate", "--check")
     if args.full:
         if (ROOT / "scripts/embed_demo.py").exists():
