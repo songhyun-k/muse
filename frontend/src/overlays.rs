@@ -269,7 +269,7 @@ mod tests {
     use crate::{
         art::ArtCache,
         geometry::Visual,
-        state::{Data, Ui},
+        state::{Data, Dialog, Ui},
         theme::Palette,
     };
     #[test]
@@ -304,7 +304,19 @@ mod tests {
             .enumerate()
         {
             if index == 0 {
-                app.choose_lyrics(2);
+                app.data.matches = Some(LyricsMatches {
+                    item: item.r#ref.clone(),
+                    matches: vec![LyricMatch {
+                        id: 2,
+                        title: item.title.clone(),
+                        artist: item.artist.clone(),
+                        album: item.album.clone(),
+                        duration: None,
+                        synced: true,
+                    }],
+                });
+                app.ui.dialog = Some(Dialog::Lyrics { cursor: 0 });
+                app.choose_dialog();
             } else {
                 app.edit(
                     crate::state::EditAction::Offset(item.r#ref.clone()),
@@ -314,6 +326,10 @@ mod tests {
             }
             let mut id = 0;
             app.flush(|r| {
+                if index == 0 {
+                    assert!(matches!(&r.command, Command::LyricsChoose(p)
+                        if p.item == item.r#ref && p.match_id == 2));
+                }
                 id = r.id;
                 Ok(Admission::Accepted)
             })

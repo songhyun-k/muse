@@ -1,23 +1,18 @@
 # Current inspection
 
-Inspection unit: C30
+Inspection unit: C35
 
-The primary agent reviewed the tooling migration and retained behavior checks.
+The primary agent inspected the current tooling and dead-path cleanup.
 
-- A separate Rust task package owns generation, build, checks, previews and release
-  tooling. It is never linked into the product and preserves frontend build paths.
-- Existing Cargo, SwiftPM, codesign, plutil and otool perform their native jobs.
-- Generated DTOs and JSON Schema are unchanged apart from generator comments.
-  The decoded demo corpus, including artwork pixels, matches the previous data.
-- Frozen cell references, animation replay, timing thresholds, presentation
-  matrices and source-shape scanners are removed. No replacement visual gate exists.
-- Native tests retain protocol bounds, data preservation, stale-action handling,
-  accessibility behavior and terminal cleanup. The PTY check uses a real session
-  without a screen emulator or timed UI journeys.
-- Packaging checks exact archive contents, signatures, relocated execution and
-  hashes. Publication requires the inspected clean remote-main commit; release
-  creation and tap updates still require their explicit flags.
-- The source audit continues to withhold sensitive values. Python commands were
-  blocked during the final local behavior check; no tracked Python files remain.
+- Source enumeration preserves Git's NUL-separated path bytes and fails on missing
+  tracked files; the audit and archive share this one source list.
+- Publication checks the exact remote version tag before writing or uploading.
+  Existing tags are rejected without a second version registry or tag-peeling layer.
+- Whitespace checking stays in the optional staged-change hook; CI no longer runs
+  an empty working-tree diff check.
+- Lyrics selection tests use the actual menu path instead of a test-only method.
+  Unused translations and unnecessary full-history release checkout are removed.
+- Existing native tools and dependencies remain sufficient. No visual snapshots,
+  source-shape checks or generic workflow framework have been added.
 
-No additional abstraction or broader refactor is needed.
+No further abstraction or broad refactor is justified by these changes.
