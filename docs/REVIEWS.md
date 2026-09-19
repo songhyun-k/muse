@@ -1,10 +1,10 @@
 # Current inspection
 
-Inspection unit: C20
+Inspection unit: C25
 
 The primary agent inspected the current changes directly.
 
-Embed identical demo data with Rust generation and retain native decoding checks.
+Audit and export public source without Python or source-shape rules.
 
 Verification targets data integrity, protocol boundaries and terminal cleanup.
 Presentation baselines, implementation formulas and combinatorial layout checks

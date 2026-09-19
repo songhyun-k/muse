@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C24 complete; Package and inspect optimized standalone releases with Rust tooling.
+- Current unit: C25 complete; Audit and export public source without Python or source-shape rules.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
