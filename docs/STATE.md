@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C47 complete; Batch cold catalog song resolution for saved-playlist playback.
+- Current unit: C48 complete; Clarify app memory caches and system HTTP disk-cache policy.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -41,7 +41,9 @@ Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
 entries return empty data and show placeholders. Artwork and LRCLIB lyrics stream
 through a shared bounded reader, cancelling responses above 8 MiB and 1 MiB
 respectively without waiting for EOF. LRCLIB requests use a versionless `muse`
-User-Agent. Core Audio provides output-device volume and mute controls.
+User-Agent. Both use app memory caches and shared URLSession HTTP caching, which
+can also store cacheable HTTPS responses on disk; [PROVIDERS](PROVIDERS.md) describes
+storage boundaries. Core Audio provides output-device volume and mute controls.
 
 Service retains the library location and retries a failed open on the next store
 access. Successful opens retain the same LibraryStore and exclusive writer lock;

@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C47 — Batch cold catalog song resolution for saved-playlist playback.
+- [x] C48 — Clarify app memory caches and system HTTP disk-cache policy.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
