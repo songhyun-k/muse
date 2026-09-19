@@ -36,3 +36,11 @@ personal library data and identifying paths from logs and screenshots.
 Do not commit build output, credentials, private account data or downloaded media.
 New tests should target observable behavior, including cancellation and terminal
 restoration. Contributions are offered under the repository's MIT license.
+
+`cargo xtask generate` updates contract DTOs and JSON Schema. `cargo xtask demo`
+updates embedded synthetic assets; `cargo xtask previews` renders README images.
+The task package is independent of the frontend and is not linked into muse.
+
+Keep checks tied to observable failures: invalid protocol data, lost saved data,
+stale playback actions and broken terminal cleanup. Do not add frozen layouts,
+exhaustive presentation combinations or timing thresholds while the UI evolves.

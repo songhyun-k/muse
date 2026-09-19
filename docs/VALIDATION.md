@@ -13,7 +13,7 @@ and stable Rust. Optimized artifact inspection runs in the release workflow.
 | Area | Result |
 | :--- | :--- |
 | Swift | 54 offline tests pass |
-| Rust | 55 tests, rustfmt and Clippy with warnings denied pass |
+| Rust | 55 frontend tests and 3 tooling checks; rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |

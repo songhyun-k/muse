@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C28 complete; Remove superseded Python build, packaging and PTY implementations.
+- Current unit: C29 complete; Complete the Python removal and keep development checks focused on behavior.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -28,15 +28,16 @@ Nerd/fallback icons, keyboard/mouse and reduced motion. `,` opens a live setting
 and lyrics remain untranslated. English lyric wrapping preserves words.
 
 Demo data is original and fictional. Metadata lives in backend/Fixtures/demo.json;
-a small generator creates artwork and embeds the complete corpus. Production code uses embedded assets without reading neighboring repositories.
+`cargo xtask demo` generates artwork and embeds the complete corpus. Production
+code uses embedded assets without reading neighboring repositories.
 
 ## Public preparation
 
 The English README and Korean companion follow the codex-scope presentation with
 actual renderer previews. MIT licensing, Yatoro attribution, contributor/security
 notes, language docs and a macOS CI workflow are present. Dependency license texts
-are bundled with the Apple Silicon preview archive. Hosted macOS 15 CI passes the
-full offline suite and optimized packaging checks on Swift 6.1.2.
+are bundled with the Apple Silicon preview archive. The macOS 15 CI runs focused behavior checks; the release workflow also verifies
+optimized packaging.
 
 [VALIDATION](VALIDATION.md) describes retained behavior checks and account/distribution limits.
 
@@ -49,6 +50,8 @@ Packages use ad-hoc signing and retain the local.muse.cli bundle identifier.
 - Build: cargo xtask build --release
 - Run: ./dist/muse --language en; preview: ./dist/muse --demo --language ko
 - Check: cargo xtask check
+- Generate contract: cargo xtask generate
+- README previews: cargo xtask previews
 - Package: cargo xtask release
 - Source audit/export: cargo xtask audit --history --export
 - Private data: ~/Library/Application Support/muse/library.json; UI: ui.json.
