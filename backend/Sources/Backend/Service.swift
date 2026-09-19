@@ -5,7 +5,20 @@ import MusicContract
 @MainActor
 public final class Service {
   public var onEvent: (@MainActor (Event) -> Void)?
-  let store: Result<LibraryStore, Error>
+  private let storeURL: URL?
+  private var cachedStore: LibraryStore?
+  var store: Result<LibraryStore, Error> {
+    Result {
+      if let cachedStore { return cachedStore }
+      do {
+        let library = try LibraryStore(file: storeURL)
+        cachedStore = library
+        return library
+      } catch let error as StoreError {
+        throw error
+      } catch { throw StoreError.read }
+    }
+  }
   let music: MusicService
   private let artwork = ArtworkService()
   let lyrics: LyricsService
@@ -40,12 +53,9 @@ public final class Service {
        }) {
     self.music = music
     self.openMusic = openMusic
+    self.storeURL = storeURL
     lyrics = LyricsService(session: lyricsSession)
-    store = Result {
-      do { return try LibraryStore(file: storeURL) } catch let error as StoreError {
-        throw error
-      } catch { throw StoreError.read }
-    }
+    _ = store
     music.onPlayback = { [weak self] state in self?.playbackChanged(state) }
     music.onFailure = { [weak self] failure in self?.publish(.failure(failure)) }
     volume.onChange = { [weak self] state in self?.publish(.volume(state)) }

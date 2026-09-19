@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C40 complete; Make full album and playlist playback/shuffle accessible by keyboard at compact sizes.
+- Current unit: C41 complete; Recover library access after an initial store lock is released.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -33,6 +33,10 @@ Native queue replacement selects a nonzero current entry only after assignment.
 Artwork accepts HTTPS and native musicKit URLs through URLSession; some library
 entries return empty data and show placeholders. Lyrics use LRCLIB with a versionless
 `muse` User-Agent; Core Audio provides output-device volume and mute controls.
+
+Service retains the library location and retries a failed open on the next store
+access. Successful opens retain the same LibraryStore and exclusive writer lock;
+corrupt files continue to return storage errors without being overwritten.
 
 The Korean/English UI has a persistent language choice (`I` / `--language`), five
 token themes, independent panels, visible focus headers, terminal transparency,

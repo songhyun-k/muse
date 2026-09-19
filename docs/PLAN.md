@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C40 — Make full album and playlist playback/shuffle accessible by keyboard at compact sizes.
+- [x] C41 — Recover library access after an initial store lock is released.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
