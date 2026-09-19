@@ -115,6 +115,7 @@ pub struct Editor {
 #[derive(Clone)]
 pub enum Choice {
     Close,
+    Setting(crate::settings::Setting),
     Language(crate::i18n::Language),
     Edit(EditAction, String),
     Command(Command, Target),
@@ -136,6 +137,9 @@ pub struct MenuRow {
 
 #[derive(Clone)]
 pub enum Dialog {
+    Settings {
+        cursor: usize,
+    },
     Menu {
         title: String,
         rows: Vec<MenuRow>,

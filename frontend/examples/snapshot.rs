@@ -7,7 +7,7 @@ use music_frontend::{
     motion::Motion,
     requests::{Response, Target},
     scene::Scene,
-    state::{Data, EditAction, Editor, Focus, NAV, Panel, Ui, View, item_key},
+    state::{Data, Dialog, EditAction, Editor, Focus, NAV, Panel, Ui, View, item_key},
     theme::Palette,
 };
 use ratatui::style::{Color, Modifier};
@@ -113,6 +113,9 @@ fn render(
         reduced_motion: !flag("motion"),
         query: p["query"].as_str().unwrap().into(),
         help: flag("help"),
+        dialog: p["settings"].as_u64().map(|cursor| Dialog::Settings {
+            cursor: cursor as usize,
+        }),
         lyric_manual: p["lyric_manual"].as_f64(),
         hover: p["hover"]
             .as_array()

@@ -68,13 +68,30 @@ impl App {
             return false;
         }
         if self.ui.dialog.is_some() {
+            let settings = matches!(self.ui.dialog, Some(Dialog::Settings { .. }));
             match key {
                 "esc" => self.ui.dialog = None,
+                "," if settings => self.ui.dialog = None,
+                "left" if settings => self.adjust_setting(-1),
+                "right" | " " if settings => self.adjust_setting(1),
                 "enter" => self.choose_dialog(),
-                "up" | "k" | "down" | "j" => {
+                "up" | "k" | "down" | "j" | "tab" | "backtab" => {
+                    let count = self
+                        .ui
+                        .dialog
+                        .as_ref()
+                        .unwrap()
+                        .rows(&self.ui, &self.data)
+                        .len();
                     let dialog = self.ui.dialog.as_mut().unwrap();
-                    let count = dialog.rows(&self.data).len();
-                    dialog.move_by(if matches!(key, "up" | "k") { -1 } else { 1 }, count);
+                    dialog.move_by(
+                        if matches!(key, "up" | "k" | "backtab") {
+                            -1
+                        } else {
+                            1
+                        },
+                        count,
+                    );
                 }
                 "M" if matches!(self.ui.dialog, Some(Dialog::Lyrics { .. })) => {
                     self.ui.dialog = None;
@@ -102,6 +119,7 @@ impl App {
             }
             "tab" | "backtab" => self.ui.cycle_focus(layout, key == "backtab"),
             "I" => self.language_menu(),
+            "," => self.settings_menu(),
             "l" | "Q" => {
                 self.leave_full_lyrics();
                 self.ui.panel = if key == "l" {
@@ -476,7 +494,7 @@ mod tests {
         assert!(matches!(&commands[0], Command::Favorite(p) if p.item.id == "c"));
         assert!(matches!(&commands[1], Command::Play(p) if p.items[0].id == "c"));
         app.key("a", layout, 1.0, 1.0);
-        let rows = app.ui.dialog.as_ref().unwrap().rows(&app.data);
+        let rows = app.ui.dialog.as_ref().unwrap().rows(&app.ui, &app.data);
         assert!(
             matches!(&rows[0].choice, crate::state::Choice::Edit(EditAction::Create(Some(item)), _) if item.id == "c")
         );

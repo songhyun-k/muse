@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C04 complete; public source, preview packages and hosted CI are verified.
+- Current unit: C05 complete; settings modal reuses presentation preferences.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.
@@ -23,7 +23,7 @@ provides output-device volume and mute controls.
 
 The Korean/English UI has a persistent language choice (`I` / `--language`), five
 token themes, independent panels, visible focus headers, terminal transparency,
-Nerd/fallback icons, keyboard/mouse and reduced motion. Music metadata, saved names
+Nerd/fallback icons, keyboard/mouse and reduced motion. `,` opens a live settings modal. Music metadata, saved names
 and lyrics remain untranslated. English lyric wrapping preserves words.
 
 Demo data is original and fictional. Metadata lives in backend/Fixtures/demo.json;

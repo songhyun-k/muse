@@ -22,6 +22,7 @@ mod preferences;
 pub mod requests;
 pub mod scene;
 mod scheduling;
+pub mod settings;
 pub mod state;
 mod terminal;
 pub mod theme;

@@ -30,5 +30,5 @@
 - Run `scripts/check.py` and the affected build/tests before committing.
 - Never commit keys, credentials, personal library data, build output or caches.
 - Public source: https://github.com/songhyun-k/muse. Publish only when the user asks;
-  never push private development branches. Settings-modal work is build-only until
-  the user authorizes a commit.
+  never push private development branches. The current user scope authorizes
+  settings commits, login guidance and Homebrew distribution.

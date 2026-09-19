@@ -20,3 +20,5 @@ muse — Apple Music 터미널 플레이어
 Tab 영역 · [ ] 패널 · / 검색 · F 필터 · Enter 선택 · Space 재생
 N 플레이리스트 만들기 · : 편집 · a 담기 · f 즐겨찾기 · I 언어
 M 가사 검색 · O 가사 설정 · Ctrl-L 전체 가사 · ? 도움말 · q 종료
+
+, 설정 · ↑↓ / Tab · ←→ / Enter · Esc

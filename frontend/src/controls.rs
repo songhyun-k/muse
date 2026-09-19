@@ -322,7 +322,7 @@ mod tests {
                 app.favorite_selected(0.0);
                 app.playlist_picker();
                 assert!(
-                    matches!(&app.ui.dialog.as_ref().unwrap().rows(&app.data)[0].choice,
+                    matches!(&app.ui.dialog.as_ref().unwrap().rows(&app.ui, &app.data)[0].choice,
                     crate::state::Choice::Edit(crate::state::EditAction::Create(Some(reference)), _) if *reference == item.r#ref)
                 );
                 let mut commands = vec![];

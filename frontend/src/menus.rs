@@ -3,7 +3,8 @@ use crate::{
     canvas::clock,
     generated::*,
     requests::Target,
-    state::{Choice, Data, Dialog, EditAction, MenuRow, View},
+    settings::Setting,
+    state::{Choice, Data, Dialog, EditAction, MenuRow, Ui, View},
 };
 
 impl MenuRow {
@@ -20,20 +21,25 @@ impl MenuRow {
 impl Dialog {
     pub fn cursor(&self) -> usize {
         match self {
-            Self::Menu { cursor, .. } | Self::Lyrics { cursor } => *cursor,
+            Self::Menu { cursor, .. } | Self::Lyrics { cursor } | Self::Settings { cursor } => {
+                *cursor
+            }
         }
     }
 
     pub fn move_by(&mut self, delta: i32, count: usize) {
         let cursor = match self {
-            Self::Menu { cursor, .. } | Self::Lyrics { cursor } => cursor,
+            Self::Menu { cursor, .. } | Self::Lyrics { cursor } | Self::Settings { cursor } => {
+                cursor
+            }
         };
         *cursor =
             (*cursor as i64 + i64::from(delta)).clamp(0, count.saturating_sub(1) as i64) as usize;
     }
 
-    pub fn rows(&self, data: &Data) -> Vec<MenuRow> {
+    pub fn rows(&self, ui: &Ui, data: &Data) -> Vec<MenuRow> {
         match self {
+            Self::Settings { .. } => Setting::ALL.iter().map(|s| s.row(ui)).collect(),
             Self::Menu { rows, .. } => rows.clone(),
             Self::Lyrics { .. } => data
                 .matches
@@ -82,7 +88,7 @@ impl App {
         let Some(dialog) = &self.ui.dialog else {
             return;
         };
-        let rows = dialog.rows(&self.data);
+        let rows = dialog.rows(&self.ui, &self.data);
         let Some(row) = rows.get(dialog.cursor()) else {
             return;
         };
@@ -90,9 +96,14 @@ impl App {
     }
 
     fn choose(&mut self, choice: Choice) {
+        let cursor = self.ui.dialog.as_ref().map_or(0, Dialog::cursor);
         self.ui.dialog = None;
         match choice {
             Choice::Close => {}
+            Choice::Setting(setting) => {
+                setting.apply(self, 1);
+                self.ui.dialog = Some(Dialog::Settings { cursor });
+            }
             Choice::Language(language) => self.ui.language = language,
             Choice::Edit(action, buffer) => self.edit(action, buffer),
             Choice::Command(command, target) => {

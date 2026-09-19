@@ -178,5 +178,20 @@
   "I           언어": "I           Language",
   "응답을 전달할 수 없습니다": "Could not deliver the response",
   "저장할 수 있는 항목 수를 초과했습니다": "Storage item limit exceeded",
-  "항목을 찾을 수 없습니다": "Item not found"
+  "항목을 찾을 수 없습니다": "Item not found",
+  "설정": "Settings",
+  "테마": "Theme",
+  "언어": "Language",
+  "배경": "Background",
+  "터미널": "Terminal",
+  "아이콘": "Icons",
+  "기본": "Standard",
+  "움직임 줄이기": "Reduce motion",
+  "탐색 패널": "Navigation panel",
+  "가사·큐 패널": "Lyrics / queue panel",
+  "패널 내용": "Panel content",
+  "켜짐": "On",
+  "꺼짐": "Off",
+  "변경 사항이 즉시 적용됩니다": "Changes apply immediately",
+  "↑↓ 선택  ←→ 변경  Esc 닫기": "↑↓ Select  ←→ Change  Esc Close"
 }

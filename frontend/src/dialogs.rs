@@ -1,4 +1,5 @@
 use crate::{
+    canvas::cells,
     geometry::Area,
     icons::Icon,
     requests::Target,
@@ -11,19 +12,21 @@ impl Scene<'_> {
         let Some(dialog) = &self.ui.dialog else {
             return;
         };
-        let rows = dialog.rows(self.data);
+        let rows = dialog.rows(self.ui, self.data);
         let lyrics = matches!(dialog, Dialog::Lyrics { .. });
+        let settings = matches!(dialog, Dialog::Settings { .. });
         let title = match dialog {
             Dialog::Menu { title, .. } => title.as_str(),
             Dialog::Lyrics { .. } => self.ui.text("가사 선택"),
+            Dialog::Settings { .. } => self.ui.text("설정"),
         };
-        let step = if lyrics { 2 } else { 1 };
+        let step = if lyrics || settings { 2 } else { 1 };
         let capacity = ((self.canvas.height() - 8) / step).clamp(1, 12) as usize;
         let shown = rows.len().min(capacity);
         let w = 64.min(self.canvas.width() - 8);
-        let h = (shown as i32 * step + 5)
+        let h = (shown as i32 * step + 5 + i32::from(settings))
             .max(9)
-            .min(self.canvas.height() - 4);
+            .min(self.canvas.height() - if settings { 2 } else { 4 });
         let x = (self.canvas.width() - w) / 2;
         let y = (self.canvas.height() - h) / 2;
         let p = self.canvas.palette;
@@ -33,6 +36,18 @@ impl Scene<'_> {
         self.canvas.rule(x, y, w, p["overlay.accent"]);
         self.canvas
             .label(x + 3, y + 1, title, p["overlay.accent"], true, w - 6);
+        if settings {
+            self.canvas.label(
+                x + 3,
+                y + 2,
+                self.ui.text("변경 사항이 즉시 적용됩니다"),
+                secondary,
+                false,
+                w - 6,
+            );
+            self.canvas.text(x + w - 4, y + 1, "×", secondary);
+            self.hit(Area::new(x + w - 5, y + 1, 3, 1), Action::Key("esc"));
+        }
         let cursor = dialog.cursor().min(rows.len().saturating_sub(1));
         let start = cursor
             .saturating_add(1)
@@ -71,7 +86,7 @@ impl Scene<'_> {
             .take(capacity)
             .enumerate()
         {
-            let yy = y + 3 + line as i32 * step;
+            let yy = y + 3 + i32::from(settings) + line as i32 * step;
             let area = Area::new(x + 1, yy, w - 2, step);
             let hover = self.ui.hover.is_some_and(|point| area.contains(point));
             if index == cursor || hover {
@@ -94,9 +109,20 @@ impl Scene<'_> {
                 &row.label,
                 p["overlay.text"],
                 index == cursor,
-                w - 8,
+                if settings { w - 30 } else { w - 8 },
             );
-            if step == 2 {
+            if settings {
+                let value = format!("{}  {}", row.detail, self.icon(Icon::Chevron));
+                let value_width = cells(&value).min(w / 2);
+                self.canvas.label(
+                    x + w - 3 - value_width,
+                    yy,
+                    &value,
+                    p["overlay.accent"],
+                    index == cursor,
+                    value_width,
+                );
+            } else if step == 2 {
                 self.canvas
                     .label(x + 3, yy + 1, &row.detail, secondary, false, w - 6);
             }
@@ -109,7 +135,11 @@ impl Scene<'_> {
         self.canvas.label(
             x + 3,
             y + h - 2,
-            self.ui.text("↑↓ 선택   Enter 확인   Esc 닫기"),
+            self.ui.text(if settings {
+                "↑↓ 선택  ←→ 변경  Esc 닫기"
+            } else {
+                "↑↓ 선택   Enter 확인   Esc 닫기"
+            }),
             secondary,
             false,
             w - 6,

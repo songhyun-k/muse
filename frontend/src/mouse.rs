@@ -75,8 +75,9 @@ impl Mouse {
         }
         if scroll != 0 {
             self.reset();
-            if let Some(dialog) = &mut app.ui.dialog {
-                dialog.move_by(scroll, dialog.rows(&app.data).len());
+            if let Some(dialog) = &app.ui.dialog {
+                let count = dialog.rows(&app.ui, &app.data).len();
+                app.ui.dialog.as_mut().unwrap().move_by(scroll, count);
             } else if app.ui.editor.is_none() {
                 app.move_selection(scroll, unix);
             }
@@ -88,7 +89,9 @@ impl Mouse {
         let Some(hit) = hits.iter().rev().find(|hit| hit.area.contains(point)) else {
             return true;
         };
-        if app.ui.dialog.is_some() && !matches!(hit.action, Action::Dialog(_) | Action::Key("M")) {
+        if app.ui.dialog.is_some()
+            && !matches!(hit.action, Action::Dialog(_) | Action::Key("M" | "esc"))
+        {
             return true;
         }
         app.ui.editor = None;
@@ -147,11 +150,10 @@ impl Mouse {
                 self.slide(app, point.0);
             }
             Action::Dialog(index) => {
-                if let Some(dialog) = &mut app.ui.dialog {
-                    dialog.move_by(
-                        *index as i32 - dialog.cursor() as i32,
-                        dialog.rows(&app.data).len(),
-                    );
+                if let Some(dialog) = &app.ui.dialog {
+                    let count = dialog.rows(&app.ui, &app.data).len();
+                    let dialog = app.ui.dialog.as_mut().unwrap();
+                    dialog.move_by(*index as i32 - dialog.cursor() as i32, count);
                     app.choose_dialog();
                 }
             }

@@ -17,12 +17,19 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C04 — Public repository, preview artifacts and hosted offline/release checks verified.
-- [ ] C05 — Settings modal: reuse UI preferences, verify keyboard/mouse and build; no commit.
+- [x] C05 — Live settings modal with persisted bilingual presentation preferences.
+- [ ] C06 — Visible settings entry points, help and regression coverage.
+- [ ] C07 — Login, Homebrew and branch/release acceptance plan.
+- [ ] C08 — Typed account recovery states and permitted system actions.
+- [ ] C09 — Login guidance, account recheck and recovery actions.
+- [ ] C10 — First-run and returning-user journey checks.
+- [ ] C11 — Versioned release packaging and repeatable publication.
+- [ ] C12 — Homebrew tap, installation and upgrade validation.
+- [ ] C13 — Release publication, repository rules and current documentation.
 
-The primary agent performs implementation and inspection directly. Publish main
-and the verified v0.1.0 preview; preserve private development history locally.
-The settings modal is a separate local change and must remain uncommitted.
+The primary agent implements and inspects directly. The user authorizes the
+settings commits and implementation through Homebrew distribution. Private
+pre-public development history stays local.
 
 ## Public preparation acceptance
 
