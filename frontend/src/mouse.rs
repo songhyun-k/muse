@@ -53,6 +53,14 @@ impl Mouse {
         app.ui.tour = None;
         if app.ui.help {
             if event.kind == MouseEventKind::Down(MouseButton::Left) {
+                if hits
+                    .iter()
+                    .rev()
+                    .find(|hit| hit.area.contains(point))
+                    .is_some_and(|hit| matches!(hit.action, Action::Key(",")))
+                {
+                    return app.key(",", layout, now, unix);
+                }
                 app.ui.help = false;
             }
             return true;

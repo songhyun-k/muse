@@ -105,7 +105,7 @@ impl App {
             self.ui.tour = None;
         }
         self.ui.pulse = Some((key.into(), now));
-        if self.ui.help {
+        if self.ui.help && key != "," {
             self.ui.help = false;
             return true;
         }

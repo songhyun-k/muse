@@ -100,6 +100,7 @@ impl Scene<'_> {
         let width = self.canvas.width();
         let height = self.canvas.height();
         if self.ui.help {
+            let settings_hint = self.ui.text(", / I       설정 / 언어");
             let lines = [
                 self.ui.text("[ / ]       왼쪽 / 오른쪽 패널 접기"),
                 self.ui.text("Tab / S-Tab 영역 이동"),
@@ -116,7 +117,7 @@ impl Scene<'_> {
                 self.ui.text("1–5 / T     테마 선택 / 다음 테마"),
                 self.ui.text("v           터미널 배경 사용"),
                 self.ui.text("t / z       둘러보기 / 움직임 줄이기"),
-                self.ui.text("I           언어"),
+                settings_hint,
                 self.ui.text("Esc / q     뒤로 / 종료"),
             ];
             let bw = 60.min(width - 6);
@@ -142,6 +143,12 @@ impl Scene<'_> {
                     false,
                     bw - 6,
                 );
+                if *line == settings_hint {
+                    self.hit(
+                        Area::new(x + 3, y + 3 + i as i32, bw - 6, 1),
+                        Action::Key(","),
+                    );
+                }
             }
         } else if let Some(editor) = &self.ui.editor {
             let prefix = format!("{}  /  ", self.ui.text(editor.action.label()));
@@ -220,6 +227,7 @@ impl Scene<'_> {
             Some("m") => self.ui.text("음소거"),
             Some("T") => "",
             Some("v") => self.ui.text("터미널 배경"),
+            Some(",") => self.ui.text("설정"),
             Some("/") => self.ui.text("검색"),
             Some(" ") => self.ui.text("재생 / 일시정지"),
             Some("s") => self.ui.text("셔플"),

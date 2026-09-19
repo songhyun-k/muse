@@ -17,8 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C05 — Live settings modal with persisted bilingual presentation preferences.
-- [ ] C06 — Visible settings entry points, help and regression coverage.
+- [x] C06 — Visible settings entry points, help and regression coverage.
 - [ ] C07 — Login, Homebrew and branch/release acceptance plan.
 - [ ] C08 — Typed account recovery states and permitted system actions.
 - [ ] C09 — Login guidance, account recheck and recovery actions.
@@ -46,3 +45,11 @@ keep remaining unit IDs contiguous. Update STATE with that same unit. Finished
 work and superseded plans belong in Git history, not this checklist. Every fifth
 commit replaces REVIEWS with the current simplification inspection. Record only
 an applicable current size exception in commit-exceptions.json.
+
+## Settings acceptance
+
+- [x] `,` opens live language, theme, background, icons, motion and panel settings.
+- [x] Existing UI preferences persist changes without backend-schema changes.
+- [x] Keyboard, mouse, bilingual narrow/wide layouts and all themes are verified.
+- [x] Footer/help settings hints are visible and clickable; all other reference cells stay exact.
+- [x] Optimized linked executable and final settings journey pass.

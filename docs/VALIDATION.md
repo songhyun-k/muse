@@ -14,13 +14,13 @@ full offline gate and optimized packaging checks; render p95 is 1.22ms there.
 | Area | Result |
 | :--- | :--- |
 | Swift | 53 offline tests pass; two network-dependent tests are opt-in and skipped |
-| Rust | 56 tests, rustfmt and Clippy with warnings denied pass |
+| Rust | 58 tests, rustfmt and Clippy with warnings denied pass |
 | Contract / dependencies | Generated types, shared wire fixtures, input bounds and layer rules pass |
 | Static UI | 240 Korean/English frames; all 939,200 cells match exactly |
 | Motion | 180 frames; all 1,008,000 cells match; scalar tolerance 1e-6 |
 | Rendering | 140×40 render p95 approximately 0.35ms; budget 16.7ms |
 | Terminal | Keyboard, Korean input, mouse/drag/resize, transparency, idle behavior and signal restoration pass |
-| Languages | English/Korean CLI help, error messages, picker, saved preferences and metadata preservation pass |
+| Languages / settings | English/Korean help, errors, language picker, visible/clickable settings hints, live modal, saved preferences and metadata preservation pass |
 | Storage / build publication | Atomic writes, corrupt-file preservation, open inode preservation and failed-probe rollback pass |
 | Public source | Local links and source/history sensitive-pattern scans pass; no credential values are printed |
 

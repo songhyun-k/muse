@@ -70,7 +70,7 @@ A **140 × 40** terminal leaves room for both side panels. Smaller windows adapt
 ./dist/muse --language ko
 ```
 
-Press **`1`–`5`** to select a theme, **`T`** to cycle, **`v`** for the terminal background, and **`z`** for reduced motion. **`[` / `]`** collapse each side panel independently. **`I`** opens the language picker. Appearance and language settings persist between normal launches; demo mode is separate.
+Press **`1`–`5`** to select a theme, **`T`** to cycle, **`v`** for the terminal background, and **`z`** for reduced motion. **`[` / `]`** collapse each side panel independently. **`,`** or the **Settings** hint at the bottom opens settings for language, theme, background, icons, motion and panels; changes apply immediately. **`I`** opens the language picker. Appearance and language settings persist between normal launches; demo mode is separate.
 
 Terminal background mode preserves your terminal's opacity and blur. It does not create blur or change terminal settings. Pair light palettes with light backgrounds.
 
@@ -86,7 +86,7 @@ Terminal background mode preserves your terminal's opacity and blur. It does not
 | Favorite / add / create playlist | `f` · `a` · `N` |
 | Edit / lyrics match / timing | `:` · `M` · `O` |
 | Volume / mute / shuffle / repeat | `+` / `-` · `m` · `s` · `r` |
-| Language / help / quit | `I` · `?` · `q` |
+| Settings / language / help / quit | `,` · `I` · `?` · `q` |
 
 Mouse selection, wheel scrolling, and progress/volume dragging are supported. See [usage and build notes](docs/RELEASE.md) for all options.
 

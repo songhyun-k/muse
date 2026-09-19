@@ -27,7 +27,9 @@ can change independently of this app.
 ```
 
 `--language en|ko` overrides saved language and terminal locale detection. `I` opens
-the language picker. Normal launches save the selected language, theme, transparency,
+the language picker. `,` or the footer settings hint opens Settings; select with ↑/↓ or Tab, change with ←/→,
+Enter, Space or a mouse click, and close with Esc or ×. Changes apply immediately.
+Normal launches save the selected language, theme, transparency,
 icons, motion and panel state. Demo launches do not read or save these preferences.
 
 Five themes are available: porcelain, graphite, linen, midnight and ink. Terminal

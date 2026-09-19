@@ -35,15 +35,19 @@ def main():
     with tempfile.TemporaryDirectory(prefix='muse-language-') as directory:
         environment = {'MUSE_STATE_DIR': directory}
         options = ('--language', 'en', '--reduced-motion')
-        output = session([(0.5, b'I'), (0.9, b'j\r'), (1.3, b'?'), (1.7, b'q')], options=options, environment=environment)
+        output = session([(0.5, b'I'), (0.9, b'j\r'), (1.3, b'?'), (1.7, b','), (2.1, b'q')], options=options, environment=environment)
         screens = '\n'.join(frames(output))
-        for text in ('Library', 'Songs', 'Language / 언어', '보관함', '단축키'):
+        for text in ('Library', 'Songs', 'Language / 언어', '보관함', '단축키', ', Settings', ', 설정', '변경 사항이 즉시 적용됩니다'):
             assert text in screens, ('missing language view', text)
         assert not list(Path(directory).iterdir()), 'demo saved language preferences'
-        session([(0.5, b'I'), (0.9, b'\r'), (1.3, b'q')], options=('--language', 'ko', '--reduced-motion'),
-                demo=False, environment=environment)
+        output = session([(0.5, b'I'), (0.9, b'\r'), (1.1, b','), (1.4, b'\x1b[C'),
+                          (1.7, b'jj '), (2.0, b'\x1b'), (2.3, b'q')],
+                         options=('--language', 'ko', '--reduced-motion'),
+                         demo=False, environment=environment)
+        assert 'Changes apply immediately' in '\n'.join(frames(output))
         settings = json.loads((Path(directory) / 'ui.json').read_text())
         assert settings['language'] == 'en'
+        assert settings['theme'] == 'graphite' and settings['transparent']
         restored = session([(0.7, b'q')], options=('--reduced-motion',), demo=False, environment=environment)
         assert 'Library' in '\n'.join(frames(restored)), 'saved language was not restored'
     print('Locale catalog, English/Korean help, CLI errors, interactive switching and persistence passed')

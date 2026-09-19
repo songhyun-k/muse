@@ -146,6 +146,77 @@ mod tests {
     use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 
     #[test]
+    fn footer_and_help_expose_settings_and_open_it_with_mouse_or_keyboard() {
+        for language in [Language::English, Language::Korean] {
+            for (width, height) in [(80, 24), (140, 40)] {
+                for plain_icons in [false, true] {
+                    for help in [false, true] {
+                        let mut app = App::default();
+                        app.ui = Ui {
+                            language,
+                            plain_icons,
+                            help,
+                            ..Ui::default()
+                        };
+                        let visual = Visual::settled(&app.ui, &app.data, 0.0);
+                        let palette = Palette::new(0, false);
+                        let mut art = ArtCache::default();
+                        let mut scene = Scene::new(
+                            &app.ui, &app.data, &visual, &palette, &mut art, width, height,
+                        );
+                        scene.draw();
+                        let footer: String = (0..width)
+                            .map(|x| scene.canvas.buffer[(x, height - 1)].symbol())
+                            .collect();
+                        assert!(footer.contains(&format!(", {}", app.ui.text("설정"))));
+                        if help {
+                            let text: String = scene
+                                .canvas
+                                .buffer
+                                .content
+                                .iter()
+                                .map(|c| c.symbol())
+                                .collect();
+                            assert!(text.contains(app.ui.text(", / I       설정 / 언어")));
+                        }
+                        let layout = scene.layout;
+                        let hits = scene.hits;
+                        let entries: Vec<_> = hits
+                            .iter()
+                            .filter(|h| matches!(h.action, Action::Key(",")))
+                            .collect();
+                        assert_eq!(entries.len(), if help { 2 } else { 1 });
+                        for entry in entries {
+                            app.ui.help = help;
+                            app.ui.dialog = None;
+                            Mouse::default().handle(
+                                &mut app,
+                                MouseEvent {
+                                    kind: MouseEventKind::Down(MouseButton::Left),
+                                    column: entry.area.x as u16,
+                                    row: entry.area.y as u16,
+                                    modifiers: KeyModifiers::NONE,
+                                },
+                                layout,
+                                &hits,
+                                1.0,
+                                1.0,
+                            );
+                            assert!(matches!(app.ui.dialog, Some(Dialog::Settings { .. })));
+                            assert!(!app.ui.help);
+                        }
+                        app.ui.dialog = None;
+                        app.ui.help = true;
+                        app.key(",", layout, 1.0, 1.0);
+                        assert!(matches!(app.ui.dialog, Some(Dialog::Settings { .. })));
+                        assert!(!app.ui.help);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn settings_apply_live_stay_modal_and_persist_in_both_languages() {
         let mut app = App::default();
         let layout = app.ui.fit(140, 40);

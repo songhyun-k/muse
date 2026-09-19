@@ -133,14 +133,32 @@ impl Scene<'_> {
             self.icon(Icon::Help),
             self.ui.text("? 도움말  q 종료")
         );
+        let settings = format!("{} , {}", self.icon(Icon::Settings), self.ui.text("설정"));
+        let settings_area = Area::new(
+            x + w - cells(&tail) - cells(&settings) - 3,
+            y + 4,
+            cells(&settings),
+            1,
+        );
         self.canvas.label(
             x,
             y + 4,
             &hints,
             p["text.quiet"],
             false,
-            w - cells(&tail) - 3,
+            settings_area.x - x - 3,
         );
+        self.canvas.text(
+            settings_area.x,
+            settings_area.y,
+            &settings,
+            p[if self.hovered(settings_area) {
+                "accent"
+            } else {
+                "text.secondary"
+            }],
+        );
+        self.hit(settings_area, Action::Key(","));
         self.canvas
             .text(x + w - cells(&tail), y + 4, &tail, p["text.quiet"]);
     }

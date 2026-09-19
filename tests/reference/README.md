@@ -7,7 +7,7 @@ theme tokens and English catalog.
 
 The static reference covers 240 frames: English and Korean, all 11 views, five
 themes, 80×24 and 140×40, focus, queue, help, input, transparency and collapsed
-panels. The animation reference covers 180 frames across both languages and ten
+panels, including the visible settings shortcut in the footer and help. The animation reference covers 180 frames across both languages and ten
 transitions. Every glyph, foreground/background, bold attribute and cell position
 is compared exactly. Motion values use a 1e-6 tolerance; color and glyph checks
 have no masks or tolerance.

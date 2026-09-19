@@ -4,7 +4,7 @@ muse supports English (`en`) and Korean (`ko`). The interface selects Korean for
 `ko` terminal locales and English otherwise, checking `LC_ALL`, `LC_MESSAGES`,
 then `LANG`. A saved language takes precedence over the environment; an explicit
 `--language en|ko` takes precedence over saved settings. Press `I` to change it
-inside the app. Normal launches save the choice in `ui.json`; demo mode does not.
+inside the app, or use the language row in Settings (`,`). Normal launches save the choice in `ui.json`; demo mode does not.
 
 The Rust presentation layer owns the language preference. The Swift backend and
 wire protocol do not depend on it. Existing preferences without a language field

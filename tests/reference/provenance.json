@@ -9,6 +9,6 @@
     "backend/Fixtures/demo.json": "1778d34fe35f417db172734bccd452924f9b73ea16ff391985cb51ec19319786",
     "scripts/demo_fixture.py": "4d7d802cc75caf856693d2a2fbeb207dafc92ef2960a2068df5a5048afff983d",
     "frontend/assets/themes.json": "29971daef92dda02dc86293d5b8941b45b89b2e7866e1f85dcc01c9d145e6ea5",
-    "frontend/assets/en.json": "db3c5da5b62d41170cd4656c5b386046ecf64dc29f02975f3924bdc5f3de63a4"
+    "frontend/assets/en.json": "96ad883fc574b6a3eaf9b908a35aace743bf81c00b795a6459785e9a0708c274"
   }
 }
