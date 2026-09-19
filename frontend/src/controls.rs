@@ -269,9 +269,7 @@ impl App {
             entry_id: entry.id.clone(),
             before_entry_id: queue.entries.get(before).map(|e| e.id.clone()),
         };
-        if self.send(Command::QueueMove(params), Target::QueueEdit, 0) {
-            self.ui.cursors[1] = if down { index + 1 } else { index - 1 };
-        }
+        self.send(Command::QueueMove(params), Target::QueueEdit, 0);
     }
 }
 
