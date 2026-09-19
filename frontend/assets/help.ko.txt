@@ -17,6 +17,9 @@ muse — Apple Music 터미널 플레이어
   --version           버전
   --help              도움말
 
+--live-check 문구는 영어이며, 서비스 오류의 상세 내용은 원문 그대로 표시합니다.
+추가 옵션은 --read-only만 지원하며, --language는 지원하지 않습니다.
+
 Tab 영역 · [ ] 패널 · / 검색 · F 필터 · Enter 선택 · Space 재생
 P 전체 재생 · S 전체 셔플 (앨범·플레이리스트 상세)
 N 플레이리스트 만들기 · : 편집 · a 담기 · f 즐겨찾기 · I 언어

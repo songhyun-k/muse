@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C48 complete; Clarify app memory caches and system HTTP disk-cache policy.
+- Current unit: C49 complete; Use English native diagnostic messages and document their language policy.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -100,4 +100,5 @@ uploading artifacts; even an unpublished tag requires a new version.
 - Private data: ~/Library/Application Support/muse/library.json; UI: ui.json.
   MUSE_STATE_DIR selects an absolute isolated directory; demo ignores these files.
 - Native diagnostics: --live-check --read-only reads; --live-check briefly plays
-  and stops. Do not interrupt the user's music as part of offline checks.
+  and stops. Diagnostic messages use English, preserve service error details and
+  do not support --language. Do not interrupt the user's music as part of offline checks.

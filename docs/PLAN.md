@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C48 — Clarify app memory caches and system HTTP disk-cache policy.
+- [x] C49 — Use English native diagnostic messages and document their language policy.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

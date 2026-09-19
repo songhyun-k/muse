@@ -47,8 +47,8 @@ func nativeAcceptanceRejectsAcknowledgementsWithoutControlEffects(_ ignored: Str
     try await NativeAcceptance.checkControls(entry: entry, queue: queue, request: call)
     #expect(ignored == "success")
   } catch let failure as Failure {
-    let hint = ["move": "순서", "remove": "삭제", "pause": "일시정지", "seek": "탐색",
-                "mode-on": "모드", "mode-off": "모드", "resume": "재개", "stop": "정지"][ignored]
+    let hint = ["move": "order", "remove": "removed", "pause": "pause", "seek": "seek",
+                "mode-on": "mode", "mode-off": "mode", "resume": "resume", "stop": "stop"][ignored]
     #expect(hint != nil && failure.message.contains(hint!))
   }
 }

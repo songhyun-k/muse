@@ -24,7 +24,10 @@ bodies are never translated. Language changes must not rewrite saved music data.
 The embedded macOS music-permission description is bilingual.
 CLI help uses an explicit `--language` or the terminal locale without loading saved preferences.
 CLI help lives in `frontend/assets/help.en.txt` and `help.ko.txt`. Low-level host
-startup diagnostics and protocol debugging output use English.
+startup diagnostics, protocol debugging output and `--live-check` diagnostic
+messages use English. Native diagnostics accept only `--live-check` or
+`--live-check --read-only`; they do not support `--language` or use the UI language
+preference. Service error details are preserved as returned and may be Korean.
 
 To add a language, add the locale/catalog and CLI help, then extend the language
 picker, preference parsing and tests. Keep interpolated metadata outside catalog

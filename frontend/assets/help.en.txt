@@ -17,6 +17,9 @@ Usage: muse [options]
   --version           Version
   --help              Help
 
+--live-check messages use English; service error details are shown unchanged.
+Its only optional flag is --read-only; --language is not supported.
+
 Tab Focus · [ ] Panels · / Search · F Filter · Enter Select · Space Play
 P Play all · S Shuffle all (album/playlist details)
 N New playlist · : Edit · a Add to playlist · f Favorite · I Language
