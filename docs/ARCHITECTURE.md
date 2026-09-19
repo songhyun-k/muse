@@ -51,7 +51,11 @@ active ID fails without correlation so it cannot settle the accepted request.
 Events have explicit types. Unknown commands, incompatible versions, invalid numbers, invalid IDs and
 oversized messages return structured errors. Terminal escape/control characters
 are never rendered from external metadata. Requests have cancellation/stale-result
-handling. An error cannot be mistaken for an empty successful collection.
+handling. [Frontend request tracking](../frontend/src/requests.rs) identifies obsolete
+accepted reads by their command and sends cancellation through the control reserve.
+Original requests and cancellation requests each count until their own reply;
+navigation never cancels accepted mutations, including lyric choices and offsets.
+An error cannot be mistaken for an empty successful collection.
 
 The backend is authoritative for playback, queue, collections, favorites, history,
 lyrics results/offsets and device volume. The frontend only sends intentions and

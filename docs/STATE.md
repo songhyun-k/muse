@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C38 complete; preserve confirmed state from superseded mutation replies.
+- Current unit: C39 complete; Cancel obsolete accepted reads without interrupting saved edits or playback.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.
@@ -22,6 +22,10 @@ an ellipsis when truncated. Non-text or unprintable payloads have explicit diagn
 Superseded control replies still merge confirmed store, player and volume state
 through the existing sequence checks. They leave newer UI intentions, loading and
 feedback alone; superseded reads and failures remain excluded.
+
+The frontend cancels obsolete accepted reads through the existing backend command,
+using reserved request slots. Reads and cancellation requests remain counted until
+their own replies arrive; saved edits and playback commands are never cancelled by navigation.
 
 Catalog search, detail and Home use the bounded Apple web client with public/OS
 account tokens held in memory. MusicKit provides playback and library access.
