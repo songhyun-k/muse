@@ -20,7 +20,7 @@ fn execute() -> Result {
     let allowed: &[&str] = match command {
         "build" => &["--release"],
         "generate" | "demo" => &["--check"],
-        "check-publication" | "--help" => &[],
+        "previews" | "check-publication" | "--help" => &[],
         _ => return Err(format!("Unknown task: {command}").into()),
     };
     for flag in args.iter().skip(1) {
@@ -34,6 +34,7 @@ fn execute() -> Result {
         "generate" => generate::generate(args.iter().any(|a| a == "--check")),
         "build" => build::build(args.iter().any(|a| a == "--release")),
         "check-publication" => build::check_publication(),
+        "previews" => demo::previews(),
         _ => {
             println!("cargo xtask build [--release]\ncargo xtask check-publication");
             Ok(())

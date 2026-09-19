@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C20 complete; Embed identical demo data with Rust generation and retain native decoding checks.
+- Current unit: C21 complete; Use the production renderer for README previews without a regression replay harness.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - v0.2.0 is released and Homebrew installation/upgrade are verified.

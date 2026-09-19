@@ -106,3 +106,27 @@ pub fn generate(check: bool) -> Result {
     println!("Embedded demo corpus verified");
     Ok(())
 }
+
+pub fn previews() -> Result {
+    use crate::process::{filter, run};
+    use std::process::Command;
+    let frames = filter(
+        Command::new("cargo").args([
+            "run",
+            "--quiet",
+            "--locked",
+            "--manifest-path",
+            "frontend/Cargo.toml",
+            "--example",
+            "preview",
+        ]),
+        &serde_json::to_vec(&corpus()?)?,
+    )?;
+    let mut file = tempfile::NamedTempFile::new()?;
+    file.write_all(&frames)?;
+    fs::create_dir_all("docs/assets")?;
+    run(Command::new("swift")
+        .arg("scripts/render_preview.swift")
+        .arg(file.path())
+        .arg("docs/assets"))
+}

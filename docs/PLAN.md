@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C20 — Embed identical demo data with Rust generation and retain native decoding checks.
+- [x] C21 — Use the production renderer for README previews without a regression replay harness.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
