@@ -1,22 +1,23 @@
 # Current inspection
 
-Inspection unit: C40
+Inspection unit: C45
 
-The primary agent inspected the combined frontend request and text paths.
+The primary agent inspected the combined storage, request and frontend changes.
 
-- Confirmed state from superseded control replies uses the existing sequence
-  merger without settling newer UI intentions or accepting stale read failures.
-- Cancellation extends the same pending-request table. The combined completion
-  path reads Pending.target and preserves confirmed control state; original and
-  cancellation replies retain separate admission counts.
-- Sanitization precedes NFC normalization, and wrapping obtains byte boundaries
-  from the exact string it slices. Panic diagnostics reuse that filter after
-  terminal restoration instead of adding a global hook or logging framework.
-- Detail playback shortcuts call the existing action and preserve editor input.
-  Lyrics-choice tests likewise follow the real menu action.
-- Existing behavior checks cover these responsibilities without frozen layouts,
-  new dependencies, duplicated state owners or a generic scheduling framework.
-- Source paths and immutable release tags remain handled by Git and the existing
-  tooling; optional whitespace checks stay local to the commit hook.
+- Service caches only a successfully opened store. Failed opens remain retryable
+  through the existing accessor, preserving file validation and the writer lock.
+- Failed bootstrap publishes independent session/player/volume events and keeps
+  the real storage error. No empty-success snapshot or new contract is needed.
+- Login recovery is reported by successful authenticated web reads while the
+  Service retains ownership of the Music-app handoff policy.
+- The scheduler waits only on affected library/playback/volume domains; play and
+  authorization retain necessary cross-domain ordering. Frontend cancellation
+  agrees with this classification and never cancels accepted mutations.
+- Confirmed replies still use stream sequence checks without settling newer UI
+  intentions. The shared Pending completion path preserves both changes.
+- Recent local lists reverse their existing value arrays before pagination;
+  stored ordering, history and playlist track ordering remain unchanged.
+- Unicode wrapping and panic diagnostics reuse one terminal text filter. Existing
+  input actions, native tools and behavior checks cover the other merged fixes.
 
-No additional abstraction or broad refactor is warranted.
+No new dependency, broad abstraction, visual gate or further refactor is needed.

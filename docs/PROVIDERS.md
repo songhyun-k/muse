@@ -16,7 +16,7 @@ contract messages and renders them; the UI performs no web or native music reque
 | Lyrics and matching | LRCLIB get/search/record endpoints | No API key; song, artist, album and duration are sent for matching | [LyricsService](../backend/Sources/Backend/LyricsService.swift) |
 | Lyric timing | LRCLIB LRC timestamps plus confirmed player time | Chosen match and timing offset in app storage | [Service](../backend/Sources/Backend/Service.swift) |
 | Volume and mute | Core Audio default output device | Local device capabilities and controls | [VolumeService](../backend/Sources/Backend/VolumeService.swift) |
-| Playlists, favorites, history | App-owned LibraryStore | Atomic library.json; no cloud synchronization | [LibraryStore](../backend/Sources/Backend/LibraryStore.swift) |
+| Playlists, favorites, history | App-owned LibraryStore; recent playlists/favorites ordered newest first before pagination | Atomic library.json; no cloud synchronization | [LibraryStore](../backend/Sources/Backend/LibraryStore.swift), [Collections](../backend/Sources/Backend/Collections.swift) |
 | Language and appearance | Rust UI preference and embedded text/color catalogs | ui.json; Korean/English CLI and in-app selection | [i18n](../frontend/src/i18n.rs), [preferences](../frontend/src/preferences.rs) |
 | Motion and waveform | Frontend time plus confirmed playback state | Decorative visualization, not measured audio | [scene](../frontend/src/scene.rs) |
 | Demo | Embedded fictional fixtures and generated artwork | No account, provider network, device changes or normal saved files | [DemoService](../backend/Sources/Backend/DemoService.swift) |

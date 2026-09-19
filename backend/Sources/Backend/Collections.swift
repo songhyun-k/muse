@@ -111,7 +111,9 @@ extension LibraryStore {
     case .history: items = state.history
     default: return nil
     }
-    if params.scope != .collection && params.order != .recent {
+    if params.order == .recent && (params.scope == .collections || params.scope == .favorites) {
+      items.reverse()
+    } else if params.scope != .collection && params.order != .recent {
       items.sort {
         let first = params.order == .artist ? $0.artist : $0.title
         let second = params.order == .artist ? $1.artist : $1.title
