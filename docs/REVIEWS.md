@@ -29,5 +29,5 @@ public synthetic fixture source; generation refuses to overwrite fixed reference
 
 Automated checks and local inspection found no unresolved regression in this scope.
 The scan is pattern-based, not a security guarantee. Account-dependent Apple behavior,
-empty native artwork, Intel, remote CI, distribution signing and notarization have
+empty native artwork, Intel, distribution signing and notarization have
 the limits listed in [VALIDATION](VALIDATION.md). Private history is preserved locally.

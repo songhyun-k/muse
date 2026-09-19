@@ -17,8 +17,8 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C03 — Explicit sendability for isolated callbacks and visible CI toolchain versions.
-- [ ] C04 — Settings modal: reuse UI preferences, verify keyboard/mouse and build; no commit.
+- [x] C04 — Public repository, preview artifacts and hosted offline/release checks verified.
+- [ ] C05 — Settings modal: reuse UI preferences, verify keyboard/mouse and build; no commit.
 
 The primary agent performs implementation and inspection directly. Publish main
 and the verified v0.1.0 preview; preserve private development history locally.

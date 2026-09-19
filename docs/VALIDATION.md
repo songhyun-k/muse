@@ -1,8 +1,11 @@
 # Current validation
 
 Local environment: Apple Silicon, macOS 26.6.2, Xcode 26.3 / Swift 6.2.4 and
-Rust 1.98.1. The executable targets macOS 14+. Intel and the prepared GitHub Actions
-workflow have not been run here.
+Rust 1.98.1. The executable targets macOS 14+. Intel is not verified.
+
+[Hosted CI](https://github.com/songhyun-k/muse/actions/runs/35444105755) passes on
+macOS 15 arm64, Xcode 16.4 / Swift 6.1.2, Rust 1.98.1 and Python 3.14.7. It runs the
+full offline gate and optimized packaging checks; render p95 is 1.22ms there.
 
 ## Automated checks
 
@@ -39,8 +42,8 @@ plays briefly, checks song transitions, queue, seek and playback modes, then sto
 Both use an in-memory app store and never write the user's collections or history.
 The offline gate does not substitute for testing on another Mac/account.
 
-Apple's web integration remains unofficial. Developer ID signing, notarization,
-and remote CI are not established by local checks. The public preview uses the
+Apple's web integration remains unofficial. Developer ID signing and notarization
+remain outside this release. The public preview uses the
 locally verified Apple Silicon build; hosted results are available in GitHub Actions.
 
 ## Artifacts

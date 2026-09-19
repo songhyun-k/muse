@@ -1,7 +1,8 @@
 # Build and use
 
-The app targets macOS 14+. Apple Silicon is tested locally; Intel and hosted CI
-are not yet verified. Building requires Xcode with Swift 6, Rust 1.88+ and Python 3.
+The app targets macOS 14+. Apple Silicon is tested locally and in hosted macOS 15
+CI with Xcode 16.4 / Swift 6.1.2. Intel is not yet verified. Building requires
+Xcode with Swift 6, Rust 1.88+ and Python 3.
 The resulting executable uses macOS frameworks and needs no extra language runtime.
 
 ```sh

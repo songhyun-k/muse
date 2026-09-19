@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C03 complete; native diagnostic callbacks explicitly declare isolation and sendability.
+- Current unit: C04 complete; public source, preview packages and hosted CI are verified.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.
@@ -35,7 +35,8 @@ never reads tests/reference or neighboring repositories.
 The English README and Korean companion follow the codex-scope presentation with
 actual renderer previews. MIT licensing, Yatoro attribution, contributor/security
 notes, language docs and a macOS CI workflow are present. Dependency license texts
-are bundled with the Apple Silicon preview archive. Hosted CI is tracked on GitHub.
+are bundled with the Apple Silicon preview archive. Hosted macOS 15 CI passes the
+full offline suite and optimized packaging checks on Swift 6.1.2.
 
 The approved references cover both languages at 80×24 and 140×40, with all views,
 five themes and panel/focus/motion variants. [VALIDATION](VALIDATION.md) records the
