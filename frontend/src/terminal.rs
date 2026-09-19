@@ -416,6 +416,77 @@ fn key_name(event: KeyEvent) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn detail_playback_keys_replace_the_whole_container_in_compact_layout() {
+        use crate::{
+            generated::{Command, ItemRef, Kind, Placement, PlayParams, Source},
+            state::{EditAction, Focus, View},
+            transport::Admission,
+        };
+
+        for (source, kind) in [
+            (Source::Catalog, Kind::Album),
+            (Source::Library, Kind::Playlist),
+            (Source::Collection, Kind::Playlist),
+        ] {
+            for (character, shuffle) in [('P', false), ('S', true)] {
+                let mut app = App::default();
+                let detail = ItemRef {
+                    id: "detail".into(),
+                    source,
+                    kind,
+                };
+                app.ui.view = if source == Source::Collection {
+                    View::Playlists
+                } else {
+                    View::Detail
+                };
+                app.detail_ref = Some(detail.clone());
+                app.data.items = vec![
+                    serde_json::from_value(serde_json::json!({
+                        "ref":{"id":"selected-song","source":"catalog","kind":"song"},
+                        "title":"Song","artist":"Artist","album":"Album"
+                    }))
+                    .unwrap(),
+                ];
+                app.data.next_offset = Some(1);
+                let layout = app.ui.fit(80, 24);
+                let key =
+                    key_name(KeyEvent::new(KeyCode::Char(character), KeyModifiers::SHIFT)).unwrap();
+                assert!(app.key(&key, layout, 1.0, 1.0));
+                assert_eq!(
+                    app.flush(|request| {
+                        assert_eq!(
+                            request.command,
+                            Command::Play(PlayParams {
+                                items: vec![detail.clone()],
+                                start_index: 0,
+                                placement: Placement::Replace,
+                                shuffle: Some(shuffle),
+                            })
+                        );
+                        Ok(Admission::Accepted)
+                    })
+                    .unwrap(),
+                    1
+                );
+                for focus in [Focus::Nav, Focus::Right] {
+                    app.ui.focus = focus;
+                    app.key(&key, layout, 1.0, 1.0);
+                }
+                app.ui.focus = Focus::Main;
+                app.edit(EditAction::Create(None), String::new());
+                app.key(&key, layout, 1.0, 1.0);
+                assert_eq!(app.ui.editor.as_ref().unwrap().buffer, key);
+                assert_eq!(
+                    app.flush(|_| panic!("unfocused detail playback")).unwrap(),
+                    0
+                );
+            }
+        }
+    }
+
     #[test]
     fn cli_and_terminal_keys_retain_intent() {
         let args = [

@@ -89,6 +89,7 @@ Terminal background mode preserves your terminal's opacity and blur. It does not
 | Focus / toggle panels | `Tab` / `Shift-Tab` · `[` / `]` |
 | Search / filter / details | `/` · `F` · `o` |
 | Play / next / previous / seek | `Space` · `n` / `b` · `H` / `L` |
+| Play / shuffle all in album or playlist details | `P` / `S` |
 | Lyrics / queue / full lyrics | `l` · `Q` · `Ctrl-L` |
 | Favorite / add / create playlist | `f` · `a` · `N` |
 | Edit / lyrics match / timing | `:` · `M` · `O` |

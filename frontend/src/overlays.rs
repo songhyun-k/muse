@@ -107,6 +107,7 @@ impl Scene<'_> {
                 self.ui.text("↑/↓ j/k     선택 · 가사 스크롤"),
                 self.ui.text("Enter       열기 · 재생 · 가사 따라가기"),
                 self.ui.text("Space       재생 / 일시정지"),
+                self.ui.text("P / S       상세 전체 재생 / 셔플"),
                 self.ui.text("←/→         화면 이동"),
                 self.ui.text("/ / o / p   검색 / 상세 / 플레이리스트"),
                 self.ui.text("l / Q       가사 / 재생 큐"),
@@ -121,7 +122,7 @@ impl Scene<'_> {
                 self.ui.text("Esc / q     뒤로 / 종료"),
             ];
             let bw = 60.min(width - 6);
-            let bh = 21.min(height - 2);
+            let bh = (lines.len() as i32 + 4).min(height - 2);
             let x = (width - bw) / 2;
             let y = (height - bh) / 2;
             self.canvas.fill(x, y, bw, bh, p["overlay.background"]);

@@ -18,6 +18,7 @@ Usage: muse [options]
   --help              Help
 
 Tab Focus · [ ] Panels · / Search · F Filter · Enter Select · Space Play
+P Play all · S Shuffle all (album/playlist details)
 N New playlist · : Edit · a Add to playlist · f Favorite · I Language
 M Find lyrics · O Lyrics options · Ctrl-L Full lyrics · ? Help · q Quit
 
