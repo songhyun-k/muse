@@ -1,5 +1,5 @@
 use crate::{
-    canvas::{clean, cut},
+    canvas::{clean, prefix_len},
     generated::LyricsStatus,
     geometry::Area,
     icons::Icon,
@@ -130,7 +130,7 @@ impl Scene<'_> {
 }
 
 fn split_line(line: &str, width: i32) -> (&str, &str) {
-    let mut end = cut(line, width).len();
+    let mut end = prefix_len(line, width);
     if end < line.len() && !line[end..].starts_with(char::is_whitespace) {
         end = line[..end]
             .rfind(char::is_whitespace)
@@ -150,6 +150,12 @@ mod tests {
         );
         assert_eq!(super::split_line("하나 둘 셋", 5), ("하나", "둘 셋"));
         assert_eq!(super::split_line("👨‍👩‍👧‍👦 together", 2), ("👨‍👩‍👧‍👦", "together"));
+        let original = "a\u{200b}\u{0301}";
+        let line = crate::canvas::clean(original);
+        assert_eq!(super::split_line(&line, 1), ("á", ""));
+        assert_eq!(crate::canvas::clean(&line), line);
+        assert_eq!(super::split_line(original, 1), (original, ""));
+        assert_eq!(super::split_line(&line, 0), ("", "á"));
     }
     use crate::{
         generated::{LyricLine, Lyrics, LyricsStatus},

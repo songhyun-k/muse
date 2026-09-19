@@ -17,7 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C35 — Remove unused frontend paths and release checkout configuration.
+- [x] C36 — Normalize sanitized lyrics and wrap at valid UTF-8 boundaries.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
