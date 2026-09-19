@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C12 complete; public tap and Homebrew installation are verified.
+- Current unit: C13 complete; v0.2.0 is released and Homebrew installation/upgrade are verified.
 - Public repository: https://github.com/songhyun-k/muse. Push only main and release tags.
 - Next work: settings modal; implement, inspect and build without committing it.
 - The primary agent implements and inspects directly; no Workers or review agents.
@@ -44,7 +44,7 @@ current test results and remaining account/distribution limits.
 
 Current source and sensitive-pattern scans pass. Public main and source archives
 contain only original demo media. Private development history remains local.
-Signing is ad-hoc; Developer ID signing and notarization are not performed.
+Packages use ad-hoc signing and retain the local.muse.cli bundle identifier.
 
 ## Commands and data
 

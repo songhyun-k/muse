@@ -89,7 +89,6 @@ nor creates a remote.
 ## Signing
 
 The default bundle identifier is `local.muse.cli`; the default signature is ad-hoc.
-This is suitable for local testing, not a claim of Developer ID signing or notarization.
 [GitHub Releases](https://github.com/songhyun-k/muse/releases/latest) provide the
 executable, source, build manifest, formula and checksums. Direct downloads may
 require approval in System Settings → Privacy & Security.

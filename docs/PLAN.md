@@ -17,8 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C12 — Public Homebrew tap, installed executable and strict formula audit verified.
-- [ ] C13 — Release publication, repository rules and current documentation.
+- [x] C13 — Stable release, Homebrew upgrade, CI and repository management verified.
 
 The primary agent implements and inspects directly. The user authorizes the
 settings commits and implementation through Homebrew distribution. Private
@@ -55,9 +54,9 @@ an applicable current size exception in commit-exceptions.json.
 - [x] Returning users retry the original action; playlists and preferences are preserved.
 - [x] Subscription and permission dashboards are excluded; existing OS access behavior stays intact.
 - [x] A versioned Apple Silicon archive installs and runs through the public Homebrew tap.
-- [ ] Homebrew upgrade changes the executable without deleting user data.
-- [ ] Releases use immutable version tags and a verified, clean main commit.
-- [ ] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
+- [x] Homebrew upgrade changes the executable without deleting user data.
+- [x] Releases use immutable version tags and a verified, clean main commit.
+- [x] Main uses short feature/fix branches, CI and linear merge history; no develop branch.
 - [x] User documents describe supported usage without untested-platform disclaimers.
 
 Each unit must pass the dependency/contract gate and affected behavior checks.

@@ -29,6 +29,7 @@
 - Keep error handling, cancellation, accessibility and terminal cleanup intact.
 - Run `scripts/check.py` and the affected build/tests before committing.
 - Never commit keys, credentials, personal library data, build output or caches.
-- Public source: https://github.com/songhyun-k/muse. Publish only when the user asks;
-  never push private development branches. The current user scope authorizes
-  settings commits, login guidance and Homebrew distribution.
+- Public source: https://github.com/songhyun-k/muse. Work on short feat/ or fix/
+  branches and use CI + rebase-merged PRs for main. Publish only when the user asks.
+  Never push private development branches or replace a published release.
+- Follow docs/MAINTENANCE.md for version bumps, releases and Homebrew updates.
