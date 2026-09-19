@@ -396,6 +396,79 @@ mod tests {
         assert!(app.ui.feedback.is_none());
         assert!(app.data.store.as_ref().unwrap().favorites.is_empty());
     }
+
+    #[test]
+    fn superseded_favorite_success_survives_a_later_save_failure() {
+        let mut app = App::default();
+        let item = ItemRef {
+            id: "song".into(),
+            source: Source::Catalog,
+            kind: Kind::Song,
+        };
+        let key = crate::state::item_key(&item);
+        let target = Target::Favorite(key.clone());
+        let empty = StoreState {
+            collections: vec![],
+            favorites: vec![],
+            history_count: 0,
+        };
+        app.data.store = Some(empty.clone());
+        let mut ids = vec![];
+        for enabled in [true, false] {
+            app.toggle_favorite(item.clone());
+            assert_eq!(
+                app.flush(|r| {
+                    assert!(matches!(&r.command, Command::Favorite(p) if p.enabled == enabled));
+                    ids.push(r.id);
+                    Ok(Admission::Accepted)
+                })
+                .unwrap(),
+                1
+            );
+        }
+        let mut saved = empty.clone();
+        saved.favorites.push(item.clone());
+        assert!(app.receive(Event {
+            version: API_VERSION,
+            id: Some(ids[0]),
+            sequence: 2,
+            event: Notice::Store(saved),
+        }));
+        assert_eq!(
+            app.data.store.as_ref().unwrap().favorites,
+            std::slice::from_ref(&item)
+        );
+        assert_eq!(app.wanted_favorites.get(&key), Some(&false));
+        assert!(app.data.loading.contains(&target));
+        assert!(app.ui.feedback.is_none());
+        assert!(app.receive(Event {
+            version: API_VERSION,
+            id: Some(ids[1]),
+            sequence: 3,
+            event: Notice::Failure(Failure {
+                code: ErrorCode::Storage,
+                message: "저장 실패".into(),
+                retryable: true,
+            }),
+        }));
+        assert_eq!(
+            app.data.store.as_ref().unwrap().favorites,
+            std::slice::from_ref(&item)
+        );
+        assert_eq!(app.data.errors[&target].code, ErrorCode::Storage);
+        assert!(!app.data.loading.contains(&target));
+        assert!(!app.wanted_favorites.contains_key(&key));
+        assert!(app.requests.is_idle());
+        assert!(app.ui.feedback.is_none());
+        app.receive(Event {
+            version: API_VERSION,
+            id: None,
+            sequence: 1,
+            event: Notice::Store(empty),
+        });
+        assert_eq!(app.data.store.as_ref().unwrap().favorites, [item]);
+    }
+
     #[test]
     fn editor_limits_and_grapheme_deletion_preserve_input() {
         let mut editor = Editor::new(EditAction::Search, "가사👨‍👩‍👧‍👦".into());

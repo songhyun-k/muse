@@ -94,13 +94,23 @@ impl Requests {
     pub fn complete(&mut self, event: Event) -> Option<Response> {
         let target = if let Some(id) = event.id {
             let target = self.pending.remove(&id)?;
-            if target != Target::Mutation {
-                if self.latest.get(&target) != Some(&id) {
-                    return None;
-                }
+            if target == Target::Mutation || self.latest.get(&target) == Some(&id) {
                 self.latest.remove(&target);
+                Some(target)
+            } else if target.is_control()
+                && matches!(
+                    event.event,
+                    Notice::Store(_)
+                        | Notice::CollectionCreated(_)
+                        | Notice::Player(_)
+                        | Notice::Volume(_)
+                )
+            {
+                // Merge confirmed state without settling a newer UI intention.
+                None
+            } else {
+                return None;
             }
-            Some(target)
         } else {
             None
         };
