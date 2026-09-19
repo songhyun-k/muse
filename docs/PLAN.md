@@ -17,8 +17,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C09 — Login retry preserves the requested view without a new authorization step.
-- [ ] C10 — Current distribution documentation and simplification review.
+- [x] C10 — Current distribution documentation and simplification review.
 - [ ] C11 — Versioned release packaging and repeatable publication.
 - [ ] C12 — Homebrew tap, installation and upgrade validation.
 - [ ] C13 — Release publication, repository rules and current documentation.
