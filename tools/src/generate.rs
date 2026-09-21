@@ -306,42 +306,23 @@ pub fn write_generated(path: &str, bytes: &[u8], check: bool) -> Result {
 }
 
 fn formatted_swift(bytes: &[u8]) -> Result<Vec<u8>> {
-    filter(
-        Command::new("swift").args([
-            "format",
-            "format",
-            "--configuration",
-            concat!(env!("CARGO_MANIFEST_DIR"), "/../contract/swift-format.json"),
-            "-",
-        ]),
-        bytes,
-    )
-}
-
-fn write_swift(path: &str, bytes: &[u8], check: bool) -> Result {
-    let expected = formatted_swift(bytes)?;
-    if check {
-        // Compare both through this toolchain's formatter; Xcode versions differ.
-        ensure(
-            formatted_swift(&fs::read(path)?)? == expected,
-            &format!("Stale generated file: {path}"),
-        )
-    } else {
-        fs::write(path, expected)?;
-        Ok(())
-    }
+    // Omitting filenames reads stdin on both Swift 6.0 and newer formatters.
+    let output = filter(Command::new("swift").args(["format", "format"]), bytes)?;
+    ensure(!output.is_empty(), "Swift formatter returned no source")?;
+    Ok(output)
 }
 
 pub fn generate(check: bool) -> Result {
     let spec: Value = serde_json::from_slice(&fs::read("contract/api.json")?)?;
     validate(&spec)?;
+    let swift = formatted_swift(swift(&spec).as_bytes())?;
     let rust = filter(
         Command::new("rustfmt").args(["--edition", "2024"]),
         rust(&spec).as_bytes(),
     )?;
-    write_swift(
+    write_generated(
         "backend/Sources/MusicContract/Generated.swift",
-        swift(&spec).as_bytes(),
+        &swift,
         check,
     )?;
     write_generated("frontend/src/generated.rs", &rust, check)?;
@@ -355,21 +336,16 @@ pub fn generate(check: bool) -> Result {
 }
 
 #[test]
-fn swift_drift_check_ignores_formatting_but_rejects_contract_changes() -> Result {
+fn swift_formatter_reads_stdin_and_preserves_contract_changes() -> Result {
+    let original = formatted_swift(b"public struct Record { public let value: String }\n")?;
+    let changed = formatted_swift(b"public struct Record { public let value: Int }\n")?;
+    assert!(String::from_utf8_lossy(&original).contains("value: String"));
+    assert!(String::from_utf8_lossy(&changed).contains("value: Int"));
     let directory = tempfile::tempdir()?;
     let path = directory.path().join("Generated.swift");
     let path = path.to_str().unwrap();
-    let expected = b"public struct Record: Codable { public let value: String }\n";
-    write_swift(path, expected, false)?;
-    fs::write(
-        path,
-        b"public struct Record: Codable {\n    public let value: String\n}\n",
-    )?;
-    write_swift(path, expected, true)?;
-    fs::write(
-        path,
-        b"public struct Record: Codable { public let value: Int }\n",
-    )?;
-    assert!(write_swift(path, expected, true).is_err());
+    write_generated(path, &original, false)?;
+    write_generated(path, &original, true)?;
+    assert!(write_generated(path, &changed, true).is_err());
     Ok(())
 }
