@@ -24,9 +24,9 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Rust | Frontend and tooling behavior suites, rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Scheduling | Suspended lyric/collection preparation permits pause, seek and volume; storage, playback and volume order and play dependencies are checked offline |
-| Terminal | Linked demo exits normally and after INT/TERM/HUP, restores terminal state and preserves saved files |
+| Terminal | Linked demo exits normally and after INT/TERM/HUP; disconnected and stalled PTYs exit within a bound, restore input where connected, and release an inherited synthetic writer lock (also checked after SIGKILL) |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
-| Storage / build publication | Atomic writes, locked/corrupt-store bootstrap and visible errors, file preservation, open inode preservation and failed-probe rollback pass |
+| Storage / build publication | Same-entry history retries after lock/write recovery without duplicate records or repeated failure notifications; atomic writes, locked/corrupt-store bootstrap and visible errors, file preservation, open inode preservation and failed-probe rollback pass |
 | Public source | Source/history sensitive-pattern scans pass; a temporary Git repository checks leading-whitespace paths, archive inclusion, rename-independent secret detection and missing-file failure; no credential values are printed |
 
 Publication's offline command-stub check rejects existing destination version tags

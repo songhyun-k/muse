@@ -101,3 +101,43 @@ import Testing
   #expect(try service.store.get().state.history == [song, song])
   service.close()
 }
+
+@MainActor @Test func historyRetriesTheSameEntryAfterStorageRecovers() throws {
+  let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+  defer { try? FileManager.default.removeItem(at: directory) }
+  let file = directory.appendingPathComponent("library.json")
+  var owner: LibraryStore? = try LibraryStore(file: file)
+  let song = sampleSong("retry-history")
+  try owner?.favorite(song, enabled: true)
+  let service = Service(storeURL: file, music: MusicService(authorization: { .denied }))
+  defer { service.close() }
+  var failures = 0
+  service.onEvent = { event in
+    if case .failure(let failure) = event.event, failure.code == .storage { failures += 1 }
+  }
+  var state = service.music.playbackState()
+  state.current = song
+  state.currentEntryId = "same-entry"
+  state.playing = true
+  service.playbackChanged(state)
+  service.playbackChanged(state)
+  #expect(failures == 1)
+  #expect(owner?.state.history.isEmpty == true)
+  owner = nil
+  service.playbackChanged(state)
+  service.playbackChanged(state)
+  let saved = try JSONDecoder().decode(SavedLibrary.self, from: Data(contentsOf: file))
+  #expect(saved.history == [song] && saved.favorites == [song])
+  #expect(failures == 1)
+  // A later write failure must re-arm reporting and retry the same queue entry too.
+  try FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: directory.path)
+  defer { try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path) }
+  state.currentEntryId = "next-entry"
+  service.playbackChanged(state)
+  service.playbackChanged(state)
+  #expect(failures == 2)
+  try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
+  service.playbackChanged(state)
+  service.playbackChanged(state)
+  #expect(try service.store.get().state.history == [song, song])
+}

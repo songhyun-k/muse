@@ -361,6 +361,7 @@ name = "music-frontend"
 version = "0.3.1"
 dependencies = [
  "crossterm",
+ "libc",
  "ratatui",
  "serde",
  "serde_json",

@@ -25,6 +25,7 @@ public final class Service {
   let volume = VolumeService()
   private var historyEntry: String?
   private var historyReference: ItemRef?
+  private var historyFailureReported = false
   private var loginTask: Task<Void, Never>?
   private var loginPresented = false
   private let openMusic: @MainActor () async throws -> Void
@@ -104,14 +105,18 @@ public final class Service {
     guard state.playing, let item = state.current, item.ref.kind == .song,
       state.currentEntryId != historyEntry || item.ref != historyReference
     else { return }
-    historyEntry = state.currentEntryId
-    historyReference = item.ref
     do {
       let library = try store.get()
       try library.recordPlayback(item)
+      historyEntry = state.currentEntryId
+      historyReference = item.ref
+      historyFailureReported = false
       publish(.store(library.summary))
     } catch {
-      publish(.failure(.init(code: .storage, message: "재생 이력을 저장하지 못했습니다", retryable: true)))
+      if !historyFailureReported {
+        publish(.failure(.init(code: .storage, message: "재생 이력을 저장하지 못했습니다", retryable: true)))
+        historyFailureReported = true
+      }
     }
   }
 

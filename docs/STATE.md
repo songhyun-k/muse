@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C54 complete; Use portable Swift formatter stdin and reject empty output while retaining exact contract checks.
+- Current unit: C55 complete; Bound terminal shutdown and retry playback history after storage recovers.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
@@ -20,6 +20,13 @@ boundary, and no daemon or separate runtime is required.
 Caught Rust panics report an interface failure after terminal restoration, with
 up to 512 payload characters sanitized by the existing terminal text filter and
 an ellipsis when truncated. Non-text or unprintable payloads have explicit diagnostics.
+
+The terminal monitors INT/TERM/HUP and terminal hangup independently of UI input/output.
+Shutdown normally restores the terminal and closes the Swift service. A two-second
+fallback restores input attributes directly and exits without stdio or exit hooks
+if input, output or service cleanup is stuck; OS process exit releases the writer lock.
+Playback history marks entries recorded only after a successful write, retries on
+subsequent playing snapshots, and reports a storage failure once until recovery.
 
 Superseded control replies still merge confirmed store, player and volume state
 through the existing sequence checks. They leave newer UI intentions, loading and
