@@ -2,6 +2,19 @@ import Foundation
 import HostTransport
 import Testing
 
+@Test func shutdownDoesNotWaitForFrontendReturnOrRequestCapacity() async {
+  let box = Mailbox()
+  for _ in 0..<16 { #expect(box.submit(Data("pending".utf8)) == .accepted) }
+  // Terminal notification can precede the host's wait; later UI completion cannot replace it.
+  await Task.detached { box.requestExit(129) }.value
+  box.requestExit(0)
+  var exits: [Int32] = []
+  for await code in box.exits { exits.append(code) }
+  #expect(exits == [129])
+  box.close()
+  #expect(box.receive(capacity: 100) == .closed)
+}
+
 @Test func saturationReservesRepliesAndNeverBlocksClose() async {
   let box = Mailbox()
   let data = Data("request".utf8)

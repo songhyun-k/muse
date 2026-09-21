@@ -17,6 +17,9 @@ public enum Delivery: Equatable, Sendable {
 /// All mutable fields are protected by lock; no lock crosses an await/callback.
 public final class Mailbox: @unchecked Sendable {
   public let requests: AsyncStream<Data>
+  public let exits: AsyncStream<Int32>
+  private let exitInput: AsyncStream<Int32>.Continuation
+  private var exiting = false
   private let input: AsyncStream<Data>.Continuation
   private let lock = NSLock()
   private var closed = false
@@ -28,6 +31,16 @@ public final class Mailbox: @unchecked Sendable {
 
   public init() {
     (requests, input) = AsyncStream.makeStream(bufferingPolicy: .bufferingOldest(16))
+    (exits, exitInput) = AsyncStream.makeStream(bufferingPolicy: .bufferingOldest(1))
+  }
+
+  public func requestExit(_ code: Int32) {
+    lock.withLock {
+      guard !exiting else { return }
+      exiting = true
+      exitInput.yield(code)
+      exitInput.finish()
+    }
   }
 
   public func submit(_ data: Data) -> Admission {

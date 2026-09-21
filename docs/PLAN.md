@@ -13,7 +13,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 - [x] Superseded saves retain confirmed state after a later failure; stale reads stay excluded.
 - [x] Approved themes, panels, transparency, animations and keyboard/mouse behavior are retained.
 - [x] Behavior, contract, terminal and publication checks exist.
-- [x] Terminal loss and stalled-output signals release the writer lock within a bounded shutdown.
+- [x] The host handles terminal loss and stalled-output signals without waiting for UI return.
 - [x] Failed playback history writes retry the same entry without repeated error notifications.
 - [x] Rust panics leave a bounded, terminal-safe cause after terminal restoration.
 - [x] All documents describe current code, with an accurate feature supply map.
@@ -21,7 +21,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C55 — Bound shutdown after terminal loss or stalled output and recover failed playback history writes.
+- [x] C56 — Let the host own event-driven shutdown and restore terminal state without blocking output.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
