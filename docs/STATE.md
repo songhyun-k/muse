@@ -1,9 +1,10 @@
 # Current state
 
-- Current unit: C49 complete; Use English native diagnostic messages and document their language policy.
+- Current unit: C50 complete; Prepare v0.3.0 with the existing validation and publication tools.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
-- v0.2.0 is released and Homebrew installation/upgrade are verified.
+- Product version is 0.3.0; release publication and Homebrew delivery are verified separately.
+- v0.2.0 is the previous verified release.
 - The primary agent implements and inspects directly; no Workers or review agents.
 - Preserve the user's running processes. Build publication replaces the executable
   atomically so an already-running process keeps its original inode.

@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C49 — Use English native diagnostic messages and document their language policy.
+- [x] C50 — Prepare the v0.3.0 release with the existing validation and publication tools.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
