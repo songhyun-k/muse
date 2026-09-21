@@ -116,9 +116,9 @@ struct MusicHost {
       box.close()
       server.cancel()
       service.close()
-      muse_restore_terminal()
+      let restoration = muse_restore_terminal()
       // UI input/output need not return. Explicit cleanup is complete; skip process exit hooks.
-      _exit(result)
+      _exit(restoration == 0 ? result : 2)
     }
   }
 }

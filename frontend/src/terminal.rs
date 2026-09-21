@@ -13,14 +13,13 @@ use crate::{
     transport::Channel,
 };
 use crossterm::{
-    cursor::{Hide, Show},
+    cursor::Hide,
     event::{
-        self, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture,
-        Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers,
+        self, EnableBracketedPaste, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
+        KeyModifiers,
     },
     execute,
-    style::ResetColor,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode},
+    terminal::EnterAlternateScreen,
 };
 use ratatui::{Terminal, backend::CrosstermBackend};
 use std::{
@@ -90,22 +89,6 @@ impl Options {
     }
 }
 
-// Declared before terminal setup: partial setup failures also restore the terminal.
-struct Restore;
-impl Drop for Restore {
-    fn drop(&mut self) {
-        let _ = execute!(
-            io::stdout(),
-            ResetColor,
-            Show,
-            DisableBracketedPaste,
-            DisableMouseCapture,
-            LeaveAlternateScreen
-        );
-        let _ = disable_raw_mode();
-    }
-}
-
 pub fn run(channel: Channel, args: &[String]) -> Result<i32, String> {
     let initial = Options::parse(
         args,
@@ -158,17 +141,17 @@ fn run_terminal(
         return Err("대화형 터미널에서 실행해주세요. 사용법: muse --help".into());
     }
     let io_error = |error: io::Error| error.to_string();
-    let _restore = Restore;
     crate::terminal_lifecycle::enter_raw_mode().map_err(io_error)?;
+    let mut output = io::BufWriter::new(crate::terminal_lifecycle::Output);
     execute!(
-        io::stdout(),
+        output,
         EnterAlternateScreen,
         Hide,
         EnableBracketedPaste,
         EnableMouseCapture
     )
     .map_err(io_error)?;
-    let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout())).map_err(io_error)?;
+    let mut terminal = Terminal::new(CrosstermBackend::new(output)).map_err(io_error)?;
     terminal.clear().map_err(io_error)?;
     let mut app = App::default();
     app.ui = options.ui;

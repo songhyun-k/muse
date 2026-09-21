@@ -110,7 +110,9 @@ visualization; it must never be described as audio measurement.
 5. PTY checks verify normal exit, INT/TERM/HUP cleanup, disconnected terminals,
    stalled output, writer-lock release after exit and demo data isolation.
    Kernel signal/EOF events wake the host independently of UI input/output; shutdown
-   performs native service cleanup and nonblocking terminal restoration before exit.
+   performs native service cleanup and serialized terminal restoration before exit.
+   Rendering waits for output readiness outside the shutdown gate; restoration
+   blocks new drawing and discards queued frames before writing reset sequences.
 6. Persistence tests cover atomic replacement, malformed data and stable IDs;
    a failed write never reports success or destroys previous data.
 7. Release inspection checks Mach-O dependencies, embedded Info.plist, contract

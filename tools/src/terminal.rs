@@ -1,11 +1,12 @@
 use crate::process::{Result, ensure};
 use std::{
+    ffi::{CStr, OsStr},
     fs::{self, File},
     io::{self, Read, Write},
     mem::MaybeUninit,
     os::{
         fd::{AsRawFd, FromRawFd},
-        unix::process::CommandExt,
+        unix::{ffi::OsStrExt, fs::OpenOptionsExt, process::CommandExt},
     },
     path::Path,
     process::{Command, Stdio},
@@ -37,6 +38,48 @@ fn drain(master: &mut File, output: &mut Vec<u8>) -> io::Result<()> {
 
 fn contains(bytes: &[u8], needle: &[u8]) -> bool {
     bytes.windows(needle.len()).any(|part| part == needle)
+}
+
+fn check_cleanup(output: &[u8], signal: Option<i32>) -> Result {
+    for sequence in [
+        b"\x1b[?1049l".as_slice(),
+        b"\x1b[?25h",
+        b"\x1b[?2004l",
+        b"\x1b[?1006l",
+    ] {
+        ensure(
+            contains(output, sequence),
+            &format!(
+                "Missing terminal cleanup: signal={signal:?}, sequence={sequence:?}, tail={:?}",
+                String::from_utf8_lossy(&output[output.len().saturating_sub(512)..])
+            ),
+        )?;
+    }
+    Ok(())
+}
+
+fn fill_output(slave: &File) -> Result<File> {
+    // A separate description leaves the child's stdio flags untouched.
+    let mut name = [0; 1024];
+    ensure(
+        unsafe { libc::ttyname_r(slave.as_raw_fd(), name.as_mut_ptr(), name.len()) } == 0,
+        "Cannot find test terminal",
+    )?;
+    let path = unsafe { CStr::from_ptr(name.as_ptr()) };
+    let mut filler = File::options()
+        .write(true)
+        .custom_flags(libc::O_NONBLOCK | libc::O_NOCTTY)
+        .open(OsStr::from_bytes(path.to_bytes()))?;
+    let mut filled = 0;
+    loop {
+        match filler.write(&[b'x'; 1024]) {
+            Ok(n) if n > 0 => filled += n,
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => return Ok(filler),
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            result => return Err(format!("Could not fill PTY: {result:?}").into()),
+        }
+        ensure(filled < 1024 * 1024, "PTY output did not become full")?;
+    }
 }
 
 fn session(binary: &Path, signal: Option<i32>) -> Result {
@@ -142,14 +185,7 @@ fn session(binary: &Path, signal: Option<i32>) -> Result {
             contains(&output, b"PTY_RESTORED"),
             "Terminal attributes were not restored",
         )?;
-        for sequence in [
-            b"\x1b[?1049l".as_slice(),
-            b"\x1b[?25h",
-            b"\x1b[?2004l",
-            b"\x1b[?1006l",
-        ] {
-            ensure(contains(&output, sequence), "Missing terminal cleanup")?;
-        }
+        check_cleanup(&output, signal)?;
         for name in ["ui.json", "library.json"] {
             ensure(
                 fs::read(state.path().join(name))? == b"keep user data",
@@ -296,9 +332,13 @@ fn disconnected_session(binary: &Path, signal: Option<i32>, input_only: bool) ->
             unsafe { libc::flock(recovered.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } == -1,
             "Demo did not retain the synthetic writer lock",
         )?;
+        let _filler = if signal.is_some() {
+            Some(fill_output(&slave)?)
+        } else {
+            None
+        };
         if let Some(signal) = signal {
-            // Keep the master open but stop reading: animated output fills the PTY and blocks draw/flush.
-            thread::sleep(Duration::from_secs(1));
+            // No reads until exit: restoration must make space instead of waiting for the reader.
             ensure(
                 unsafe { libc::kill(child.id() as i32, signal) } == 0,
                 "Cannot signal stalled demo",
@@ -339,6 +379,8 @@ fn disconnected_session(binary: &Path, signal: Option<i32>, input_only: bool) ->
             "Exited demo retained the writer lock",
         )?;
         if signal.is_some() && signal != Some(libc::SIGKILL) {
+            drain(master.as_mut().unwrap(), &mut output)?;
+            check_cleanup(&output, signal)?;
             let after = attributes(slave.as_raw_fd())?;
             ensure(
                 before.c_lflag == after.c_lflag
