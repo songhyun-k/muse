@@ -1,5 +1,5 @@
 use crate::{
-    audit, build, package,
+    audit, bottle, build, package,
     process::{Result, ensure, output, run},
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
@@ -15,12 +15,24 @@ use std::{
 const REPO: &str = "songhyun-k/muse";
 const TAP: &str = "songhyun-k/homebrew-tap";
 
-fn formula(version: &str, checksum: &str) -> Result<String> {
+pub fn formula(version: &str, checksum: &str, bottle_checksum: Option<&str>) -> Result<String> {
     ensure(
         Regex::new(r"^[0-9a-f]{64}$")?.is_match(checksum),
         "Invalid archive checksum",
     )?;
-    Ok(fs::read_to_string("packaging/muse.rb.in")?
+    let bottle = if let Some(checksum) = bottle_checksum {
+        ensure(
+            Regex::new(r"^[0-9a-f]{64}$")?.is_match(checksum),
+            "Invalid bottle checksum",
+        )?;
+        format!(
+            "  bottle do\n    root_url \"https://github.com/{REPO}/releases/download/v{version}\"\n    sha256 cellar: :any_skip_relocation, arm64_sonoma: \"{checksum}\"\n  end\n"
+        )
+    } else {
+        String::new()
+    };
+    Ok(include_str!("../../packaging/muse.rb.in")
+        .replace("@BOTTLE@", &bottle)
         .replace("@VERSION@", version)
         .replace("@SHA256@", checksum))
 }
@@ -62,6 +74,9 @@ fn validate(version: &str) -> Result<(String, Vec<PathBuf>)> {
     )?;
     let report: Value = serde_json::from_slice(&fs::read("dist/release.json")?)?;
     verify_report(&report, version, &head)?;
+    let bottle = Path::new("dist").join(bottle::filename(version));
+    let bottle_checksum = package::digest(&bottle)?;
+    verify_bottle_report(&report, version, &bottle_checksum)?;
     let archive = PathBuf::from("dist/muse-macos-arm64.tar.gz");
     let binary = Path::new("dist/muse");
     ensure(
@@ -92,10 +107,11 @@ fn validate(version: &str) -> Result<(String, Vec<PathBuf>)> {
     package::verify_archive(&source, &entries)?;
     fs::write(
         "dist/muse.rb",
-        formula(version, &package::digest(&archive)?)?,
+        formula(version, &package::digest(&archive)?, Some(&bottle_checksum))?,
     )?;
     let mut assets = vec![
         archive,
+        bottle,
         source,
         PathBuf::from("dist/release.json"),
         PathBuf::from("dist/muse.rb"),
@@ -131,7 +147,17 @@ fn update_tap(version: &str) -> Result {
         .as_str()
         .and_then(|s| s.strip_prefix("sha256:"))
         .ok_or("Missing published digest")?;
-    let formula = formula(version, checksum)?;
+    let bottle_asset = release["assets"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["name"] == bottle::filename(version))
+        .ok_or("Missing release bottle")?;
+    let bottle_checksum = bottle_asset["digest"]
+        .as_str()
+        .and_then(|s| s.strip_prefix("sha256:"))
+        .ok_or("Missing published bottle digest")?;
+    let formula = formula(version, checksum, Some(bottle_checksum))?;
     let endpoint = format!("repos/{TAP}/contents/Formula/muse.rb");
     let current: Value =
         serde_json::from_str(&output(Command::new("gh").args(["api", &endpoint]))?)?;
@@ -212,5 +238,29 @@ fn release_requires_the_inspected_version_and_clean_commit() -> Result {
     assert!(verify_report(&report, "1.0.0", "new-head").is_err());
     report["dirty"] = json!(true);
     assert!(verify_report(&report, "1.0.0", "head").is_err());
+    Ok(())
+}
+
+fn verify_bottle_report(report: &Value, version: &str, checksum: &str) -> Result {
+    ensure(
+        report["bottle"] == bottle::filename(version)
+            && report["bottleSha256"] == checksum
+            && report["bottleInstalledOnMacOS14"] == true,
+        "Bottle changed or was not installed and verified on macOS 14",
+    )
+}
+
+#[test]
+fn publication_requires_the_exact_installed_bottle() -> Result {
+    let checksum = "a".repeat(64);
+    let mut report = json!({"bottle":bottle::filename("0.3.1"),"bottleSha256":checksum,"bottleInstalledOnMacOS14":true});
+    verify_bottle_report(&report, "0.3.1", &checksum)?;
+    assert!(verify_bottle_report(&report, "0.3.2", &checksum).is_err());
+    assert!(verify_bottle_report(&report, "0.3.1", &"b".repeat(64)).is_err());
+    report["bottleInstalledOnMacOS14"] = false.into();
+    assert!(verify_bottle_report(&report, "0.3.1", &checksum).is_err());
+    assert!(formula("0.3.1", &checksum, Some("invalid")).is_err());
+    let formula = formula("0.3.1", &checksum, Some(&checksum))?;
+    assert!(formula.contains("arm64_sonoma:") && !formula.contains("@BOTTLE@"));
     Ok(())
 }

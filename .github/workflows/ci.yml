@@ -31,3 +31,22 @@ jobs:
           rustc --version
       - name: Verify contracts and behavior
         run: cargo xtask check
+
+  bottle:
+    runs-on: macos-14
+    timeout-minutes: 25
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup override set stable
+      - name: Build and inspect release
+        run: cargo xtask release
+      - name: Build and install Homebrew bottle on the oldest supported macOS
+        run: cargo xtask bottle

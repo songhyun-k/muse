@@ -12,8 +12,11 @@ concurrency:
 jobs:
   release:
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-15
+    runs-on: macos-14
     timeout-minutes: 30
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
     permissions:
       contents: write
     steps:
@@ -28,6 +31,8 @@ jobs:
         run: cargo xtask check
       - name: Build and inspect release
         run: cargo xtask release
+      - name: Build and install Homebrew bottle on the oldest supported macOS
+        run: cargo xtask bottle
       - name: Export public source
         run: cargo xtask audit --export
       - name: Publish exact verified artifacts

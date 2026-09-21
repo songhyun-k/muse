@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C50 — Prepare the v0.3.0 release with the existing validation and publication tools.
+- [x] C51 — Package and verify native Homebrew bottles on macOS 14 before publication.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
