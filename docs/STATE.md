@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C53 complete; Make Swift generation checks portable across formatter versions and run the full macOS 14 PR gate.
+- Current unit: C54 complete; Use portable Swift formatter stdin and reject empty output while retaining exact contract checks.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
