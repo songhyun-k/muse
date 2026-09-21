@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C57 complete; Serialize terminal output and restore connected terminals even with a full output queue.
+- Current unit: C58 complete; Install the exact CI bottle independently of published release assets.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
@@ -93,7 +93,10 @@ notes, language docs and a macOS CI workflow are present. Dependency license tex
 are bundled with the Apple Silicon preview archive. The macOS 15 CI runs focused behavior checks; the release workflow also verifies
 optimized packaging on macOS 14. Homebrew creates a relocatable arm64_sonoma
 bottle from that inspected executable, reinstalls it and verifies the receipt,
-executable checksum, signature and demo probe before publication.
+executable checksum, signature and demo probe before publication. The disposable
+installation-test tap points its bottle root at the local build directory, avoiding
+public-release cache collisions; the packaged and published formula retains its
+immutable release URLs. Automatic bottle selection still runs without developer tools.
 
 [VALIDATION](VALIDATION.md) describes retained behavior checks and account/distribution limits.
 

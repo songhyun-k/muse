@@ -30,7 +30,10 @@ Run the complete offline gate before packaging. The release job must verify the
 version, clean source commit, artifact hashes and relocated execution before it
 publishes. The release runs on macOS 14 and uses `brew bottle` to generate
 the native package and receipt. A fresh bottle installation must preserve the
-inspected executable and pass its signature and demo probe checks. Tap updates follow the published release and are checked by installing
+inspected executable and pass its signature and demo probe checks. Installation
+validation points only the disposable tap's bottle root at the current local
+artifact directory; it does not seed a public bottle URL's download cache. The
+packaged formula and publication metadata retain their public release URLs. Tap updates follow the published release and are checked by installing
 and running the downloaded package, never by merely checking that the URL exists.
 
 Production credentials and developer signing identities do not enter the repository.
