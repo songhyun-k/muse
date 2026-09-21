@@ -1,4 +1,5 @@
 mod audit;
+mod bottle;
 mod build;
 mod check;
 mod demo;
@@ -31,7 +32,8 @@ fn execute() -> Result {
         "publish" => &["--publish", "--update-tap"],
         "audit" => &["--history", "--export"],
         "generate" | "demo" => &["--check"],
-        "check" | "release" | "terminal" | "previews" | "check-publication" | "--help" => &[],
+        "check" | "release" | "bottle" | "terminal" | "previews" | "check-publication"
+        | "--help" => &[],
         _ => return Err(format!("Unknown task: {command}").into()),
     };
     for flag in args.iter().skip(1) {
@@ -47,6 +49,7 @@ fn execute() -> Result {
         "check-publication" => build::check_publication(),
         "previews" => demo::previews(),
         "release" => package::release(),
+        "bottle" => bottle::build(),
         "check" => check::check(),
         "publish" => publish::publish(
             args.iter().any(|a| a == "--publish"),
@@ -59,7 +62,7 @@ fn execute() -> Result {
         "terminal" => terminal::check(Path::new("dist/muse")),
         _ => {
             println!(
-                "cargo xtask build [--release]\ncargo xtask check\ncargo xtask generate [--check]\ncargo xtask demo [--check]\ncargo xtask previews\ncargo xtask release\ncargo xtask audit [--history] [--export]\ncargo xtask publish [--publish] [--update-tap]\ncargo xtask terminal\ncargo xtask check-publication"
+                "cargo xtask build [--release]\ncargo xtask check\ncargo xtask generate [--check]\ncargo xtask demo [--check]\ncargo xtask previews\ncargo xtask release\ncargo xtask bottle\ncargo xtask audit [--history] [--export]\ncargo xtask publish [--publish] [--update-tap]\ncargo xtask terminal\ncargo xtask check-publication"
             );
             Ok(())
         }

@@ -4,7 +4,10 @@ Local environment: Apple Silicon, macOS 26.6.2, Xcode 26.3 / Swift 6.2.4 and
 Rust 1.98.1. The executable targets macOS 14+ on Apple Silicon.
 
 CI runs the native behavior suite on macOS 15 with the installed Xcode toolchain
-and stable Rust. Optimized artifact inspection runs in the release workflow.
+and stable Rust. Optimized artifact and native bottle installation checks run on macOS 14 in CI
+and the release workflow. Bottle installation uses an unavailable DEVELOPER_DIR
+and must record `poured_from_bottle`, retain the inspected executable checksum,
+and pass signature verification and the demo probe.
 
 ## Automated checks
 
@@ -53,7 +56,9 @@ embedded metadata, absence of personal build paths, system-library dependencies
 and relocated standalone launch.
 Its binary archive includes the project license, attribution and Rust dependency
 license texts. `dist/release.json` records architecture, checksum, signing and
-whether the source tree contained uncommitted changes.
+whether the source tree contained uncommitted changes. The bottle task adds the
+native bottle filename, checksum and successful macOS 14 installation result.
+Publication rejects missing, modified or unverified bottles.
 
 `cargo xtask audit --history --export` also creates a clean source
 archive without `.git`. Public main and clean exports contain original synthetic

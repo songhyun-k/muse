@@ -1,10 +1,11 @@
 # Current state
 
-- Current unit: C50 complete; Prepare v0.3.0 with the existing validation and publication tools.
+- Current unit: C51 complete; Add native Homebrew bottles and macOS 14 installation validation.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
-- Product version is 0.3.0; release publication and Homebrew delivery are verified separately.
-- v0.2.0 is the previous verified release.
+- Product version is 0.3.1; publication is separate from source validation.
+- v0.3.0 is the previous published release. Its bottle-less formula can trigger
+  Homebrew build-tool checks even though the application is already compiled.
 - The primary agent implements and inspects directly; no Workers or review agents.
 - Preserve the user's running processes. Build publication replaces the executable
   atomically so an already-running process keeps its original inode.
@@ -77,7 +78,9 @@ The English README and Korean companion follow the codex-scope presentation with
 actual renderer previews. MIT licensing, Yatoro attribution, contributor/security
 notes, language docs and a macOS CI workflow are present. Dependency license texts
 are bundled with the Apple Silicon preview archive. The macOS 15 CI runs focused behavior checks; the release workflow also verifies
-optimized packaging.
+optimized packaging on macOS 14. Homebrew creates a relocatable arm64_sonoma
+bottle from that inspected executable, reinstalls it and verifies the receipt,
+executable checksum, signature and demo probe before publication.
 
 [VALIDATION](VALIDATION.md) describes retained behavior checks and account/distribution limits.
 
@@ -96,7 +99,7 @@ uploading artifacts; even an unpublished tag requires a new version.
 - Check: cargo xtask check
 - Generate contract: cargo xtask generate
 - README previews: cargo xtask previews
-- Package: cargo xtask release
+- Package: cargo xtask release; cargo xtask bottle on a disposable macOS 14 arm64 GitHub runner
 - Source audit/export: cargo xtask audit --history --export
 - Private data: ~/Library/Application Support/muse/library.json; UI: ui.json.
   MUSE_STATE_DIR selects an absolute isolated directory; demo ignores these files.
