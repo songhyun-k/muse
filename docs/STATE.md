@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C51 complete; Add native Homebrew bottles and macOS 14 installation validation.
+- Current unit: C52 complete; Select Xcode 16.2 for macOS 14 builds and verify automatic bottle selection.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
