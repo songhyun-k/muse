@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C52 — Select Swift 6 on the macOS 14 builder and verify automatic bottle selection.
+- [x] C53 — Compare generated Swift with the active formatter and run the full macOS 14 gate before merge.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.

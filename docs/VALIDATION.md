@@ -5,7 +5,10 @@ Rust 1.98.1. The executable targets macOS 14+ on Apple Silicon.
 
 CI runs the native behavior suite on macOS 15 with the installed Xcode toolchain
 and stable Rust. Optimized artifact and native bottle installation checks run on macOS 14 in CI
-and the release workflow. Bottle installation uses an unavailable DEVELOPER_DIR
+and the release workflow. The macOS 14 PR job also runs the complete offline gate.
+Swift contract drift checks format both generated and checked-in text with the
+active formatter, ignoring toolchain formatting changes while rejecting changed
+contract declarations. Bottle installation uses an unavailable DEVELOPER_DIR
 and must record `poured_from_bottle`, retain the inspected executable checksum,
 and pass signature verification and the demo probe.
 
