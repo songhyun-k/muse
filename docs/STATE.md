@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C52 complete; Select Xcode 16.2 for macOS 14 builds and verify automatic bottle selection.
+- Current unit: C53 complete; Make Swift generation checks portable across formatter versions and run the full macOS 14 PR gate.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.

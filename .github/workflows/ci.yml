@@ -45,8 +45,10 @@ jobs:
           persist-credentials: false
       - name: Rust toolchain
         run: |
-          rustup toolchain install stable --profile minimal
+          rustup toolchain install stable --profile minimal --component rustfmt --component clippy
           rustup override set stable
+      - name: Verify contracts and behavior on macOS 14
+        run: cargo xtask check
       - name: Build and inspect release
         run: cargo xtask release
       - name: Build and install Homebrew bottle on the oldest supported macOS
