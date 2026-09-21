@@ -73,10 +73,21 @@ pub fn build() -> Result {
         bottle["tags"]["arm64_sonoma"]["sha256"] == checksum,
         "Homebrew bottle checksum mismatch",
     )?;
+    fs::write(
+        Path::new(&tap).join("Formula/muse.rb"),
+        publish::formula(
+            &version,
+            report["archiveSha256"]
+                .as_str()
+                .ok_or("Missing archive digest")?,
+            Some(&checksum),
+        )?,
+    )?;
+    let cache = output(Command::new("brew").args(["--cache", "songhyun-k/tap/muse"]))?;
+    fs::copy(&destination, cache)?;
     run(Command::new("brew").args(["uninstall", "songhyun-k/tap/muse"]))?;
     run(Command::new("brew")
-        .arg("install")
-        .arg(destination.canonicalize()?)
+        .args(["install", "songhyun-k/tap/muse"])
         .env("DEVELOPER_DIR", "/muse-no-developer-tools"))?;
     let installed = Path::new(&cellar).join("muse").join(&version);
     let receipt: Value =

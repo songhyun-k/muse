@@ -19,7 +19,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C51 — Package and verify native Homebrew bottles on macOS 14 before publication.
+- [x] C52 — Select Swift 6 on the macOS 14 builder and verify automatic bottle selection.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
