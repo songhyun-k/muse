@@ -18,6 +18,10 @@ private func mailbox(_ context: UnsafeMutableRawPointer?) -> Mailbox? {
   context.map { Unmanaged<Mailbox>.fromOpaque($0).takeUnretainedValue() }
 }
 
+private func requestExit(_ context: UnsafeMutableRawPointer?, _ code: Int32) {
+  mailbox(context)?.requestExit(code)
+}
+
 private func submit(
   _ context: UnsafeMutableRawPointer?, _ bytes: UnsafePointer<UInt8>?, _ count: Int
 ) -> Int32 {
@@ -73,7 +77,17 @@ struct MusicHost {
     service.onEvent = { event in
       if let data = try? Wire.encode(event) { box.publish(event.event.tag, data) }
     }
-    if !diagnostic { service.start() }
+    if !diagnostic {
+      // The event callback may race UI completion; keep its context alive through process exit.
+      let terminalContext = Unmanaged.passRetained(box)
+      guard muse_prepare_terminal(terminalContext.toOpaque(), requestExit) == 0 else {
+        terminalContext.release()
+        service.close()
+        fputs("Could not prepare terminal\n", stderr)
+        exit(1)
+      }
+      service.start()
+    }
     let server = Task {
       for await request in box.requests {
         guard !Task.isCancelled else { break }
@@ -90,19 +104,21 @@ struct MusicHost {
       }
     }
     guard let options = try? JSONEncoder().encode(arguments) else { exit(2) }
-    let result: Int32 = await withCheckedContinuation { continuation in
-      Thread.detachNewThread {
-        let context = Unmanaged.passUnretained(box).toOpaque()
-        let bridge = MuseBridge(abi_version: 1, context: context, submit: submit, receive: receive)
-        let code = options.withUnsafeBytes { buffer in
-          muse_run(bridge, buffer.bindMemory(to: UInt8.self).baseAddress, options.count)
-        }
-        box.close()
-        continuation.resume(returning: code)
+    Thread.detachNewThread {
+      let context = Unmanaged.passUnretained(box).toOpaque()
+      let bridge = MuseBridge(abi_version: 1, context: context, submit: submit, receive: receive)
+      let code = options.withUnsafeBytes { buffer in
+        muse_run(bridge, buffer.bindMemory(to: UInt8.self).baseAddress, options.count)
       }
+      box.requestExit(code)
     }
-    server.cancel()
-    service.close()
-    exit(result)
+    for await result in box.exits {
+      box.close()
+      server.cancel()
+      service.close()
+      muse_restore_terminal()
+      // UI input/output need not return. Explicit cleanup is complete; skip process exit hooks.
+      _exit(result)
+    }
   }
 }

@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C55 complete; Bound terminal shutdown and retry playback history after storage recovers.
+- Current unit: C56 complete; Let the host own event-driven shutdown independently of UI return.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
@@ -21,10 +21,13 @@ Caught Rust panics report an interface failure after terminal restoration, with
 up to 512 payload characters sanitized by the existing terminal text filter and
 an ellipsis when truncated. Non-text or unprintable payloads have explicit diagnostics.
 
-The terminal monitors INT/TERM/HUP and terminal hangup independently of UI input/output.
-Shutdown normally restores the terminal and closes the Swift service. A two-second
-fallback restores input attributes directly and exits without stdio or exit hooks
-if input, output or service cleanup is stuck; OS process exit releases the writer lock.
+Rust observes INT/TERM/HUP and terminal EOF with blocking kernel event notifications,
+without a timer or polling interval. The host receives the first terminal notification
+or UI return through a dedicated exit stream, closes request admission, cancels tasks
+and closes the Swift service. Rust restores input attributes and attempts screen
+reset through a separate nonblocking terminal descriptor. The host then exits without
+waiting for UI return or process exit hooks; OS exit releases the writer lock.
+Native service cleanup must return before exit; no forced-termination deadline is used.
 Playback history marks entries recorded only after a successful write, retries on
 subsequent playing snapshots, and reports a storage failure once until recovery.
 

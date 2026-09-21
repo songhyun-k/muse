@@ -25,6 +25,7 @@ mod scheduling;
 pub mod settings;
 pub mod state;
 mod terminal;
+mod terminal_lifecycle;
 pub mod theme;
 pub mod transport;
 pub mod wire;

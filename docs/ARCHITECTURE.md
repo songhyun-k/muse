@@ -38,7 +38,10 @@ replies still count toward that limit. Return explicit busy/closed status before
 acceptance. Replies are never silently dropped. Unsolicited snapshots coalesce by
 event type and use a separate bounded mailbox; polling alternates replies/events.
 Each message is at most 1 MiB. Closing rejects new work, cancels pending work and
-wakes the UI; no callback may outlive its context. Saturation and exit are tested.
+wakes the UI; no callback may outlive its context. The terminal lifecycle callback
+uses a process-lifetime context: terminal events and UI completion share a first-wins
+exit stream. Host shutdown closes the service without joining the terminal thread.
+Saturation and exit are tested.
 Dragging coalesces unsent seek/volume intent on the frontend.
 
 Mutations are ordered by the state they affect: library (including lyrics),
@@ -106,8 +109,8 @@ visualization; it must never be described as audio measurement.
    assertions or machine-specific render-time thresholds gate active development.
 5. PTY checks verify normal exit, INT/TERM/HUP cleanup, disconnected terminals,
    stalled output, writer-lock release after exit and demo data isolation.
-   An independent terminal monitor bounds signal/hangup shutdown to a two-second
-   grace period even when the UI or backend cleanup cannot return.
+   Kernel signal/EOF events wake the host independently of UI input/output; shutdown
+   performs native service cleanup and nonblocking terminal restoration before exit.
 6. Persistence tests cover atomic replacement, malformed data and stable IDs;
    a failed write never reports success or destroys previous data.
 7. Release inspection checks Mach-O dependencies, embedded Info.plist, contract
