@@ -1,7 +1,7 @@
 use std::{
     ffi::{CStr, c_void},
     fs::File,
-    io::{self, IsTerminal},
+    io::{self, IsTerminal, Write},
     os::{
         fd::{AsRawFd, FromRawFd},
         unix::{ffi::OsStrExt, fs::OpenOptionsExt},
@@ -20,6 +20,64 @@ struct TerminalState {
 }
 
 static TERMINAL: OnceLock<TerminalState> = OnceLock::new();
+
+pub struct Output;
+
+impl Write for Output {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        let state = TERMINAL
+            .get()
+            .ok_or_else(|| io::Error::other("Terminal not prepared"))?;
+        loop {
+            let restored = state
+                .restored
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            if *restored {
+                return Ok(bytes.len());
+            } // Discard drawing after host restoration.
+            let result = (&state.output).write(bytes);
+            drop(restored); // Never hold the output gate while waiting for a slow terminal.
+            match result {
+                Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                    let mut ready = libc::pollfd {
+                        fd: state.output.as_raw_fd(),
+                        events: libc::POLLOUT,
+                        revents: 0,
+                    };
+                    // SAFETY: a readiness wait borrows the live descriptor, without a timer.
+                    if unsafe { libc::poll(&mut ready, 1, -1) } < 0 {
+                        let error = io::Error::last_os_error();
+                        if error.kind() != io::ErrorKind::Interrupted {
+                            return Err(error);
+                        }
+                    }
+                }
+                result => return result,
+            }
+        }
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+pub fn report_error(message: &str) {
+    if let Some(state) = TERMINAL.get() {
+        let mut restored = state
+            .restored
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if *restored {
+            return;
+        } // Host shutdown already owns the terminal.
+        restore(state, &mut restored);
+        let _ = writeln!(&state.output, "{message}");
+    } else {
+        let _ = writeln!(io::stderr(), "{message}");
+    }
+}
 
 struct Shutdown {
     context: *mut c_void,
@@ -184,20 +242,31 @@ pub fn enter_raw_mode() -> io::Result<()> {
     crossterm::terminal::enable_raw_mode()
 }
 
-/// Restore input and attempt terminal reset without stdio locks or blocking writes.
+/// Stop drawing, discard queued frames and reset the terminal without waiting on output.
 #[unsafe(no_mangle)]
-pub extern "C" fn muse_restore_terminal() {
-    let Some(state) = TERMINAL.get() else { return };
-    {
-        let mut restored = state
-            .restored
-            .lock()
-            .unwrap_or_else(|error| error.into_inner());
-        *restored = true;
-        // SAFETY: original was captured before raw mode and remains valid until process exit.
-        unsafe { libc::tcsetattr(libc::STDIN_FILENO, libc::TCSANOW, &state.original) };
+pub extern "C" fn muse_restore_terminal() -> i32 {
+    let Some(state) = TERMINAL.get() else {
+        return 0;
+    };
+    let mut restored = state
+        .restored
+        .lock()
+        .unwrap_or_else(|error| error.into_inner());
+    restore(state, &mut restored)
+}
+
+fn restore(state: &TerminalState, restored: &mut bool) -> i32 {
+    if *restored {
+        return 0;
     }
-    let reset = b"\x1b[0m\x1b[?25h\x1b[?2004l\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1015l\x1b[?1006l\x1b[?1049l";
-    // SAFETY: best-effort write to our private nonblocking descriptor; a lost/full PTY is harmless.
-    unsafe { libc::write(state.output.as_raw_fd(), reset.as_ptr().cast(), reset.len()) };
+    *restored = true;
+    // SAFETY: only output is discarded; input attributes were captured before raw mode.
+    unsafe {
+        libc::tcflush(state.output.as_raw_fd(), libc::TCOFLUSH);
+        libc::tcsetattr(libc::STDIN_FILENO, libc::TCSANOW, &state.original);
+    }
+    // CAN cancels a partially delivered escape sequence. No UI writer can refill the queue.
+    let reset = b"\x18\x1b[0m\x1b[?25h\x1b[?2004l\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1015l\x1b[?1006l\x1b[?1049l";
+    // write_all handles partial writes and EINTR; a revoked terminal needs no screen reset.
+    i32::from((&state.output).write_all(reset).is_err() && io::stdout().is_terminal())
 }

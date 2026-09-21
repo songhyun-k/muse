@@ -24,7 +24,7 @@ blocked in PATH. The tracked source contains no Python scripts.
 | Rust | Frontend and tooling behavior suites, rustfmt and Clippy with warnings denied pass |
 | Contract | Generated types, shared wire fixtures and input bounds pass |
 | Scheduling | Suspended lyric/collection preparation permits pause, seek and volume; storage, playback and volume order and play dependencies are checked offline |
-| Terminal | Linked demo exits normally and after INT/TERM/HUP; full/input-only disconnection and stalled PTYs exit through the host, restore input where connected, and release an inherited synthetic writer lock (also checked after SIGKILL) |
+| Terminal | Linked demo exits normally and after INT/TERM/HUP; full/input-only disconnection and deliberately full PTY output queues exit through the host, restore input and all screen-reset sequences where connected, and release an inherited synthetic writer lock (also checked after SIGKILL) |
 | Languages / settings | Locale selection, live settings, saved preferences and metadata preservation pass |
 | Storage / build publication | Same-entry history retries after lock/write recovery without duplicate records or repeated failure notifications; atomic writes, locked/corrupt-store bootstrap and visible errors, file preservation, open inode preservation and failed-probe rollback pass |
 | Public source | Source/history sensitive-pattern scans pass; a temporary Git repository checks leading-whitespace paths, archive inclusion, rename-independent secret detection and missing-file failure; no credential values are printed |
@@ -35,6 +35,7 @@ and tag-lookup failures before any release upload or tap write.
 Demo media contain original synthetic music data, generated cover art and original
 lyrics. Visual snapshots and timing thresholds are not development gates. PTY
 checks use temporary `MUSE_STATE_DIR` directories and preserve real user data.
+PTY failures identify the signal, missing reset sequence and bounded output tail.
 The exit-stream test covers terminal notification before the host starts waiting,
 full request capacity and competing UI completion without replacing the first exit code.
 The panic diagnostic check covers string and non-text payloads, Unicode-safe

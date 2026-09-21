@@ -63,15 +63,11 @@ pub unsafe extern "C" fn muse_run(
     match result {
         Ok(Ok(code)) => code,
         Ok(Err(error)) => {
-            // A revoked terminal can reject stderr too; never panic across this C ABI.
-            use std::io::Write;
-            let _ = writeln!(std::io::stderr(), "{error}");
+            terminal_lifecycle::report_error(&error);
             1
         }
         Err(payload) => {
-            // The terminal's Restore guard has already run during unwinding.
-            use std::io::Write;
-            let _ = writeln!(std::io::stderr(), "{}", panic_message(payload.as_ref()));
+            terminal_lifecycle::report_error(&panic_message(payload.as_ref()));
             2
         }
     }

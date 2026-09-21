@@ -1,6 +1,6 @@
 # Current state
 
-- Current unit: C56 complete; Let the host own event-driven shutdown independently of UI return.
+- Current unit: C57 complete; Serialize terminal output and restore connected terminals even with a full output queue.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
 - Product version is 0.3.1; publication is separate from source validation.
@@ -24,8 +24,11 @@ an ellipsis when truncated. Non-text or unprintable payloads have explicit diagn
 Rust observes INT/TERM/HUP and terminal EOF with blocking kernel event notifications,
 without a timer or polling interval. The host receives the first terminal notification
 or UI return through a dedicated exit stream, closes request admission, cancels tasks
-and closes the Swift service. Rust restores input attributes and attempts screen
-reset through a separate nonblocking terminal descriptor. The host then exits without
+and closes the Swift service. Rust gates all rendering through one nonblocking terminal descriptor. Shutdown
+closes that output gate, discards queued drawing, restores input attributes and
+writes the complete reset sequence, handling partial writes and interrupted calls.
+A connected terminal reset failure produces a failing exit status. Readiness waits
+release the output gate so the host never joins a blocked writer. The host then exits without
 waiting for UI return or process exit hooks; OS exit releases the writer lock.
 Native service cleanup must return before exit; no forced-termination deadline is used.
 Playback history marks entries recorded only after a successful write, retries on

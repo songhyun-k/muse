@@ -21,8 +21,9 @@ int32_t muse_run(MuseBridge bridge, const uint8_t *options, size_t length);
  * nonblocking notify callback and context remain valid until PROCESS EXIT, including
  * after muse_run returns. It requests host shutdown; it does not terminate the UI.
  * prepare returns 0 on success (also for non-TTY stdio), 1 on setup failure.
- * restore is safe concurrently with the UI and never waits on terminal output.
+ * restore is safe concurrently with the UI and never waits on terminal output;
+ * it returns 1 if a connected terminal could not be reset, otherwise 0.
  */
 int32_t muse_prepare_terminal(void *context, void (*notify)(void *, int32_t));
-void muse_restore_terminal(void);
+int32_t muse_restore_terminal(void);
 #endif
