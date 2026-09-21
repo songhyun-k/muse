@@ -11,7 +11,10 @@ Empty formatter output fails explicitly; generated contract drift remains an
 exact byte comparison. A regression test checks meaningful output and rejects a
 changed field type. Bottle installation uses an unavailable DEVELOPER_DIR
 and must record `poured_from_bottle`, retain the inspected executable checksum,
-and pass signature verification and the demo probe.
+and pass signature verification and the demo probe. The installation-test bottle
+root is a local file URL, so an already-published version cannot replace the PR
+artifact. The formula regression check covers escaped paths and preserves the
+public release formula.
 
 ## Automated checks
 

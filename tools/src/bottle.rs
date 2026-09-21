@@ -4,10 +4,43 @@ use crate::{
     publish,
 };
 use serde_json::Value;
-use std::{fs, path::Path, process::Command};
+use std::{fs, os::unix::ffi::OsStrExt, path::Path, process::Command};
 
 pub fn filename(version: &str) -> String {
     format!("muse-{version}.arm64_sonoma.bottle.tar.gz")
+}
+
+fn install_formula(version: &str, archive: &str, bottle: &str, directory: &Path) -> Result<String> {
+    let public = publish::formula(version, archive, Some(bottle))?;
+    let root =
+        format!("root_url \"https://github.com/songhyun-k/muse/releases/download/v{version}\"");
+    ensure(
+        public.matches(&root).count() == 1,
+        "Missing public bottle root",
+    )?;
+    let mut local = String::from("file://");
+    for &byte in directory.canonicalize()?.as_os_str().as_bytes() {
+        if byte.is_ascii_alphanumeric() || b"/-._~".contains(&byte) {
+            local.push(byte as char);
+        } else {
+            local.push_str(&format!("%{byte:02X}"));
+        }
+    }
+    Ok(public.replace(&root, &format!("root_url \"{local}\"")))
+}
+
+#[test]
+fn install_uses_local_bottle_without_changing_public_formula() -> Result {
+    let directory = tempfile::Builder::new().prefix("muse #한 ").tempdir()?;
+    let archive = "a".repeat(64);
+    let bottle = "b".repeat(64);
+    let formula = install_formula("0.3.1", &archive, &bottle, directory.path())?;
+    assert!(formula.contains("root_url \"file://"));
+    assert!(formula.contains("%20%23%ED%95%9C%20"));
+    assert!(formula.contains(&format!("arm64_sonoma: \"{bottle}\"")));
+    assert!(formula.contains("url \"https://github.com/songhyun-k/muse/releases/download/v0.3.1/muse-macos-arm64.tar.gz\""));
+    assert!(publish::formula("0.3.1", &archive, Some(&bottle))?.contains("root_url \"https://"));
+    Ok(())
 }
 
 // Homebrew owns the bottle format and receipt. Only run on a disposable builder.
@@ -39,7 +72,7 @@ pub fn build() -> Result {
             None,
         )?,
     )?;
-    // Seed Homebrew's verified download cache: the immutable release is not public yet.
+    // Homebrew verifies this exact inspected source archive against the formula checksum.
     let cache = output(Command::new("brew").args(["--cache", "songhyun-k/tap/muse"]))?;
     fs::create_dir_all(
         Path::new(&cache)
@@ -75,16 +108,17 @@ pub fn build() -> Result {
     )?;
     fs::write(
         Path::new(&tap).join("Formula/muse.rb"),
-        publish::formula(
+        install_formula(
             &version,
             report["archiveSha256"]
                 .as_str()
                 .ok_or("Missing archive digest")?,
-            Some(&checksum),
+            &checksum,
+            Path::new("dist"),
         )?,
     )?;
-    let cache = output(Command::new("brew").args(["--cache", "songhyun-k/tap/muse"]))?;
-    fs::copy(&destination, cache)?;
+    // Test automatic bottle selection using this run's file, even if this version is already public.
+    // The bottle was built above from the unchanged public formula; only the disposable tap changes.
     run(Command::new("brew").args(["uninstall", "songhyun-k/tap/muse"]))?;
     run(Command::new("brew")
         .args(["install", "songhyun-k/tap/muse"])

@@ -21,8 +21,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C57 — Serialize terminal drawing and shutdown restoration, including full output queues.
-- [ ] C58 — Install the exact CI bottle independently of published release assets.
+- [x] C58 — Install the exact CI bottle independently of published release assets.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
