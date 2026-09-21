@@ -21,7 +21,7 @@ Changes remain small logical commits; the normal text delta limit is 500 lines.
 
 ## Current unit and remaining work
 
-- [x] C58 — Install the exact CI bottle independently of published release assets.
+- [x] C59 — Prepare muse 0.3.2 with terminal shutdown, playback history recovery and isolated bottle validation.
 
 The primary agent implements and inspects directly. Private pre-public development
 history stays local.
