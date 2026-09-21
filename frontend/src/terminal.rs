@@ -29,7 +29,8 @@ use std::{
         Arc,
         atomic::{AtomicUsize, Ordering},
     },
-    time::{Instant, SystemTime, UNIX_EPOCH},
+    thread,
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
 struct Interrupts {
@@ -51,12 +52,61 @@ impl Interrupts {
                 signal as usize,
             )?);
         }
+        let mut original = std::mem::MaybeUninit::uninit();
+        // SAFETY: stdin is a live terminal; tcgetattr initializes the supplied termios.
+        if unsafe { libc::tcgetattr(libc::STDIN_FILENO, original.as_mut_ptr()) } != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        let original = unsafe { original.assume_init() };
+        let signal = result.signal.clone();
+        thread::Builder::new()
+            .name("terminal-shutdown".into())
+            .spawn(move || {
+                loop {
+                    let mut terminal = libc::pollfd {
+                        fd: libc::STDIN_FILENO,
+                        // macOS reports PTY hangup only when a readiness event is requested.
+                        events: libc::POLLIN,
+                        revents: 0,
+                    };
+                    // SAFETY: poll borrows one initialized descriptor for this call only.
+                    let ready = unsafe { libc::poll(&mut terminal, 1, 0) };
+                    if ready > 0
+                        && terminal.revents & (libc::POLLHUP | libc::POLLERR | libc::POLLNVAL) != 0
+                    {
+                        let _ = signal.compare_exchange(
+                            0,
+                            SIGHUP as usize,
+                            Ordering::Relaxed,
+                            Ordering::Relaxed,
+                        );
+                    }
+                    let requested = signal.load(Ordering::Relaxed);
+                    if requested != 0 {
+                        // Keep the deadline alive through frontend return and Swift cleanup.
+                        // Neither a stuck input parser nor blocked stdout may retain the store lock.
+                        thread::sleep(Duration::from_secs(2));
+                        // SAFETY: best-effort immediate input restoration, without the stdout lock.
+                        unsafe { libc::tcsetattr(libc::STDIN_FILENO, libc::TCSANOW, &original) };
+                        signal_hook::low_level::exit(128 + requested as i32);
+                    }
+                    // Observe without reading input or spinning while the UI has unread keys.
+                    thread::sleep(Duration::from_millis(100));
+                }
+            })?;
         Ok(result)
     }
 }
 
 impl Drop for Interrupts {
     fn drop(&mut self) {
+        // Frontend return also starts the deadline for the host's final service cleanup.
+        let _ = self.signal.compare_exchange(
+            0,
+            signal_hook::consts::SIGTERM as usize,
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
         for id in self.registrations.drain(..) {
             signal_hook::low_level::unregister(id);
         }

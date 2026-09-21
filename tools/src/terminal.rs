@@ -3,7 +3,10 @@ use std::{
     fs::{self, File},
     io::{self, Read, Write},
     mem::MaybeUninit,
-    os::{fd::FromRawFd, unix::process::CommandExt},
+    os::{
+        fd::{AsRawFd, FromRawFd},
+        unix::process::CommandExt,
+    },
     path::Path,
     process::{Command, Stdio},
     thread,
@@ -175,8 +178,183 @@ pub fn check(binary: &Path) -> Result {
     ] {
         session(&binary, signal)?;
     }
-    println!("Demo exit, signal cleanup and saved-data isolation passed");
+    for signal in [
+        None,
+        Some(libc::SIGINT),
+        Some(libc::SIGTERM),
+        Some(libc::SIGHUP),
+        Some(libc::SIGKILL),
+    ] {
+        disconnected_session(&binary, signal, false)?;
+    }
+    disconnected_session(&binary, None, true)?;
+    println!(
+        "Demo exit, signal cleanup, disconnected/stalled PTYs and writer lock recovery passed"
+    );
     Ok(())
+}
+
+fn terminal_pair() -> Result<(File, File)> {
+    let (mut master_fd, mut slave_fd) = (-1, -1);
+    let mut size = libc::winsize {
+        ws_row: 24,
+        ws_col: 80,
+        ws_xpixel: 0,
+        ws_ypixel: 0,
+    };
+    // SAFETY: openpty initializes both descriptors and borrows a valid window size.
+    ensure(
+        unsafe {
+            libc::openpty(
+                &mut master_fd,
+                &mut slave_fd,
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                &mut size,
+            )
+        } == 0,
+        "Cannot open disconnected PTY",
+    )?;
+    let (master, slave) = unsafe { (File::from_raw_fd(master_fd), File::from_raw_fd(slave_fd)) };
+    ensure(
+        unsafe {
+            libc::fcntl(master_fd, libc::F_SETFD, libc::FD_CLOEXEC) == 0
+                && libc::fcntl(slave_fd, libc::F_SETFD, libc::FD_CLOEXEC) == 0
+                && libc::fcntl(master_fd, libc::F_SETFL, libc::O_NONBLOCK) == 0
+        },
+        "Cannot configure disconnected PTY",
+    )?;
+    Ok((master, slave))
+}
+
+fn disconnected_session(binary: &Path, signal: Option<i32>, input_only: bool) -> Result {
+    let (master, slave) = terminal_pair()?;
+    let mut master = Some(master);
+    let before = attributes(slave.as_raw_fd())?;
+    // Separating output isolates EOF in the input parser from draw/cleanup errors.
+    let mut output_terminal = if input_only {
+        Some(terminal_pair()?)
+    } else {
+        None
+    };
+    let output_slave = output_terminal
+        .as_ref()
+        .map(|(_, slave)| slave)
+        .unwrap_or(&slave);
+    let state = tempfile::tempdir()?;
+    let path = state.path().join("library.json.lock");
+    let owner = File::create(&path)?;
+    let lock_fd = owner.as_raw_fd();
+    ensure(
+        unsafe { libc::flock(lock_fd, libc::LOCK_EX | libc::LOCK_NB) } == 0,
+        "Cannot lock test store",
+    )?;
+    let mut command = Command::new(binary);
+    command
+        .args(["--demo", "--plain-icons"])
+        .env("MUSE_STATE_DIR", state.path())
+        .env("TERM", "xterm-256color")
+        .stdin(Stdio::from(slave.try_clone()?))
+        .stdout(Stdio::from(output_slave.try_clone()?))
+        .stderr(Stdio::from(output_slave.try_clone()?));
+    // Inherit only this synthetic lock: demo never opens the user's LibraryStore or MusicKit player.
+    // SAFETY: fcntl is async-signal-safe; the parent keeps the descriptor live through spawn.
+    unsafe {
+        command.pre_exec(move || {
+            if libc::fcntl(lock_fd, libc::F_SETFD, 0) == -1 {
+                return Err(io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let mut child = command.spawn()?;
+    drop(owner);
+    let result = (|| -> Result {
+        let mut output = Vec::new();
+        let start = Instant::now();
+        loop {
+            let previous = output.len();
+            let output_master = output_terminal
+                .as_mut()
+                .map(|(master, _)| master)
+                .unwrap_or_else(|| master.as_mut().unwrap());
+            drain(output_master, &mut output)?;
+            if contains(&output[previous.saturating_sub(3)..], b"\x1b[6n") {
+                master.as_mut().unwrap().write_all(b"\x1b[1;1R")?;
+            }
+            if contains(&output, b"\x1b[?2004h") && start.elapsed() > Duration::from_millis(250) {
+                break;
+            }
+            ensure(
+                start.elapsed() < Duration::from_secs(5),
+                "Disconnected PTY startup timed out",
+            )?;
+            thread::sleep(Duration::from_millis(10));
+        }
+        let recovered = File::options().read(true).write(true).open(&path)?;
+        ensure(
+            unsafe { libc::flock(recovered.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } == -1,
+            "Demo did not retain the synthetic writer lock",
+        )?;
+        if let Some(signal) = signal {
+            // Keep the master open but stop reading: animated output fills the PTY and blocks draw/flush.
+            thread::sleep(Duration::from_secs(1));
+            ensure(
+                unsafe { libc::kill(child.id() as i32, signal) } == 0,
+                "Cannot signal stalled demo",
+            )?;
+        } else {
+            drop(master.take()); // No signal injection: terminal loss alone must initiate shutdown.
+        }
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if let Some((master, _)) = output_terminal.as_mut() {
+                drain(master, &mut output)?;
+            }
+            if let Some(status) = child.try_wait()? {
+                if signal == Some(libc::SIGKILL) {
+                    use std::os::unix::process::ExitStatusExt;
+                    ensure(
+                        status.signal() == Some(libc::SIGKILL),
+                        "Expected abrupt process death",
+                    )?;
+                } else {
+                    ensure(
+                        status.code() == Some(128 + signal.unwrap_or(libc::SIGHUP))
+                            // A revoked TTY may return an I/O error or a caught Ratatui Drop panic.
+                            || (!input_only && signal.is_none() && matches!(status.code(), Some(1 | 2))),
+                        &format!("Unexpected disconnected PTY exit: {status}"),
+                    )?;
+                }
+                break;
+            }
+            ensure(
+                Instant::now() < deadline,
+                &format!("Disconnected/stalled PTY exit timed out: {signal:?}"),
+            )?;
+            thread::sleep(Duration::from_millis(10));
+        }
+        ensure(
+            unsafe { libc::flock(recovered.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } == 0,
+            "Exited demo retained the writer lock",
+        )?;
+        if signal.is_some() && signal != Some(libc::SIGKILL) {
+            let after = attributes(slave.as_raw_fd())?;
+            ensure(
+                before.c_lflag == after.c_lflag
+                    && before.c_iflag == after.c_iflag
+                    && before.c_cc == after.c_cc,
+                "Stalled demo did not restore terminal input",
+            )?;
+        }
+        Ok(())
+    })();
+    if result.is_err() {
+        drop(master.take());
+        let _ = child.kill();
+        let _ = child.wait();
+    }
+    result
 }
 
 fn native_pid(output: &[u8]) -> Result<i32> {

@@ -1,14 +1,15 @@
 # Current inspection
 
-Inspection unit: C50
+Inspection unit: C55
 
-The primary agent inspected the changes since C45 and the release preparation.
+The primary agent inspected the changes since C50 and the terminal shutdown paths.
 
-- Artwork and lyrics share the bounded response reader with their existing limits.
-- Catalog song resolution batches missing IDs, preserves order and duplicates,
-  and fails before queue replacement when a requested song is missing.
-- Cache storage and diagnostic-language documentation describe current behavior.
-- The product version remains in the frontend package; existing native tasks
-  handle checks, packaging, source export, immutable publication and tap updates.
+- Homebrew and formatter fixes retain the existing native build/publication tasks.
+- Terminal shutdown reuses signal-hook and the libc already present in the dependency
+  graph. One monitor observes terminal hangup without consuming input and gives normal
+  cleanup a bounded grace period; no vendored input library or PID-file scheme is needed.
+- Kernel writer locks and atomic domain writes remain unchanged. Playback history
+  advances its deduplication marker only after persistence succeeds.
+- Existing PTY and Swift behavior checks cover the failure and recovery paths.
 
-No new dependency, abstraction or release mechanism is needed.
+No additional abstraction or dependency family is needed.

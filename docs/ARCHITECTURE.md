@@ -104,8 +104,10 @@ visualization; it must never be described as audio measurement.
    Tests target contract, data integrity and observable behavior, not code shape.
 4. No frozen cell snapshots, exhaustive presentation combinations, animation formula
    assertions or machine-specific render-time thresholds gate active development.
-5. A small PTY smoke check verifies normal exit, INT/TERM/HUP cleanup and demo
-   data isolation, without interpreting screen contents.
+5. PTY checks verify normal exit, INT/TERM/HUP cleanup, disconnected terminals,
+   stalled output, writer-lock release after exit and demo data isolation.
+   An independent terminal monitor bounds signal/hangup shutdown to a two-second
+   grace period even when the UI or backend cleanup cannot return.
 6. Persistence tests cover atomic replacement, malformed data and stable IDs;
    a failed write never reports success or destroys previous data.
 7. Release inspection checks Mach-O dependencies, embedded Info.plist, contract
