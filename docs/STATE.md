@@ -1,11 +1,11 @@
 # Current state
 
-- Current unit: C58 complete; Install the exact CI bottle independently of published release assets.
+- Current unit: C59 complete; Prepare muse 0.3.2 with verified terminal shutdown, history recovery and isolated bottle validation.
 
 - Public repository: https://github.com/songhyun-k/muse. Use short branches and PRs for main.
-- Product version is 0.3.1; publication is separate from source validation.
-- v0.3.0 is the previous published release. Its bottle-less formula can trigger
-  Homebrew build-tool checks even though the application is already compiled.
+- Product version is 0.3.2; publication is separate from source validation.
+- v0.3.1 is the previous published release. v0.3.2 includes terminal shutdown
+  and playback history recovery fixes, with isolated native bottle validation.
 - The primary agent implements and inspects directly; no Workers or review agents.
 - Preserve the user's running processes. Build publication replaces the executable
   atomically so an already-running process keeps its original inode.
